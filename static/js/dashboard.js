@@ -443,10 +443,9 @@ async function guardarSiembra() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ nombre, fecha, cantidad, tamano, idTipo, idSistema: 1 })
         });
-        const resultado = await response.json();
         const result = await response.json();
-    if (response.ok && result.status === 'success') { alert("¡Siembra guardada!"); cerrarModal('modal-siembra'); cargarTablaCultivosSeccion(); }
-        else alert("Error: " + (resultado.error || "Revisa los datos"));
+        if (response.ok && result.status === 'success') { alert("¡Siembra guardada!"); cerrarModal('modal-siembra'); cargarTablaCultivosSeccion(); }
+        else alert("Error: " + (result.error || "Revisa los datos"));
     } catch (error) { alert("Error de red: " + error.message); }
 }
 
@@ -508,10 +507,9 @@ async function guardarCosecha() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
-        const resultado = await response.json();
         const result = await response.json();
-    if (response.ok && result.status === 'success') { alert("¡Cosecha guardada!"); cerrarModal('modal-cosecha'); cargarTablaCosechasSeccion(); }
-        else alert("ERROR: " + (resultado.error || "Revisa la consola"));
+        if (response.ok && result.status === 'success') { alert("¡Cosecha guardada!"); cerrarModal('modal-cosecha'); cargarTablaCosechasSeccion(); }
+        else alert("ERROR: " + (result.error || "Revisa la consola"));
     } catch (e) { alert("Error de conexión: " + e.message); }
 }
 

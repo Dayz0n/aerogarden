@@ -1,4 +1,68 @@
 // ============================================================
+// SISTEMA DE NOTIFICACIONES TOAST
+// ============================================================
+function toast(mensaje, tipo = 'info', duracion = 3500) {
+    let contenedor = document.getElementById('toast-contenedor');
+    if (!contenedor) {
+        contenedor = document.createElement('div');
+        contenedor.id = 'toast-contenedor';
+        contenedor.style.cssText = `
+            position: fixed; top: 20px; right: 20px;
+            z-index: 9999; display: flex; flex-direction: column; gap: 10px;
+            pointer-events: none;
+        `;
+        document.body.appendChild(contenedor);
+    }
+
+    const colores = {
+        success: { bg: '#1e7e4a', icon: '✅', borde: '#27ae60' },
+        error:   { bg: '#c0392b', icon: '❌', borde: '#e74c3c' },
+        warning: { bg: '#d68910', icon: '⚠️', borde: '#f39c12' },
+        info:    { bg: '#1a5276', icon: 'ℹ️', borde: '#2980b9' }
+    };
+    const c = colores[tipo] || colores.info;
+
+    const t = document.createElement('div');
+    t.style.cssText = `
+        background: ${c.bg};
+        color: white;
+        padding: 14px 18px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-family: 'Segoe UI', sans-serif;
+        box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+        display: flex; align-items: center; gap: 10px;
+        min-width: 260px; max-width: 380px;
+        border-left: 4px solid ${c.borde};
+        pointer-events: all;
+        cursor: pointer;
+        opacity: 0;
+        transform: translateX(40px);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    `;
+    t.innerHTML = `<span style="font-size:18px;flex-shrink:0">${c.icon}</span><span style="flex:1;line-height:1.4">${mensaje}</span><span style="opacity:0.6;font-size:18px;flex-shrink:0">×</span>`;
+    t.onclick = () => cerrarToast(t);
+    contenedor.appendChild(t);
+
+    requestAnimationFrame(() => {
+        t.style.opacity = '1';
+        t.style.transform = 'translateX(0)';
+    });
+
+    setTimeout(() => cerrarToast(t), duracion);
+}
+
+function cerrarToast(t) {
+    t.style.opacity = '0';
+    t.style.transform = 'translateX(40px)';
+    setTimeout(() => t.remove(), 300);
+}
+
+function confirmar(mensaje) {
+    return window.confirm(mensaje);
+}
+
+// ============================================================
 // dashboard.js — corregido y mejorado
 // ============================================================
 
@@ -30,7 +94,7 @@ async function abrirModal(idModal) {
     if (idModal === 'modal-sensor') {
         const response = await fetch('/api/dispositivos/lista');
         const dispositivos = await response.json();
-        if (dispositivos.length === 0) { alert("¡No hay dispositivos registrados!"); return; }
+        if (dispositivos.length === 0) { toast("No hay dispositivos registrados aún", "warning"); return; }
         cargarListaDispositivos();
     }
 
@@ -62,7 +126,7 @@ async function guardarDispositivo() {
         nombre: document.getElementById('nombreDispositivo').value,
         tipo: `${document.getElementById('tipoControlador').value} (${document.getElementById('tipoConexion').value})`
     };
-    if (!data.nombre) return alert("Ingresa un nombre");
+    if (!data.nombre) return toast("Por favor ingresa un nombre", "warning");
 
     const response = await fetch('/api/dispositivos/agregar', {
         method: 'POST',
@@ -72,7 +136,7 @@ async function guardarDispositivo() {
 
     const result = await response.json();
     if (response.ok && result.status === 'success') {
-        alert("Dispositivo guardado");
+        toast("Dispositivo guardado", "info");
         cerrarModal('modal-dispositivo');
         document.getElementById('nombreDispositivo').value = '';
         actualizarListaDispositivos();
@@ -176,7 +240,7 @@ async function guardarSensor() {
     });
     const result = await response.json();
     if (response.ok && result.status === 'success') {
-        alert('✅ Sensor guardado correctamente');
+        toast('✅ Sensor guardado correctamente', "success");
         cerrarModal('modal-sensor');
         actualizarListaDispositivos(); // Refrescar la lista de hardware
         cargarSensoresEnLogica();      // Refrescar también en Lógica
@@ -224,7 +288,7 @@ async function cargarSensoresEnLogica() {
 
 async function verificarEstadoSensor() {
     const idSensor = document.getElementById('selectSensorLogica').value;
-    if (!idSensor) return alert("Selecciona un sensor primero");
+    if (!idSensor) return toast("Selecciona un sensor primero", "warning");
 
     const contenedor = document.getElementById('resultado-logica');
     contenedor.innerHTML = '<p style="color:#888;">Verificando...</p>';
@@ -257,7 +321,7 @@ const MAX_PUNTOS_GRAFICA   = 30;
 
 function visualizarInformacion() {
     const idSensor = document.getElementById('selectSensorLogica').value;
-    if (!idSensor) return alert("Selecciona un sensor primero");
+    if (!idSensor) return toast("Selecciona un sensor primero", "warning");
 
     // Detener intervalo anterior
     if (intervaloVisualizacion) clearInterval(intervaloVisualizacion);
@@ -371,12 +435,12 @@ let miGrafica = null;
 
 async function cargarGrafica(rango) {
     const idSensor = document.getElementById('selectSensorAnalitica').value;
-    if (!idSensor) return alert("Selecciona un sensor primero");
+    if (!idSensor) return toast("Selecciona un sensor primero", "warning");
 
     const response = await fetch(`/api/sensores/analitica/${idSensor}/${rango}`);
     const datos    = await response.json();
 
-    if (datos.error) return alert("Error: " + datos.error);
+    if (datos.error) return toast("Error: " + datos.error, "error");
 
     const ctx = document.getElementById('graficaSensor').getContext('2d');
     if (miGrafica) miGrafica.destroy();
@@ -435,7 +499,7 @@ async function guardarSiembra() {
     const idTipo   = document.getElementById('selectTipoCultivo').value;
 
     if (!nombre || !fecha || !cantidad || !tamano || !idTipo) {
-        return alert("¡Completa todos los campos!");
+        return toast("Completa todos los campos", "warning");
     }
     try {
         const response = await fetch('/api/cultivos/sembrar', {
@@ -444,9 +508,9 @@ async function guardarSiembra() {
             body: JSON.stringify({ nombre, fecha, cantidad, tamano, idTipo, idSistema: 1 })
         });
         const result = await response.json();
-        if (response.ok && result.status === 'success') { alert("¡Siembra guardada!"); cerrarModal('modal-siembra'); cargarTablaCultivosSeccion(); }
-        else alert("Error: " + (result.error || "Revisa los datos"));
-    } catch (error) { alert("Error de red: " + error.message); }
+        if (response.ok && result.status === 'success') { toast("¡Siembra guardada correctamente!", "success"); cerrarModal('modal-siembra'); cargarTablaCultivosSeccion(); }
+        else toast("Error al guardar siembra: " + (result.error || "Revisa los datos"), "error");
+    } catch (error) { toast("Error de conexión: " + error.message, "error"); }
 }
 
 async function guardarTipoCultivo() {
@@ -454,7 +518,7 @@ async function guardarTipoCultivo() {
         nombre:      document.getElementById('nombrePlanta').value,
         descripcion: document.getElementById('descPlanta').value
     };
-    if (!data.nombre) return alert("El nombre es obligatorio");
+    if (!data.nombre) return toast("El nombre es obligatorio", "warning");
     const response = await fetch('/api/tipo_cultivo/agregar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -462,11 +526,11 @@ async function guardarTipoCultivo() {
     });
     const result = await response.json();
     if (response.ok && result.status === 'success') {
-        alert("¡Tipo de cultivo registrado!");
+        toast("¡Tipo de cultivo registrado!", "success");
         cerrarModal('modal-tipo-cultivo');
         document.getElementById('nombrePlanta').value = '';
         document.getElementById('descPlanta').value   = '';
-    } else alert("Error al guardar.");
+    } else toast("Error al guardar", "error");
 }
 
 
@@ -492,7 +556,7 @@ async function guardarCosecha() {
     const elObservaciones = document.getElementById('observacionesCosecha');
     const elIdCultivo     = document.getElementById('selectCultivoCosecha');
 
-    if (!elIdCultivo.value) return alert("¡Selecciona un cultivo!");
+    if (!elIdCultivo.value) return toast("Selecciona un cultivo primero", "warning");
 
     const data = {
         fecha:         elFecha.value,
@@ -508,9 +572,9 @@ async function guardarCosecha() {
             body: JSON.stringify(data)
         });
         const result = await response.json();
-        if (response.ok && result.status === 'success') { alert("¡Cosecha guardada!"); cerrarModal('modal-cosecha'); cargarTablaCosechasSeccion(); }
-        else alert("ERROR: " + (result.error || "Revisa la consola"));
-    } catch (e) { alert("Error de conexión: " + e.message); }
+        if (response.ok && result.status === 'success') { toast("¡Cosecha guardada correctamente!", "success"); cerrarModal('modal-cosecha'); cargarTablaCosechasSeccion(); }
+        else toast("Error al guardar cosecha: " + (result.error || "Revisa los datos"), "error");
+    } catch (e) { toast("Error de conexión: " + e.message, "info"); }
 }
 
 
@@ -613,7 +677,7 @@ async function guardarEdicionCultivo() {
         idTipo:  document.getElementById('editTipoCultivo').value
     };
     if (!body.nombre || !body.fecha || !body.cantidad) {
-        alert('Completa los campos obligatorios.'); return;
+        toast("Completa todos los campos obligatorios", "warning"); return;
     }
     try {
         const res = await fetch(`/api/cultivos/editar/${id}`, {
@@ -625,20 +689,20 @@ async function guardarEdicionCultivo() {
             cerrarModal('modal-editar-cultivo');
             await cargarTablaCultivos();
             await cargarCultivosActivos();
-        } else { alert('Error: ' + (data.error || 'desconocido')); }
-    } catch(e) { alert('Error de red: ' + e); }
+        } else { toast('Error: ' + (data.error || 'desconocido', "info")); }
+    } catch(e) { toast('Error de red: ' + e, "info"); }
 }
 
 async function eliminarCultivo(id) {
-    if (!confirm('¿Seguro que quieres eliminar este cultivo? También se eliminarán sus cosechas.')) return;
+    if (!confirmar('¿Eliminar este cultivo? También se eliminarán sus cosechas asociadas.')) return;
     try {
         const res  = await fetch(`/api/cultivos/eliminar/${id}`, { method: 'DELETE' });
         const data = await res.json();
         if (data.status === 'success') {
             await cargarTablaCultivos();
             await cargarCultivosActivos();
-        } else { alert('Error: ' + (data.error || 'desconocido')); }
-    } catch(e) { alert('Error de red: ' + e); }
+        } else { toast('Error: ' + (data.error || 'desconocido', "info")); }
+    } catch(e) { toast('Error de red: ' + e, "info"); }
 }
 
 // ── TABLA COSECHAS ──────────────────────────────────────────
@@ -691,7 +755,7 @@ async function guardarEdicionCosecha() {
         calidad:       document.getElementById('editCalidadCosecha').value.trim(),
         observaciones: document.getElementById('editObservacionesCosecha').value.trim()
     };
-    if (!body.fecha || !body.cantidad) { alert('Completa los campos obligatorios.'); return; }
+    if (!body.fecha || !body.cantidad) { toast("Completa todos los campos obligatorios", "warning"); return; }
     try {
         const res  = await fetch(`/api/cosechas/editar/${id}`, {
             method: 'PUT', headers: {'Content-Type': 'application/json'},
@@ -701,19 +765,19 @@ async function guardarEdicionCosecha() {
         if (data.status === 'success') {
             cerrarModal('modal-editar-cosecha');
             await cargarTablaCosechas();
-        } else { alert('Error: ' + (data.error || 'desconocido')); }
-    } catch(e) { alert('Error de red: ' + e); }
+        } else { toast('Error: ' + (data.error || 'desconocido', "info")); }
+    } catch(e) { toast('Error de red: ' + e, "info"); }
 }
 
 async function eliminarCosecha(id) {
-    if (!confirm('¿Seguro que quieres eliminar esta cosecha?')) return;
+    if (!confirmar('¿Seguro que quieres eliminar esta cosecha?')) return;
     try {
         const res  = await fetch(`/api/cosechas/eliminar/${id}`, { method: 'DELETE' });
         const data = await res.json();
         if (data.status === 'success') {
             await cargarTablaCosechas();
-        } else { alert('Error: ' + (data.error || 'desconocido')); }
-    } catch(e) { alert('Error de red: ' + e); }
+        } else { toast('Error: ' + (data.error || 'desconocido', "info")); }
+    } catch(e) { toast('Error de red: ' + e, "info"); }
 }
 
 
@@ -746,8 +810,8 @@ async function cambiarPassword() {
     const passEl = document.getElementById('nuevaPass');
     const pass   = passEl ? passEl.value.trim() : '';
 
-    if (!pass) return alert("Escribe una nueva contraseña");
-    if (pass.length < 6) return alert("La contraseña debe tener al menos 6 caracteres");
+    if (!pass) return toast("Escribe una nueva contraseña", "warning");
+    if (pass.length < 6) return toast("La contraseña debe tener al menos 6 caracteres", "warning");
 
     const btnEl = document.getElementById('btnCambiarPass');
     if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'Guardando...'; }
@@ -760,13 +824,13 @@ async function cambiarPassword() {
         });
         const data = await res.json();
         if (res.ok && data.status === 'success') {
-            alert("✅ Contraseña actualizada correctamente");
+            toast("✅ Contraseña actualizada correctamente", "success");
             if (passEl) passEl.value = '';
         } else {
-            alert("❌ Error: " + (data.error || "No se pudo actualizar"));
+            toast("Error: " + (data.error || "No se pudo actualizar"), "error");
         }
     } catch (e) {
-        alert("❌ Error de conexión: " + e.message);
+        toast("Error de conexión: " + e.message, "error");
     } finally {
         if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Actualizar Contraseña'; }
     }
@@ -777,7 +841,7 @@ async function subirFotoPerfil(input) {
     if (!file) return;
 
     if (file.size > 2 * 1024 * 1024) {
-        alert("La imagen debe pesar menos de 2 MB");
+        toast("La imagen debe pesar menos de 2 MB", "warning");
         return;
     }
 
@@ -798,9 +862,9 @@ async function subirFotoPerfil(input) {
                 body: JSON.stringify({ foto: base64 })
             });
             const data = await res.json();
-            if (!res.ok) alert("Error al guardar foto: " + (data.error || "Error desconocido"));
+            if (!res.ok) toast("Error al guardar foto: " + (data.error || "Error desconocido"), "error");
         } catch (err) {
-            alert("Error de red al subir foto");
+            toast("Error de red al subir foto", "error");
         }
     };
     reader.readAsDataURL(file);
@@ -945,7 +1009,7 @@ async function verDetalleAlerta(idHistorial) {
     try {
         const alertas = await (await fetch('/api/alertas/historial?limite=500')).json();
         const a = alertas.find(x => x.idHistorial === idHistorial);
-        if (!a) return alert("No se encontró la alerta");
+        if (!a) return toast("No se encontró la alerta", "error");
 
         document.getElementById('contenido-detalle-alerta').innerHTML = `
             <p><strong>Sensor:</strong> ${a.tipo_sensor} (${a.unidad_medida || '—'})</p>
@@ -984,7 +1048,7 @@ async function cambiarEstadoAlerta(idHistorial, nuevoEstado, desdeModal = false)
             await cargarHistorialAlertas();
             await actualizarBadgeNav();
         }
-    } catch (e) { alert("Error al actualizar estado"); }
+    } catch (e) { toast("Error al actualizar el estado", "error"); }
 }
 
 async function cargarParametrosAlerta() {
@@ -1045,7 +1109,7 @@ async function guardarParametro() {
     const activo    = document.getElementById('paramActivo').value;
 
     if (!idSensor || !nombre || umbral === '') {
-        return alert("Completa todos los campos obligatorios.");
+        return toast("Completa todos los campos obligatorios.", "info");
     }
 
     const data = { idSensor, nombre, condicion, valor_umbral: umbral, prioridad, activo };
@@ -1067,15 +1131,15 @@ async function guardarParametro() {
         }
 
         if (res.ok) {
-            alert(idParam ? "Parámetro actualizado." : "Parámetro creado.");
+            toast(idParam ? "Parámetro actualizado." : "Parámetro creado.", "info");
             cerrarModal('modal-parametro');
             limpiarFormParametro();
             cargarParametrosAlerta();
         } else {
             const err = await res.json();
-            alert("Error: " + (err.error || "Intenta de nuevo"));
+            toast("Error: " + (err.error || "Intenta de nuevo"), "error");
         }
-    } catch (e) { alert("Error de red: " + e.message); }
+    } catch (e) { toast("Error de red: " + e.message, "info"); }
 }
 
 async function editarParametro(idParam) {
@@ -1099,12 +1163,12 @@ async function editarParametro(idParam) {
 }
 
 async function eliminarParametro(idParam) {
-    if (!confirm("¿Eliminar este parámetro? Se borrará también su historial de alertas.")) return;
+    if (!confirmar("¿Eliminar este parámetro? Se borrará también su historial de alertas.")) return;
     try {
         const res = await fetch(`/api/alertas/parametros/eliminar/${idParam}`, { method: 'DELETE' });
-        if (res.ok) { alert("Parámetro eliminado."); cargarParametrosAlerta(); }
-        else alert("Error al eliminar.");
-    } catch (e) { alert("Error de red"); }
+        if (res.ok) { toast("Parámetro eliminado", "success"); cargarParametrosAlerta(); }
+        else toast("Error al eliminar", "error");
+    } catch (e) { toast("Error de conexión con el servidor", "error"); }
 }
 
 function limpiarFormParametro() {
@@ -1178,15 +1242,15 @@ async function cargarTablaCultivosSeccion() {
 }
 
 async function eliminarCultivoSeccion(id) {
-    if (!confirm('¿Eliminar este cultivo? También se eliminarán sus cosechas asociadas.')) return;
+    if (!confirmar('¿Eliminar este cultivo? También se eliminarán sus cosechas asociadas.')) return;
     try {
         const res  = await fetch(`/api/cultivos/eliminar/${id}`, { method: 'DELETE' });
         const data = await res.json();
         if (data.status === 'success') {
             await cargarTablaCultivosSeccion();
             await cargarTablaCosechasSeccion();
-        } else { alert('Error: ' + (data.error || 'desconocido')); }
-    } catch(e) { alert('Error de red: ' + e); }
+        } else { toast('Error: ' + (data.error || 'desconocido', "info")); }
+    } catch(e) { toast('Error de red: ' + e, "info"); }
 }
 
 // Override de guardarEdicionCultivo para refrescar tabla de sección también
@@ -1201,7 +1265,7 @@ async function guardarEdicionCultivo() {
         idTipo:  document.getElementById('editTipoCultivo').value
     };
     if (!body.nombre || !body.fecha || !body.cantidad) {
-        alert('Completa los campos obligatorios.'); return;
+        toast("Completa todos los campos obligatorios", "warning"); return;
     }
     try {
         const res = await fetch(`/api/cultivos/editar/${id}`, {
@@ -1214,8 +1278,8 @@ async function guardarEdicionCultivo() {
             await cargarTablaCultivosSeccion();
             await cargarTablaCultivos();
             await cargarCultivosActivos();
-        } else { alert('Error: ' + (data.error || 'desconocido')); }
-    } catch(e) { alert('Error de red: ' + e); }
+        } else { toast('Error: ' + (data.error || 'desconocido', "info")); }
+    } catch(e) { toast('Error de red: ' + e, "info"); }
 }
 
 async function cargarTablaCosechasSeccion() {
@@ -1261,15 +1325,15 @@ async function cargarTablaCosechasSeccion() {
 }
 
 async function eliminarCosechaSeccion(id) {
-    if (!confirm('¿Seguro que quieres eliminar esta cosecha?')) return;
+    if (!confirmar('¿Seguro que quieres eliminar esta cosecha?')) return;
     try {
         const res  = await fetch(`/api/cosechas/eliminar/${id}`, { method: 'DELETE' });
         const data = await res.json();
         if (data.status === 'success') {
             await cargarTablaCosechasSeccion();
             await cargarTablaCosechas();
-        } else { alert('Error: ' + (data.error || 'desconocido')); }
-    } catch(e) { alert('Error de red: ' + e); }
+        } else { toast('Error: ' + (data.error || 'desconocido', "info")); }
+    } catch(e) { toast('Error de red: ' + e, "info"); }
 }
 
 // Override de guardarEdicionCosecha para refrescar tabla de sección
@@ -1281,7 +1345,7 @@ async function guardarEdicionCosecha() {
         calidad:       document.getElementById('editCalidadCosecha').value.trim(),
         observaciones: document.getElementById('editObservacionesCosecha').value.trim()
     };
-    if (!body.fecha || !body.cantidad) { alert('Completa los campos obligatorios.'); return; }
+    if (!body.fecha || !body.cantidad) { toast("Completa todos los campos obligatorios", "warning"); return; }
     try {
         const res  = await fetch(`/api/cosechas/editar/${id}`, {
             method: 'PUT', headers: {'Content-Type': 'application/json'},
@@ -1292,8 +1356,8 @@ async function guardarEdicionCosecha() {
             cerrarModal('modal-editar-cosecha');
             await cargarTablaCosechasSeccion();
             await cargarTablaCosechas();
-        } else { alert('Error: ' + (data.error || 'desconocido')); }
-    } catch(e) { alert('Error de red: ' + e); }
+        } else { toast('Error: ' + (data.error || 'desconocido', "info")); }
+    } catch(e) { toast('Error de red: ' + e, "info"); }
 }
 
 

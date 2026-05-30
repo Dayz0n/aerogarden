@@ -60,76 +60,46 @@ function cerrarToast(t) {
 
 // Modal de confirmación bonito (reemplaza confirm())
 function confirmar(mensaje) {
-    return new Promise((resolve) => {
-        // Remover modal previo si existe
-        const prev = document.getElementById('modal-confirmar-custom');
+    return new Promise(function(resolve) {
+        var prev = document.getElementById('modal-confirmar-custom');
         if (prev) prev.remove();
 
-        const overlay = document.createElement('div');
+        var overlay = document.createElement('div');
         overlay.id = 'modal-confirmar-custom';
-        overlay.style.cssText = `
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 10000;
-            display: flex; align-items: center; justify-content: center;
-            animation: fadeInOverlay 0.2s ease;
-        `;
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:10000;display:flex;align-items:center;justify-content:center;';
 
-        overlay.innerHTML = \`
-            <div style="
-                background: white; border-radius: 14px;
-                padding: 28px 30px; max-width: 400px; width: 90%;
-                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-                animation: slideInModal 0.25s ease;
-            ">
-                <div style="display:flex; align-items:flex-start; gap:14px; margin-bottom:20px;">
-                    <div style="
-                        width:42px; height:42px; border-radius:50%;
-                        background:#fff3e0; display:flex;
-                        align-items:center; justify-content:center;
-                        font-size:22px; flex-shrink:0;
-                    ">⚠️</div>
-                    <div>
-                        <div style="font-weight:700; font-size:16px; color:#1a2e22; margin-bottom:6px;">¿Estás seguro?</div>
-                        <div style="font-size:14px; color:#666; line-height:1.5;">\${mensaje}</div>
-                    </div>
-                </div>
-                <div style="display:flex; gap:10px; justify-content:flex-end;">
-                    <button id="btn-confirmar-no" style="
-                        padding: 9px 20px; border-radius: 8px;
-                        border: 1.5px solid #ddd; background: white;
-                        color: #555; font-size: 14px; cursor: pointer;
-                        font-family: inherit; font-weight: 500;
-                        transition: background 0.2s;
-                    ">Cancelar</button>
-                    <button id="btn-confirmar-si" style="
-                        padding: 9px 20px; border-radius: 8px;
-                        border: none; background: #e74c3c;
-                        color: white; font-size: 14px; cursor: pointer;
-                        font-family: inherit; font-weight: 600;
-                        transition: background 0.2s;
-                    ">Sí, eliminar</button>
-                </div>
-            </div>
-            <style>
-                @keyframes fadeInOverlay { from { opacity:0; } to { opacity:1; } }
-                @keyframes slideInModal { from { transform:scale(0.9); opacity:0; } to { transform:scale(1); opacity:1; } }
-                #btn-confirmar-no:hover { background: #f5f5f5; }
-                #btn-confirmar-si:hover { background: #c0392b; }
-            </style>
-        \`;
+        var box = document.createElement('div');
+        box.style.cssText = 'background:white;border-radius:14px;padding:28px 30px;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);';
 
+        var header = document.createElement('div');
+        header.style.cssText = 'display:flex;align-items:flex-start;gap:14px;margin-bottom:20px;';
+        header.innerHTML = '<div style="width:42px;height:42px;border-radius:50%;background:#fff3e0;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">⚠️</div><div><div style="font-weight:700;font-size:16px;color:#1a2e22;margin-bottom:6px;">¿Estás seguro?</div><div style="font-size:14px;color:#666;line-height:1.5;">' + mensaje + '</div></div>';
+
+        var botones = document.createElement('div');
+        botones.style.cssText = 'display:flex;gap:10px;justify-content:flex-end;';
+
+        var btnNo = document.createElement('button');
+        btnNo.textContent = 'Cancelar';
+        btnNo.style.cssText = 'padding:9px 20px;border-radius:8px;border:1.5px solid #ddd;background:white;color:#555;font-size:14px;cursor:pointer;font-family:inherit;font-weight:500;';
+        btnNo.onmouseover = function(){ this.style.background='#f5f5f5'; };
+        btnNo.onmouseout  = function(){ this.style.background='white'; };
+
+        var btnSi = document.createElement('button');
+        btnSi.textContent = 'Sí, eliminar';
+        btnSi.style.cssText = 'padding:9px 20px;border-radius:8px;border:none;background:#e74c3c;color:white;font-size:14px;cursor:pointer;font-family:inherit;font-weight:600;';
+        btnSi.onmouseover = function(){ this.style.background='#c0392b'; };
+        btnSi.onmouseout  = function(){ this.style.background='#e74c3c'; };
+
+        botones.appendChild(btnNo);
+        botones.appendChild(btnSi);
+        box.appendChild(header);
+        box.appendChild(botones);
+        overlay.appendChild(box);
         document.body.appendChild(overlay);
 
-        document.getElementById('btn-confirmar-si').onclick = () => {
-            overlay.remove(); resolve(true);
-        };
-        document.getElementById('btn-confirmar-no').onclick = () => {
-            overlay.remove(); resolve(false);
-        };
-        overlay.onclick = (e) => {
-            if (e.target === overlay) { overlay.remove(); resolve(false); }
-        };
+        btnSi.onclick = function() { overlay.remove(); resolve(true); };
+        btnNo.onclick = function() { overlay.remove(); resolve(false); };
+        overlay.onclick = function(e) { if (e.target === overlay) { overlay.remove(); resolve(false); } };
     });
 }
 

@@ -1,0 +1,6 @@
+flask
+flask-cors
+mysql-connector-python
+werkzeug
+paho-mqtt
+gunicorn

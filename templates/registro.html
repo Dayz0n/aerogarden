@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AeroGarden — Crear cuenta</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --v1: #1a3d2b;
+            --v2: #2d6a4f;
+            --v3: #52b788;
+            --v4: #95d5b2;
+            --v5: #d8f3dc;
+            --crema: #faf9f6;
+            --texto: #1a2e22;
+            --gris:  #6b7c72;
+            --borde: #c8ddd0;
+            --error: #c0392b;
+            --err-bg:#fdf0ef;
+            --ok:    #1e7e4a;
+            --ok-bg: #edf7f1;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: var(--crema);
+        }
+
+        /* ── Panel izquierdo ── */
+        .panel-izq {
+            background: var(--v1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px 56px;
+            position: relative;
+            overflow: hidden;
+        }
+        .panel-izq::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 100% 0%, rgba(82,183,136,.22) 0%, transparent 55%),
+                radial-gradient(ellipse at 0% 100%, rgba(149,213,178,.12) 0%, transparent 50%);
+        }
+
+        .deco-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid rgba(82,183,136,.15);
+        }
+        .ring-1 { width: 500px; height: 500px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+        .ring-2 { width: 350px; height: 350px; top: 50%; left: 50%; transform: translate(-50%,-50%); border-color: rgba(82,183,136,.25); }
+        .ring-3 { width: 200px; height: 200px; top: 50%; left: 50%; transform: translate(-50%,-50%); border-color: rgba(82,183,136,.35); }
+
+        /* Icono planta central decorativo */
+        .planta-centro {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: .06;
+        }
+
+        .panel-izq .contenido {
+            position: relative;
+            z-index: 1;
+        }
+        .panel-izq .contenido h2 {
+            font-family: 'Playfair Display', serif;
+            color: #fff;
+            font-size: 2.2rem;
+            line-height: 1.25;
+            margin-bottom: 14px;
+        }
+        .panel-izq .contenido h2 em {
+            font-style: normal;
+            color: var(--v4);
+        }
+        .panel-izq .contenido p {
+            color: rgba(255,255,255,.55);
+            font-size: 14px;
+            font-weight: 300;
+            line-height: 1.75;
+        }
+
+        /* Pasos visuales */
+        .pasos {
+            margin-top: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        .paso {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+        .paso-num {
+            width: 32px;
+            height: 32px;
+            min-width: 32px;
+            border-radius: 50%;
+            background: rgba(82,183,136,.2);
+            border: 1px solid rgba(82,183,136,.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--v4);
+        }
+        .paso-texto strong {
+            display: block;
+            color: rgba(255,255,255,.9);
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        .paso-texto span {
+            color: rgba(255,255,255,.45);
+            font-size: 12px;
+        }
+
+        /* ── Panel formulario ── */
+        .panel-der {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 40px;
+            overflow-y: auto;
+        }
+
+        .form-wrap {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        /* Logo */
+        .logo-box {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        .logo-box img {
+            width: 200px;
+            height: auto;
+            display: block;
+            margin: 0 auto 10px;
+        }
+        .logo-box .subtitulo {
+            font-size: 13px;
+            color: var(--gris);
+        }
+
+        .form-titulo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.55rem;
+            color: var(--texto);
+            margin-bottom: 4px;
+        }
+        .form-subtitulo {
+            font-size: 13px;
+            color: var(--gris);
+            margin-bottom: 24px;
+        }
+
+        /* Campos */
+        .campo { margin-bottom: 16px; }
+        label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--texto);
+            margin-bottom: 7px;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+        }
+        .input-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .input-ico {
+            position: absolute;
+            left: 14px;
+            color: var(--gris);
+            pointer-events: none;
+            display: flex;
+        }
+        .input-ico svg { width: 16px; height: 16px; }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 44px 12px 42px;
+            border: 1.5px solid var(--borde);
+            border-radius: 12px;
+            font-size: 14px;
+            font-family: 'DM Sans', sans-serif;
+            color: var(--texto);
+            background: #fff;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--v3);
+            box-shadow: 0 0 0 3.5px rgba(82,183,136,.16);
+        }
+        input::placeholder { color: #b0bdb5; }
+
+        .btn-ojo {
+            position: absolute;
+            right: 13px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            color: var(--gris);
+            display: flex;
+            align-items: center;
+            transition: color .2s;
+        }
+        .btn-ojo:hover { color: var(--v2); }
+        .btn-ojo svg  { width: 17px; height: 17px; pointer-events: none; }
+
+        /* Indicador fuerza contraseña */
+        .fuerza-wrap { margin-top: 6px; display: flex; gap: 4px; }
+        .fuerza-bar {
+            flex: 1; height: 3px; border-radius: 3px;
+            background: var(--borde);
+            transition: background .3s;
+        }
+        .fuerza-bar.activo-1 { background: #e74c3c; }
+        .fuerza-bar.activo-2 { background: #e67e22; }
+        .fuerza-bar.activo-3 { background: #f1c40f; }
+        .fuerza-bar.activo-4 { background: var(--v3); }
+
+        /* Mensajes */
+        .msg {
+            display: none;
+            padding: 11px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            margin-bottom: 14px;
+            align-items: center;
+            gap: 8px;
+        }
+        .msg.error { background: var(--err-bg); color: var(--error); border-left: 3px solid var(--error); }
+        .msg.exito { background: var(--ok-bg);  color: var(--ok);    border-left: 3px solid var(--ok); }
+        .msg.visible { display: flex; }
+
+        /* Botón */
+        .btn-registro {
+            width: 100%;
+            padding: 14px;
+            margin-top: 6px;
+            background: linear-gradient(135deg, var(--v2) 0%, var(--v3) 100%);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            letter-spacing: .4px;
+            transition: all .25s;
+            box-shadow: 0 6px 20px rgba(45,106,79,.28);
+        }
+        .btn-registro:hover   { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(45,106,79,.35); }
+        .btn-registro:active  { transform: translateY(0); }
+        .btn-registro:disabled { opacity: .55; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        /* Pie */
+        .pie {
+            text-align: center;
+            margin-top: 18px;
+            font-size: 13px;
+            color: var(--gris);
+        }
+        .pie a { color: var(--v2); font-weight: 600; text-decoration: none; }
+        .pie a:hover { text-decoration: underline; }
+
+        @media (max-width: 768px) {
+            body { grid-template-columns: 1fr; }
+            .panel-izq { display: none; }
+            .panel-der { padding: 36px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Panel izquierdo -->
+    <div class="panel-izq">
+        <div class="deco-ring ring-1"></div>
+        <div class="deco-ring ring-2"></div>
+        <div class="deco-ring ring-3"></div>
+
+        <svg class="planta-centro" width="280" height="280" viewBox="0 0 280 280" fill="none">
+            <circle cx="140" cy="140" r="130" fill="#52b788"/>
+            <path d="M140 220 L140 80" stroke="#1a3d2b" stroke-width="4"/>
+            <ellipse cx="140" cy="110" rx="50" ry="35" fill="#2d6a4f" transform="rotate(-30 140 110)"/>
+            <ellipse cx="140" cy="130" rx="50" ry="35" fill="#2d6a4f" transform="rotate(30 140 130)"/>
+            <ellipse cx="140" cy="90" rx="40" ry="28" fill="#1a3d2b" transform="rotate(0 140 90)"/>
+        </svg>
+
+        <div class="contenido">
+            <h2>Únete a<br><em>AeroGarden Cloud</em></h2>
+            <p>Crea tu cuenta y comienza a monitorear tus cultivos hidropónicos con inteligencia en tiempo real.</p>
+
+            <div class="pasos">
+                <div class="paso">
+                    <div class="paso-num">1</div>
+                    <div class="paso-texto">
+                        <strong>Crea tu cuenta</strong>
+                        <span>Solo necesitas nombre, correo y contraseña</span>
+                    </div>
+                </div>
+                <div class="paso">
+                    <div class="paso-num">2</div>
+                    <div class="paso-texto">
+                        <strong>Configura tus sensores</strong>
+                        <span>Conecta temperatura, humedad, pH y más</span>
+                    </div>
+                </div>
+                <div class="paso">
+                    <div class="paso-num">3</div>
+                    <div class="paso-texto">
+                        <strong>Monitorea en tiempo real</strong>
+                        <span>Recibe alertas y optimiza tus cultivos</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel formulario -->
+    <div class="panel-der">
+        <div class="form-wrap">
+
+            <div class="logo-box">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="AeroGarden Cloud">
+                <p class="subtitulo">Crea tu cuenta gratuita</p>
+            </div>
+
+            <h2 class="form-titulo">Comenzar es fácil</h2>
+            <p class="form-subtitulo">Completa el formulario y accede en segundos</p>
+
+            <div id="msg" class="msg">
+                <span id="msg-icono">⚠️</span>
+                <span id="msg-texto"></span>
+            </div>
+
+            <div class="campo">
+                <label for="nombre">Nombre completo</label>
+                <div class="input-wrap">
+                    <span class="input-ico">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                    </span>
+                    <input type="text" id="nombre" placeholder="Tu nombre completo" autofocus autocomplete="name">
+                </div>
+            </div>
+
+            <div class="campo">
+                <label for="correo">Correo electrónico</label>
+                <div class="input-wrap">
+                    <span class="input-ico">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                    </span>
+                    <input type="email" id="correo" placeholder="ejemplo@correo.com" autocomplete="email">
+                </div>
+            </div>
+
+            <div class="campo">
+                <label for="contrasena">Contraseña</label>
+                <div class="input-wrap">
+                    <span class="input-ico">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                    </span>
+                    <input type="password" id="contrasena" placeholder="Mínimo 6 caracteres" autocomplete="new-password" oninput="calcularFuerza(this.value)">
+                    <button class="btn-ojo" type="button" onclick="togglePass('contrasena','ojo1a','ojo1b')">
+                        <svg id="ojo1a" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                        <svg id="ojo1b" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="display:none">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a9.97 9.97 0 012.126-3.33M6.53 6.53A9.966 9.966 0 0112 5c4.477 0 8.268 2.943 9.542 7a9.966 9.966 0 01-4.073 5.083M3 3l18 18"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="fuerza-wrap">
+                    <div class="fuerza-bar" id="f1"></div>
+                    <div class="fuerza-bar" id="f2"></div>
+                    <div class="fuerza-bar" id="f3"></div>
+                    <div class="fuerza-bar" id="f4"></div>
+                </div>
+            </div>
+
+            <div class="campo">
+                <label for="confirmar">Confirmar contraseña</label>
+                <div class="input-wrap">
+                    <span class="input-ico">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                    </span>
+                    <input type="password" id="confirmar" placeholder="Repite tu contraseña" autocomplete="new-password">
+                    <button class="btn-ojo" type="button" onclick="togglePass('confirmar','ojo2a','ojo2b')">
+                        <svg id="ojo2a" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                        <svg id="ojo2b" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="display:none">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a9.97 9.97 0 012.126-3.33M6.53 6.53A9.966 9.966 0 0112 5c4.477 0 8.268 2.943 9.542 7a9.966 9.966 0 01-4.073 5.083M3 3l18 18"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <button class="btn-registro" id="btnRegistro" onclick="enviarRegistro()">Crear mi cuenta</button>
+
+            <p class="pie">¿Ya tienes cuenta? <a href="/">Inicia sesión</a></p>
+        </div>
+    </div>
+
+    <script>
+        function togglePass(inputId, aId, bId) {
+            const inp = document.getElementById(inputId);
+            const a   = document.getElementById(aId);
+            const b   = document.getElementById(bId);
+            const vis = inp.type === 'text';
+            inp.type        = vis ? 'password' : 'text';
+            a.style.display = vis ? 'block' : 'none';
+            b.style.display = vis ? 'none'  : 'block';
+        }
+
+        function calcularFuerza(val) {
+            let score = 0;
+            if (val.length >= 6)  score++;
+            if (val.length >= 10) score++;
+            if (/[A-Z]/.test(val) && /[0-9]/.test(val)) score++;
+            if (/[^A-Za-z0-9]/.test(val)) score++;
+            for (let i = 1; i <= 4; i++) {
+                const bar = document.getElementById('f' + i);
+                bar.className = 'fuerza-bar' + (i <= score ? ' activo-' + score : '');
+            }
+        }
+
+        function mostrarMsg(tipo, icono, texto) {
+            const el = document.getElementById('msg');
+            el.className = 'msg ' + tipo + ' visible';
+            document.getElementById('msg-icono').textContent = icono;
+            document.getElementById('msg-texto').textContent = texto;
+        }
+        function limpiarMsg() {
+            document.getElementById('msg').className = 'msg';
+        }
+
+        async function enviarRegistro() {
+            limpiarMsg();
+            const nombre     = document.getElementById('nombre').value.trim();
+            const correo     = document.getElementById('correo').value.trim();
+            const contrasena = document.getElementById('contrasena').value;
+            const confirmar  = document.getElementById('confirmar').value;
+
+            if (!nombre || !correo || !contrasena || !confirmar) {
+                mostrarMsg('error', '⚠️', 'Por favor, completa todos los campos.'); return;
+            }
+            if (contrasena.length < 6) {
+                mostrarMsg('error', '⚠️', 'La contraseña debe tener al menos 6 caracteres.'); return;
+            }
+            if (contrasena !== confirmar) {
+                mostrarMsg('error', '⚠️', 'Las contraseñas no coinciden.'); return;
+            }
+
+            const btn = document.getElementById('btnRegistro');
+            btn.disabled = true;
+            btn.textContent = 'Creando cuenta…';
+
+            try {
+                const res  = await fetch('/api/auth/registrar', {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({ nombre, correo, contrasena })
+                });
+                const data = await res.json();
+
+                if (res.ok && data.status === 'success') {
+                    mostrarMsg('exito', '✅', '¡Cuenta creada! Redirigiendo al login…');
+                    setTimeout(() => window.location.assign('/'), 1800);
+                } else {
+                    mostrarMsg('error', '⚠️', data.mensaje || 'Error al registrar usuario.');
+                    btn.disabled = false;
+                    btn.textContent = 'Crear mi cuenta';
+                }
+            } catch {
+                mostrarMsg('error', '⚠️', 'No se pudo conectar con el servidor.');
+                btn.disabled = false;
+                btn.textContent = 'Crear mi cuenta';
+            }
+        }
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Enter') enviarRegistro();
+        });
+    </script>
+</body>
+</html>

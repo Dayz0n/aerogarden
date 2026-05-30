@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Principal</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f2f5;
+            color: #333;
+        }
+
+        nav {
+            background: #2c3e50;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        nav button {
+            background: transparent;
+            color: #ecf0f1;
+            border: 1px solid #4a6278;
+            padding: 7px 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+            position: relative;
+        }
+
+        nav button:hover { background: #3d5166; }
+
+        nav a {
+            margin-left: auto;
+            color: #e74c3c;
+            text-decoration: none;
+            font-size: 14px;
+            border: 1px solid #e74c3c;
+            padding: 7px 14px;
+            border-radius: 5px;
+            transition: background 0.2s;
+        }
+
+        nav a:hover { background: #e74c3c; color: white; }
+
+        /* Badge de alertas nuevas */
+        .badge-nav {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            font-size: 10px;
+            font-weight: 700;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            display: none;
+        }
+
+        .seccion {
+            display: none;
+            padding: 30px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .seccion h1, #dashboard-contenido h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+
+        #dashboard-contenido {
+            padding: 30px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            padding: 15px 20px;
+            margin: 8px 0;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        button {
+            background: #2c3e50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 4px 2px;
+            transition: background 0.2s;
+        }
+
+        button:hover { background: #3d5166; }
+        button:disabled { background: #aaa; cursor: not-allowed; }
+
+        input, select, textarea {
+            display: block;
+            width: 100%;
+            padding: 8px 10px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        /* --- Modales --- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.activo { display: flex; }
+
+        .modal {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            width: 420px;
+            max-width: 95%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .modal h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 18px;
+        }
+
+        .modal-botones {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .modal-botones button:last-child { background: #95a5a6; }
+        .modal-botones button:last-child:hover { background: #7f8c8d; }
+
+        /* --- Tablas --- */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        th {
+            background: #2c3e50;
+            color: white;
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #f9f9f9; }
+
+        label {
+            font-size: 13px;
+            color: #555;
+            margin-top: 6px;
+            display: block;
+        }
+
+        .btn-verde  { background: #27ae60; }
+        .btn-verde:hover  { background: #219150; }
+        .btn-rojo   { background: #e74c3c; }
+        .btn-rojo:hover   { background: #c0392b; }
+        .btn-naranja { background: #e67e22; }
+        .btn-naranja:hover { background: #ca6f1e; }
+        .btn-sm { padding: 4px 10px; font-size: 12px; margin: 2px; }
+
+        /* --- Tabs --- */
+        .tabs { display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap; }
+        .tab-btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 6px 6px 0 0;
+            cursor: pointer;
+            font-size: 14px;
+            background: #dde1e7;
+            color: #555;
+            margin: 0;
+        }
+        .tab-btn.activo { background: #2c3e50; color: white; }
+        .tab-contenido { display: none; }
+        .tab-contenido.activo { display: block; }
+        .modal-wide { width: 860px !important; max-height: 85vh; overflow-y: auto; }
+
+        /* --- Badges de estado / prioridad --- */
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-verde  { background: #e8f5e9; color: #2e7d32; }
+        .badge-amarillo { background: #fff8e1; color: #f57f17; }
+        .badge-naranja { background: #fff3e0; color: #e65100; }
+        .badge-rojo   { background: #ffebee; color: #c62828; }
+        .badge-gris   { background: #eceff1; color: #546e7a; }
+        .badge-azul   { background: #e3f2fd; color: #1565c0; }
+
+        /* --- Sección alertas layout --- */
+        .alertas-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 700px) {
+            .alertas-grid { grid-template-columns: 1fr; }
+        }
+
+        .panel-titulo {
+            font-size: 15px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Fila de filtros */
+        .filtros-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            margin-bottom: 12px;
+        }
+        .filtros-row select,
+        .filtros-row input {
+            width: auto;
+            flex: 1;
+            min-width: 120px;
+            margin: 0;
+        }
+
+        /* Color filas historial según prioridad */
+        tr.prioridad-critica td { border-left: 4px solid #c62828; }
+        tr.prioridad-alta    td { border-left: 4px solid #e65100; }
+        tr.prioridad-media   td { border-left: 4px solid #f57f17; }
+        tr.prioridad-baja    td { border-left: 4px solid #2e7d32; }
+
+        /* ============================================================ */
+        /* DASHBOARD INICIO                                              */
+        /* ============================================================ */
+
+        .inicio-bienvenida {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .inicio-avatar {
+            width: 52px; height: 52px;
+            border-radius: 50%;
+            background: #2c3e50;
+            color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .inicio-saludo { font-size: 22px; font-weight: 700; color: #2c3e50; }
+        .inicio-fecha  { font-size: 13px; color: #999; margin-top: 2px; }
+
+        /* Fila de KPI cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 900px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 500px) { .kpi-grid { grid-template-columns: 1fr; } }
+
+        .kpi-card {
+            background: white;
+            border-radius: 10px;
+            padding: 18px 20px;
+            border: 1px solid #e8e8e8;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            cursor: pointer;
+            transition: box-shadow 0.2s, transform 0.15s;
+            text-decoration: none;
+        }
+
+        .kpi-card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .kpi-icono {
+            font-size: 30px;
+            width: 52px; height: 52px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .kpi-icono-verde  { background: #e8f5e9; }
+        .kpi-icono-azul   { background: #e3f2fd; }
+        .kpi-icono-naranja{ background: #fff3e0; }
+        .kpi-icono-rojo   { background: #ffebee; }
+        .kpi-icono-morado { background: #f3e5f5; }
+
+        .kpi-valor { font-size: 26px; font-weight: 800; color: #2c3e50; line-height: 1; }
+        .kpi-label { font-size: 12px; color: #999; margin-top: 3px; }
+
+        /* Grid inferior */
+        .inicio-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        @media (max-width: 750px) { .inicio-grid { grid-template-columns: 1fr; } }
+
+        .inicio-panel {
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        .inicio-panel-header {
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e8e8e8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .inicio-panel-header strong { font-size: 14px; color: #2c3e50; }
+
+        .inicio-panel-link {
+            font-size: 12px;
+            color: #3498db;
+            cursor: pointer;
+            text-decoration: none;
+            background: none;
+            border: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .inicio-panel-link:hover { text-decoration: underline; background: none; color: #2980b9; }
+
+        .inicio-panel-body { padding: 0; }
+
+        .sensor-fila {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 11px 16px;
+            border-bottom: 1px solid #f4f4f4;
+            font-size: 14px;
+        }
+
+        .sensor-fila:last-child { border-bottom: none; }
+
+        .sensor-nombre { color: #555; font-size: 13px; }
+
+        .sensor-valor-big {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .sensor-unidad { font-size: 12px; color: #aaa; margin-left: 3px; }
+
+        .sensor-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #ccc;
+            flex-shrink: 0;
+        }
+
+        .sensor-dot-on  { background: #27ae60; box-shadow: 0 0 0 3px #e8f5e9; }
+        .sensor-dot-off { background: #e74c3c; box-shadow: 0 0 0 3px #ffebee; }
+
+        .alerta-fila {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 16px;
+            border-bottom: 1px solid #f4f4f4;
+            font-size: 13px;
+        }
+
+        .alerta-fila:last-child { border-bottom: none; }
+
+        .cultivo-fila {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 11px 16px;
+            border-bottom: 1px solid #f4f4f4;
+            font-size: 13px;
+        }
+
+        .cultivo-fila:last-child { border-bottom: none; }
+
+        .inicio-vacio {
+            padding: 24px 16px;
+            text-align: center;
+            color: #bbb;
+            font-size: 13px;
+        }
+
+        .bomba-mini {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 16px;
+        }
+
+        .bomba-dot {
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            background: #95a5a6;
+            flex-shrink: 0;
+            transition: background 0.3s;
+        }
+
+        .bomba-dot-on  { background: #27ae60; box-shadow: 0 0 0 4px #e8f5e9; animation: pulso 1.5s infinite; }
+        .bomba-dot-off { background: #e74c3c; }
+
+        @keyframes pulso {
+            0%, 100% { box-shadow: 0 0 0 4px #e8f5e9; }
+            50%       { box-shadow: 0 0 0 7px #c8e6c9; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <button onclick="mostrarSeccion('dashboard-contenido')">🏠 Inicio</button>
+    <button onclick="mostrarSeccion('seccion-hardware')">🔧 Hardware</button>
+    <button onclick="mostrarSeccion('seccion-logica')">⚙️ Lógica</button>
+    <button onclick="mostrarSeccion('seccion-analitica')">📊 Analítica</button>
+    <button onclick="mostrarSeccion('seccion-cultivos')">🌱 Cultivos</button>
+    <button id="btn-nav-alertas" onclick="mostrarSeccion('seccion-alertas'); cargarAlertasSeccion();">
+        🔔 Alertas
+        <span id="badge-alertas-nav" class="badge-nav">0</span>
+    </button>
+    <button onclick="mostrarSeccion('seccion-relevador'); cargarSeccionRelevador()">💧 Bomba</button>
+    <button onclick="mostrarSeccion('seccion-configuracion')">👤 Configuración</button>
+    <a href="/logout">Cerrar sesión</a>
+</nav>
+
+
+<!-- ============================================================ -->
+<!-- INICIO — PANEL GENERAL                                        -->
+<!-- ============================================================ -->
+<div id="dashboard-contenido">
+
+    <!-- Bienvenida -->
+    <div class="inicio-bienvenida">
+        <div class="inicio-avatar" id="inicio-avatar">U</div>
+        <div>
+            <div class="inicio-saludo">Bienvenido, <span id="inicio-nombre">—</span> 👋</div>
+            <div class="inicio-fecha" id="inicio-fecha"></div>
+        </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+        <div class="kpi-card" onclick="mostrarSeccion('seccion-hardware')">
+            <div class="kpi-icono kpi-icono-azul">🔌</div>
+            <div>
+                <div class="kpi-valor" id="kpi-dispositivos">—</div>
+                <div class="kpi-label">Dispositivos</div>
+            </div>
+        </div>
+        <div class="kpi-card" onclick="mostrarSeccion('seccion-hardware')">
+            <div class="kpi-icono kpi-icono-verde">📡</div>
+            <div>
+                <div class="kpi-valor" id="kpi-sensores">—</div>
+                <div class="kpi-label">Sensores</div>
+            </div>
+        </div>
+        <div class="kpi-card" onclick="mostrarSeccion('seccion-cultivos')">
+            <div class="kpi-icono kpi-icono-naranja">🌱</div>
+            <div>
+                <div class="kpi-valor" id="kpi-cultivos">—</div>
+                <div class="kpi-label">Cultivos activos</div>
+            </div>
+        </div>
+        <div class="kpi-card" onclick="mostrarSeccion('seccion-alertas'); cargarAlertasSeccion();">
+            <div class="kpi-icono kpi-icono-rojo">🔔</div>
+            <div>
+                <div class="kpi-valor" id="kpi-alertas">—</div>
+                <div class="kpi-label">Alertas nuevas</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grid inferior -->
+    <div class="inicio-grid">
+
+        <!-- Panel: últimas lecturas sensores -->
+        <div class="inicio-panel">
+            <div class="inicio-panel-header">
+                <strong>📡 Lecturas recientes</strong>
+                <button class="inicio-panel-link" onclick="mostrarSeccion('seccion-logica')">Ver en vivo →</button>
+            </div>
+            <div class="inicio-panel-body" id="inicio-lecturas">
+                <div class="inicio-vacio">Cargando sensores...</div>
+            </div>
+        </div>
+
+        <!-- Panel: alertas recientes -->
+        <div class="inicio-panel">
+            <div class="inicio-panel-header">
+                <strong>🔔 Alertas recientes</strong>
+                <button class="inicio-panel-link" onclick="mostrarSeccion('seccion-alertas'); cargarAlertasSeccion();">Ver todas →</button>
+            </div>
+            <div class="inicio-panel-body" id="inicio-alertas">
+                <div class="inicio-vacio">Cargando alertas...</div>
+            </div>
+        </div>
+
+        <!-- Panel: cultivos -->
+        <div class="inicio-panel">
+            <div class="inicio-panel-header">
+                <strong>🌿 Cultivos registrados</strong>
+                <button class="inicio-panel-link" onclick="mostrarSeccion('seccion-cultivos')">Gestionar →</button>
+            </div>
+            <div class="inicio-panel-body" id="inicio-cultivos">
+                <div class="inicio-vacio">Cargando cultivos...</div>
+            </div>
+        </div>
+
+        <!-- Panel: estado bomba -->
+        <div class="inicio-panel">
+            <div class="inicio-panel-header">
+                <strong>💧 Estado de la Bomba</strong>
+                <button class="inicio-panel-link" onclick="mostrarSeccion('seccion-relevador'); cargarSeccionRelevador()">Controlar →</button>
+            </div>
+            <div class="inicio-panel-body" id="inicio-bomba">
+                <div class="inicio-vacio">Cargando estado...</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- HARDWARE                                                      -->
+<!-- ============================================================ -->
+<div id="seccion-hardware" class="seccion">
+    <h1>Integración de Hardware</h1>
+    <button onclick="abrirModal('modal-dispositivo')">+ Agregar Dispositivo</button>
+    <button id="btn-agregar-sensor" onclick="abrirModal('modal-sensor')" disabled>+ Agregar Sensor</button>
+    <div id="lista-hardware" style="margin-top: 20px;">
+        <h3>Dispositivos y Sensores Conectados</h3>
+    </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- LÓGICA                                                        -->
+<!-- ============================================================ -->
+<div id="seccion-logica" class="seccion">
+    <h1>Lógica de Control</h1>
+    <div class="card" style="margin-bottom:16px;">
+        <label style="font-weight:600;">Seleccionar Sensor:</label>
+        <select id="selectSensorLogica" onchange="limpiarVisualizacion()" style="margin-bottom:12px;">
+            <option value="">-- Seleccione un sensor --</option>
+        </select>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button onclick="verificarEstadoSensor()">🔍 Verificar Estado</button>
+            <button class="btn-verde" onclick="visualizarInformacion()">📈 Visualizar en Tiempo Real</button>
+        </div>
+    </div>
+    <div id="resultado-logica" style="padding:0;"></div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- ANALÍTICA                                                     -->
+<!-- ============================================================ -->
+<div id="seccion-analitica" class="seccion">
+    <h1>Analítica y Reportes</h1>
+
+    <div class="tabs">
+        <button class="tab-btn activo" onclick="cambiarTabAnalitica('tab-an-sensores', this)">📡 Sensores</button>
+        <button class="tab-btn" onclick="cambiarTabAnalitica('tab-an-cultivos', this); cargarReporteCultivos()">🌱 Reporte Cultivos</button>
+        <button class="tab-btn" onclick="cambiarTabAnalitica('tab-an-cosechas', this); cargarReporteCosechas()">🌾 Reporte Cosechas</button>
+    </div>
+
+    <!-- Tab Sensores -->
+    <div id="tab-an-sensores" class="tab-contenido activo">
+        <div class="card" style="margin-bottom:14px;">
+            <label style="font-weight:600;">Sensor:</label>
+            <select id="selectSensorAnalitica" style="margin:8px 0;"></select>
+            <div style="margin-top: 8px;">
+                <button onclick="cargarGrafica('ahora')">Ahora (1h)</button>
+                <button onclick="cargarGrafica('24h')">Últimas 24h</button>
+                <button onclick="cargarGrafica('semana')">Última Semana</button>
+            </div>
+        </div>
+        <div style="background:white;padding:20px;border-radius:8px;">
+            <canvas id="graficaSensor"></canvas>
+        </div>
+    </div>
+
+    <!-- Tab Reporte Cultivos -->
+    <div id="tab-an-cultivos" class="tab-contenido">
+        <div class="card" style="margin-bottom:14px; display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;">
+            <div style="flex:1; min-width:160px;">
+                <label>Tipo de cultivo</label>
+                <select id="filtro-an-tipo-cultivo">
+                    <option value="">Todos los tipos</option>
+                </select>
+            </div>
+            <div style="flex:1; min-width:140px;">
+                <label>Fecha desde</label>
+                <input type="date" id="filtro-an-fecha-desde">
+            </div>
+            <div style="flex:1; min-width:140px;">
+                <label>Fecha hasta</label>
+                <input type="date" id="filtro-an-fecha-hasta">
+            </div>
+            <button class="btn-verde" onclick="cargarReporteCultivos()">🔍 Filtrar</button>
+        </div>
+
+        <!-- KPIs resumen -->
+        <div id="kpi-reporte-cultivos" style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:16px;"></div>
+
+        <!-- Gráfica y tabla -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
+            <div style="background:white; padding:16px; border-radius:8px; border:1px solid #e0e0e0;">
+                <strong style="font-size:13px; color:#555;">Plantas por tipo de cultivo</strong>
+                <canvas id="graficaCultivosTipo" style="margin-top:10px;"></canvas>
+            </div>
+            <div style="background:white; padding:16px; border-radius:8px; border:1px solid #e0e0e0;">
+                <strong style="font-size:13px; color:#555;">Siembras por mes</strong>
+                <canvas id="graficaCultivosMes" style="margin-top:10px;"></canvas>
+            </div>
+        </div>
+        <div id="tabla-reporte-cultivos"><p style="color:#888;">Cargando reporte...</p></div>
+    </div>
+
+    <!-- Tab Reporte Cosechas -->
+    <div id="tab-an-cosechas" class="tab-contenido">
+        <div class="card" style="margin-bottom:14px; display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;">
+            <div style="flex:1; min-width:160px;">
+                <label>Cultivo</label>
+                <select id="filtro-an-cultivo-cosecha">
+                    <option value="">Todos los cultivos</option>
+                </select>
+            </div>
+            <div style="flex:1; min-width:140px;">
+                <label>Fecha desde</label>
+                <input type="date" id="filtro-an-cosecha-desde">
+            </div>
+            <div style="flex:1; min-width:140px;">
+                <label>Fecha hasta</label>
+                <input type="date" id="filtro-an-cosecha-hasta">
+            </div>
+            <button class="btn-verde" onclick="cargarReporteCosechas()">🔍 Filtrar</button>
+        </div>
+
+        <!-- KPIs resumen cosechas -->
+        <div id="kpi-reporte-cosechas" style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:16px;"></div>
+
+        <!-- Gráficas cosechas -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
+            <div style="background:white; padding:16px; border-radius:8px; border:1px solid #e0e0e0;">
+                <strong style="font-size:13px; color:#555;">Cantidad cosechada por cultivo</strong>
+                <canvas id="graficaCosechasCultivo" style="margin-top:10px;"></canvas>
+            </div>
+            <div style="background:white; padding:16px; border-radius:8px; border:1px solid #e0e0e0;">
+                <strong style="font-size:13px; color:#555;">Cosechas por mes</strong>
+                <canvas id="graficaCosechasMes" style="margin-top:10px;"></canvas>
+            </div>
+        </div>
+        <div id="tabla-reporte-cosechas"><p style="color:#888;">Cargando reporte...</p></div>
+    </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- CULTIVOS                                                      -->
+<!-- ============================================================ -->
+<div id="seccion-cultivos" class="seccion">
+    <h1>Gestión de Cultivos</h1>
+    <div style="margin-bottom: 16px;">
+        <button onclick="abrirModal('modal-siembra')">🌱 Registrar Siembra</button>
+        <button onclick="abrirModal('modal-cosecha')">🌾 Registrar Cosecha</button>
+        <button class="btn-verde" onclick="abrirModal('modal-tipo-cultivo')">+ Agregar Tipo de Cultivo</button>
+    </div>
+
+    <!-- Tabs directamente en la sección -->
+    <div class="tabs">
+        <button class="tab-btn activo" onclick="cambiarTabCultivos('tab-sec-cultivos', this)">🌱 Cultivos</button>
+        <button class="tab-btn" onclick="cambiarTabCultivos('tab-sec-cosechas', this)">🌾 Cosechas</button>
+    </div>
+
+    <div id="tab-sec-cultivos" class="tab-contenido activo">
+        <div id="tabla-cultivos-seccion"><p style="color:#888;">Cargando cultivos...</p></div>
+    </div>
+    <div id="tab-sec-cosechas" class="tab-contenido">
+        <div id="tabla-cosechas-seccion"><p style="color:#888;">Cargando cosechas...</p></div>
+    </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- ALERTAS                                                       -->
+<!-- ============================================================ -->
+<div id="seccion-alertas" class="seccion">
+    <h1>🔔 Centro de Alertas</h1>
+
+    <div class="tabs">
+        <button class="tab-btn activo" onclick="cambiarTabAlerta('tab-historial', this)">📋 Historial de Alertas</button>
+        <button class="tab-btn" onclick="cambiarTabAlerta('tab-parametros', this)">⚙️ Parámetros / Umbrales</button>
+    </div>
+
+    <!-- ---- TAB: HISTORIAL ---- -->
+    <div id="tab-historial" class="tab-contenido activo">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+            <div class="filtros-row" style="flex:1;">
+                <select id="filtro-prioridad" onchange="aplicarFiltros()">
+                    <option value="">Todas las prioridades</option>
+                    <option value="critica">🔴 Crítica</option>
+                    <option value="alta">🟠 Alta</option>
+                    <option value="media">🟡 Media</option>
+                    <option value="baja">🟢 Baja</option>
+                </select>
+                <select id="filtro-estado" onchange="aplicarFiltros()">
+                    <option value="">Todos los estados</option>
+                    <option value="nueva">Nueva</option>
+                    <option value="vista">Vista</option>
+                    <option value="resuelta">Resuelta</option>
+                </select>
+                <select id="filtro-sensor-historial" onchange="aplicarFiltros()">
+                    <option value="">Todos los sensores</option>
+                </select>
+            </div>
+            <button class="btn-verde" onclick="cargarHistorialAlertas()">↺ Actualizar</button>
+        </div>
+        <div id="tabla-historial-alertas"><p style="color:#888;">Cargando historial...</p></div>
+    </div>
+
+    <!-- ---- TAB: PARÁMETROS ---- -->
+    <div id="tab-parametros" class="tab-contenido">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <p style="color:#555; font-size:14px;">Define los umbrales que generarán alertas para cada sensor.</p>
+            <button class="btn-verde" onclick="abrirModal('modal-parametro')">+ Nuevo Parámetro</button>
+        </div>
+        <div id="tabla-parametros-alerta"><p style="color:#888;">Cargando parámetros...</p></div>
+    </div>
+</div>
+
+
+
+<!-- ============================================================ -->
+<!-- RELEVADOR / BOMBA                                            -->
+<!-- ============================================================ -->
+<div id="seccion-relevador" class="seccion">
+    <h1>💧 Control de Bomba / Relevador</h1>
+
+    <!-- Estado actual -->
+    <div class="card" style="display:flex; align-items:center; gap:20px; flex-wrap:wrap; margin-bottom:16px;">
+        <div id="indicador-bomba" style="
+            width:64px; height:64px; border-radius:50%;
+            background:#95a5a6;
+            display:flex; align-items:center; justify-content:center;
+            font-size:28px;
+            box-shadow:0 0 0 6px #ecf0f1;
+            transition:background 0.4s, box-shadow 0.4s;">💧
+        </div>
+        <div>
+            <div style="font-size:18px; font-weight:700;" id="texto-estado-bomba">Estado: —</div>
+            <div style="font-size:13px; color:#888; margin-top:4px;" id="texto-modo-bomba">Modo: —</div>
+        </div>
+        <div style="margin-left:auto; display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn-verde" onclick="controlManualBomba('encendido')">⚡ Encender ahora</button>
+            <button class="btn-rojo"  onclick="controlManualBomba('apagado')">⏹ Apagar ahora</button>
+        </div>
+    </div>
+
+    <!-- Temporizador -->
+    <div class="card">
+        <h3 style="margin-bottom:14px; color:#2c3e50;">⏱ Temporizador Automático</h3>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+            <div>
+                <label>Tiempo <strong>ENCENDIDA</strong> (segundos)</label>
+                <input type="number" id="input-tiempo-on" min="1" max="3600" value="30"
+                       oninput="actualizarPreviewBomba()"
+                       style="font-size:22px; font-weight:700; text-align:center; color:#27ae60;">
+                <div style="font-size:12px; color:#aaa; margin-top:2px;" id="preview-on">= 30 seg</div>
+            </div>
+            <div>
+                <label>Tiempo <strong>APAGADA</strong> (segundos)</label>
+                <input type="number" id="input-tiempo-off" min="1" max="3600" value="60"
+                       oninput="actualizarPreviewBomba()"
+                       style="font-size:22px; font-weight:700; text-align:center; color:#e74c3c;">
+                <div style="font-size:12px; color:#aaa; margin-top:2px;" id="preview-off">= 60 seg</div>
+            </div>
+        </div>
+        <div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+            <button class="btn-verde" onclick="guardarConfigBomba()">💾 Guardar temporizador</button>
+            <button onclick="guardarConfigBomba()">🔄 Volver a modo automático</button>
+            <span id="msg-config-bomba" style="font-size:13px; color:#27ae60; display:none;">✔ Guardado</span>
+        </div>
+    </div>
+
+    <!-- Nivel de agua -->
+    <div class="card" style="margin-top:16px;">
+        <h3 style="margin-bottom:10px; color:#2c3e50;">📏 Nivel de Agua (Sensor Ultrasónico)</h3>
+        <div id="display-nivel-agua" style="font-size:36px; font-weight:700; color:#2980b9;">— cm</div>
+        <div style="font-size:12px; color:#aaa;" id="fecha-nivel-agua">Sin datos aún</div>
+        <div id="alerta-nivel-bajo" style="
+            display:none; margin-top:10px; padding:10px 14px;
+            background:#ffebee; border-left:4px solid #c62828;
+            border-radius:5px; color:#c62828; font-weight:600;">
+            ⚠️ ¡NIVEL DE AGUA BAJO! Revisa el depósito.
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CONFIGURACIÓN                                                 -->
+<!-- ============================================================ -->
+<div id="seccion-configuracion" class="seccion">
+    <h1>Configuración de Cuenta</h1>
+
+    <!-- Foto de perfil -->
+    <div class="card" style="display:flex; align-items:center; gap:24px; flex-wrap:wrap;">
+        <div style="position:relative; cursor:pointer;" onclick="document.getElementById('inputFoto').click()">
+            <!-- Avatar con inicial (cuando no hay foto) -->
+            <div id="fotoInicial" style="
+                width:90px; height:90px; border-radius:50%;
+                background:#2c3e50; color:white;
+                display:flex; align-items:center; justify-content:center;
+                font-size:36px; font-weight:700; user-select:none;">U</div>
+            <!-- Foto real -->
+            <img id="fotoPerfil" src="" alt="Foto de perfil" style="
+                display:none; width:90px; height:90px;
+                border-radius:50%; object-fit:cover;
+                border:3px solid #2c3e50;">
+            <!-- Ícono de editar -->
+            <div style="
+                position:absolute; bottom:0; right:0;
+                background:#27ae60; color:white;
+                border-radius:50%; width:26px; height:26px;
+                display:flex; align-items:center; justify-content:center;
+                font-size:13px; border:2px solid white;">✏️</div>
+        </div>
+        <input type="file" id="inputFoto" accept="image/*" style="display:none"
+               onchange="subirFotoPerfil(this)">
+        <div>
+            <div style="font-size:18px; font-weight:600;" id="userNombre">—</div>
+            <div style="color:#666; font-size:14px;" id="userCorreo">—</div>
+            <div style="font-size:12px; color:#999; margin-top:4px;">Haz clic en la foto para cambiarla (máx. 2 MB)</div>
+        </div>
+    </div>
+
+    <!-- Seguridad -->
+    <div class="card" style="margin-top:12px;">
+        <h3>🔒 Seguridad</h3>
+        <label>Nueva contraseña</label>
+        <input type="password" id="nuevaPass" placeholder="Mínimo 6 caracteres">
+        <button id="btnCambiarPass" onclick="cambiarPassword()" class="btn-verde" style="margin-top:6px;">
+            Actualizar Contraseña
+        </button>
+    </div>
+
+    <div class="card" style="margin-top:12px;">
+        <h3>ℹ️ Ayuda y Soporte</h3>
+        <p>Plataforma de gestión de cultivos e invernaderos inteligentes. Versión 1.0.</p>
+    </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- MODALES — Existentes                                         -->
+<!-- ============================================================ -->
+
+<!-- Modal: Dispositivo -->
+<div id="modal-dispositivo" class="modal-overlay">
+    <div class="modal">
+        <h3>Agregar Dispositivo</h3>
+        <label>Nombre</label>
+        <input type="text" id="nombreDispositivo" placeholder="Ej: Controlador Invernadero 1">
+        <label>Tipo de controlador</label>
+        <select id="tipoControlador">
+            <option value="ESP32">ESP32</option>
+            <option value="ESP8266">ESP8266</option>
+        </select>
+        <label>Conexión</label>
+        <select id="tipoConexion">
+            <option value="WiFi">WiFi</option>
+            <option value="Ethernet">Ethernet</option>
+        </select>
+        <div class="modal-botones">
+            <button onclick="guardarDispositivo()">Guardar</button>
+            <button onclick="cerrarModal('modal-dispositivo')">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Sensor -->
+<div id="modal-sensor" class="modal-overlay">
+    <div class="modal">
+        <h3>Agregar / Configurar Sensor</h3>
+        <label>Dispositivo</label>
+        <select id="selectDispositivoVinculado"></select>
+        <label>Tipo de sensor</label>
+        <select id="tipoSensor">
+            <option value="Temperatura">Temperatura</option>
+            <option value="Humedad">Humedad</option>
+            <option value="pH">pH</option>
+            <option value="EC">EC</option>
+            <option value="CO2">CO2</option>
+            <option value="Luz">Luz</option>
+            <option value="Presión">Presión</option>
+            <option value="Caudal">Caudal</option>
+        </select>
+        <label>Unidad de medida</label>
+        <select id="unidadMedida">
+            <option value="°C">°C (Temperatura)</option>
+            <option value="%">% (Humedad)</option>
+            <option value="pH">pH</option>
+            <option value="mS/cm">mS/cm (EC)</option>
+            <option value="ppm">ppm (CO2)</option>
+            <option value="lux">lux (Luz)</option>
+            <option value="hPa">hPa (Presión)</option>
+            <option value="L/min">L/min (Caudal)</option>
+        </select>
+        <div class="modal-botones">
+            <button onclick="guardarSensor()">Guardar sensor</button>
+            <button onclick="cerrarModal('modal-sensor')">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Tipo de Cultivo -->
+<div id="modal-tipo-cultivo" class="modal-overlay">
+    <div class="modal">
+        <h3>Registrar Nuevo Tipo de Planta</h3>
+        <label>Nombre de la planta</label>
+        <input type="text" id="nombrePlanta" placeholder="Ej: Tomate Cherry">
+        <label>Descripción</label>
+        <input type="text" id="descPlanta" placeholder="Breve descripción">
+        <div class="modal-botones">
+            <button onclick="guardarTipoCultivo()">Guardar Planta</button>
+            <button onclick="cerrarModal('modal-tipo-cultivo')">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Siembra -->
+<div id="modal-siembra" class="modal-overlay">
+    <div class="modal">
+        <h3>Registrar Siembra</h3>
+        <label>Nombre / Variedad</label>
+        <input type="text" id="nombreCultivo" placeholder="Ej: Lechuga Romana">
+        <label>Tipo de Cultivo</label>
+        <select id="selectTipoCultivo"></select>
+        <label>Fecha de siembra</label>
+        <input type="date" id="fechaSiembra">
+        <label>Cantidad de plantas</label>
+        <input type="number" id="cantidadPlantas" placeholder="Ej: 50">
+        <label>Tamaño inicial (cm)</label>
+        <input type="text" id="tamanoPlanta" placeholder="Ej: 5">
+        <div class="modal-botones">
+            <button onclick="guardarSiembra()">Guardar Siembra</button>
+            <button onclick="cerrarModal('modal-siembra')">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Ver Cultivos y Cosechas -->
+<div id="modal-cultivo" class="modal-overlay">
+    <div class="modal modal-wide">
+        <h3>📊 Visualizar Información</h3>
+        <div class="tabs">
+            <button class="tab-btn activo" onclick="cambiarTab('tab-cultivos', this)">🌱 Cultivos</button>
+            <button class="tab-btn" onclick="cambiarTab('tab-cosechas', this)">🌾 Cosechas</button>
+        </div>
+        <div id="tab-cultivos" class="tab-contenido activo">
+            <div id="tabla-cultivos-modal"><p style="color:#888;">Cargando...</p></div>
+        </div>
+        <div id="tab-cosechas" class="tab-contenido">
+            <div id="tabla-cosechas-modal"><p style="color:#888;">Cargando...</p></div>
+        </div>
+        <div class="modal-botones" style="margin-top:16px;">
+            <button onclick="cerrarModal('modal-cultivo')">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Cosecha -->
+<div id="modal-cosecha" class="modal-overlay">
+    <div class="modal">
+        <h3>Registrar Cosecha</h3>
+        <label>Cultivo</label>
+        <select id="selectCultivoCosecha"></select>
+        <label>Fecha de cosecha</label>
+        <input type="date" id="fechaCosecha">
+        <label>Cantidad cosechada</label>
+        <input type="number" id="cantidadCosechada" placeholder="Ej: 30">
+        <label>Calidad</label>
+        <input type="text" id="calidadCosecha" placeholder="Ej: Excelente"
+               oninput="validarTextoSoloLetras(this)" maxlength="20">
+        <label>Observaciones</label>
+        <textarea id="observacionesCosecha" rows="4" maxlength="500"
+                  placeholder="Escribe aquí las observaciones..."></textarea>
+        <div class="modal-botones">
+            <button onclick="guardarCosecha()">Guardar Cosecha</button>
+            <button onclick="cerrarModal('modal-cosecha')">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- MODALES — Alertas (nuevos)                                   -->
+<!-- ============================================================ -->
+
+<!-- Modal: Nuevo / Editar Parámetro de Alerta -->
+<div id="modal-parametro" class="modal-overlay">
+    <div class="modal">
+        <h3 id="titulo-modal-parametro">Nuevo Parámetro de Alerta</h3>
+        <input type="hidden" id="editParamId">
+        <label>Sensor</label>
+        <select id="selectSensorParametro"></select>
+        <label>Nombre del parámetro</label>
+        <input type="text" id="paramNombre" placeholder="Ej: Temperatura Alta">
+        <label>Condición</label>
+        <select id="paramCondicion">
+            <option value="mayor_que">Mayor que ( &gt; )</option>
+            <option value="menor_que">Menor que ( &lt; )</option>
+            <option value="igual_a">Igual a ( = )</option>
+        </select>
+        <label>Valor umbral</label>
+        <input type="number" step="0.01" id="paramUmbral" placeholder="Ej: 30">
+        <label>Prioridad</label>
+        <select id="paramPrioridad">
+            <option value="baja">🟢 Baja</option>
+            <option value="media">🟡 Media</option>
+            <option value="alta">🟠 Alta</option>
+            <option value="critica">🔴 Crítica</option>
+        </select>
+        <label>Estado</label>
+        <select id="paramActivo">
+            <option value="1">Activo</option>
+            <option value="0">Inactivo</option>
+        </select>
+        <div class="modal-botones">
+            <button onclick="guardarParametro()">Guardar</button>
+            <button onclick="cerrarModal('modal-parametro')">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Detalle de Alerta -->
+<div id="modal-detalle-alerta" class="modal-overlay">
+    <div class="modal">
+        <h3>🔔 Detalle de Alerta</h3>
+        <div id="contenido-detalle-alerta" style="font-size:14px; line-height:1.8;"></div>
+        <div class="modal-botones" style="margin-top:16px; flex-wrap:wrap;">
+            <button class="btn-naranja btn-sm" id="btn-marcar-vista">✓ Marcar como Vista</button>
+            <button class="btn-verde btn-sm" id="btn-marcar-resuelta">✔ Marcar como Resuelta</button>
+            <button onclick="cerrarModal('modal-detalle-alerta')">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Editar Cultivo -->
+<div id="modal-editar-cultivo" class="modal-overlay">
+    <div class="modal">
+        <h3>✏️ Editar Cultivo</h3>
+        <input type="hidden" id="editCultivoId">
+        <label>Nombre / Variedad</label>
+        <input type="text" id="editNombreCultivo" placeholder="Ej: Lechuga Romana">
+        <label>Tipo de Cultivo</label>
+        <select id="editTipoCultivo"></select>
+        <label>Fecha de siembra</label>
+        <input type="date" id="editFechaSiembra">
+        <label>Cantidad de plantas</label>
+        <input type="number" id="editCantidadPlantas" placeholder="Ej: 50">
+        <label>Tamano (cm)</label>
+        <input type="text" id="editTamanoPlantas" placeholder="Ej: 5">
+        <div class="modal-botones">
+            <button class="btn-verde" onclick="guardarEdicionCultivo()">Guardar cambios</button>
+            <button onclick="cerrarModal('modal-editar-cultivo')">Cancelar</button>
+        </div>
+    </div>
+</div>
+<!-- Modal: Editar Cosecha -->
+<div id="modal-editar-cosecha" class="modal-overlay">
+    <div class="modal">
+        <h3>✏️ Editar Cosecha</h3>
+        <input type="hidden" id="editCosechaId">
+        <label>Fecha de cosecha</label>
+        <input type="date" id="editFechaCosecha">
+        <label>Cantidad cosechada</label>
+        <input type="number" id="editCantidadCosecha" placeholder="Ej: 30">
+        <label>Calidad</label>
+        <input type="text" id="editCalidadCosecha" placeholder="Ej: Excelente" maxlength="20">
+        <label>Observaciones</label>
+        <textarea id="editObservacionesCosecha" rows="3" maxlength="500" placeholder="Observaciones..."></textarea>
+        <div class="modal-botones">
+            <button class="btn-verde" onclick="guardarEdicionCosecha()">Guardar cambios</button>
+            <button onclick="cerrarModal('modal-editar-cosecha')">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ================================================================
+//  CONTROL BOMBA / RELEVADOR — integrado en dashboard.html
+// ================================================================
+
+const ID_SENSOR_NIVEL = 5;  // ← cambia por el idSensore real de tu sensor ultrasónico
+const UMBRAL_NIVEL_BAJO_CM = 20; // distancia > 20 cm = poco agua en el depósito
+
+async function cargarSeccionRelevador() {
+    try {
+        const res  = await fetch("/api/relevador/config");
+        const data = await res.json();
+        document.getElementById("input-tiempo-on").value  = data.tiempo_on  || 30;
+        document.getElementById("input-tiempo-off").value = data.tiempo_off || 60;
+        actualizarPreviewBomba();
+        actualizarIndicadorBomba(data.modo, data.estado_manual);
+        actualizarNivelAgua();
+    } catch(e) { console.error("Error cargando relevador:", e); }
+}
+
+async function guardarConfigBomba() {
+    const on  = parseInt(document.getElementById("input-tiempo-on").value)  || 30;
+    const off = parseInt(document.getElementById("input-tiempo-off").value) || 60;
+    try {
+        await fetch("/api/relevador/config", {
+            method:  "POST",
+            headers: {"Content-Type": "application/json"},
+            body:    JSON.stringify({ tiempo_on: on, tiempo_off: off, modo: "automatico" })
+        });
+        const msg = document.getElementById("msg-config-bomba");
+        msg.style.display = "inline";
+        setTimeout(() => msg.style.display = "none", 2500);
+        actualizarIndicadorBomba("automatico", "apagado");
+    } catch(e) { alert("Error al guardar: " + e); }
+}
+
+async function controlManualBomba(estado) {
+    const on  = parseInt(document.getElementById("input-tiempo-on").value)  || 30;
+    const off = parseInt(document.getElementById("input-tiempo-off").value) || 60;
+    try {
+        await fetch("/api/relevador/config", {
+            method:  "POST",
+            headers: {"Content-Type": "application/json"},
+            body:    JSON.stringify({ modo: "manual", estado_manual: estado, tiempo_on: on, tiempo_off: off })
+        });
+        actualizarIndicadorBomba("manual", estado);
+    } catch(e) { alert("Error: " + e); }
+}
+
+function actualizarIndicadorBomba(modo, estadoManual) {
+    const ind  = document.getElementById("indicador-bomba");
+    const txtE = document.getElementById("texto-estado-bomba");
+    const txtM = document.getElementById("texto-modo-bomba");
+    if (!ind) return;
+    const enc = (modo === "manual" && estadoManual === "encendido");
+    ind.style.background = enc ? "#27ae60" : "#95a5a6";
+    ind.style.boxShadow  = enc
+        ? "0 0 0 6px #e8f5e9, 0 0 20px rgba(39,174,96,0.4)"
+        : "0 0 0 6px #ecf0f1";
+    txtE.textContent = enc ? "Estado: ENCENDIDA 🟢" : "Estado: APAGADA ⚫";
+    txtM.textContent = modo === "manual" ? "Modo: Manual" : "Modo: Automático (temporizador)";
+}
+
+function actualizarPreviewBomba() {
+    const on  = parseInt(document.getElementById("input-tiempo-on").value)  || 0;
+    const off = parseInt(document.getElementById("input-tiempo-off").value) || 0;
+    document.getElementById("preview-on").textContent  = fmtSeg(on);
+    document.getElementById("preview-off").textContent = fmtSeg(off);
+}
+
+function fmtSeg(s) {
+    if (s < 60)   return "= " + s + " seg";
+    if (s < 3600) return "= " + Math.floor(s/60) + " min " + (s%60) + " seg";
+    return "= " + Math.floor(s/3600) + " h " + Math.floor((s%3600)/60) + " min";
+}
+
+async function actualizarNivelAgua() {
+    try {
+        const res  = await fetch("/api/sensores/datos-actuales/" + ID_SENSOR_NIVEL);
+        const data = await res.json();
+        if (data.error) return;
+        const cm     = parseFloat(data.valor);
+        const display = document.getElementById("display-nivel-agua");
+        const fecha   = document.getElementById("fecha-nivel-agua");
+        const alerta  = document.getElementById("alerta-nivel-bajo");
+        if (display) display.textContent = cm.toFixed(1) + " cm";
+        if (fecha)   fecha.textContent   = "Última lectura: " + data.fecha_hora;
+        if (alerta)  alerta.style.display = (cm > UMBRAL_NIVEL_BAJO_CM) ? "block" : "none";
+    } catch(e) { console.error("Error nivel agua:", e); }
+}
+
+// Refrescar nivel de agua cada 10s si la sección está visible
+setInterval(() => {
+    const sec = document.getElementById("seccion-relevador");
+    if (sec && sec.style.display !== "none") actualizarNivelAgua();
+}, 10000);
+</script>
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

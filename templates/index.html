@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>AeroGarden Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+</head>
+<body>
+
+    <nav>
+        <button onclick="mostrarSeccion('hardware')">Hardware</button>
+        <button onclick="mostrarSeccion('analitica')">Analítica</button>
+        <button onclick="mostrarSeccion('cultivo')">Cultivo</button>
+        <button onclick="mostrarSeccion('alertas')">Alertas</button>
+        <button onclick="mostrarSeccion('config')">Config</button>
+    </nav>
+
+    <div id="main-content">
+        <section id="hardware" class="seccion"> <h2>Hardware</h2> </section>
+        <section id="analitica" class="seccion"> <h2>Analítica</h2> </section>
+        <section id="cultivo" class="seccion"> <h2>Gestión de Cultivo</h2> </section>
+        <section id="alertas" class="seccion"> <h2>Alertas</h2> </section>
+        <section id="config" class="seccion"> <h2>Configuración</h2> </section>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/hardware.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/analitica.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/cultivo.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/alertas.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/config.js') }}"></script>
+    
+    <script>
+        function mostrarSeccion(id) {
+            // Ocultar todas las secciones
+            document.querySelectorAll('.seccion').forEach(s => s.style.display = 'none');
+            // Mostrar la seleccionada
+            document.getElementById(id).style.display = 'block';
+
+            // Lógica de carga según la sección
+            if (id === 'hardware') {
+                if (typeof cargarHardware === 'function') {
+                    cargarHardware();
+                } else {
+                    console.error("La función cargarHardware no está definida.");
+                }
+            }
+        }
+
+        // Carga inicial al abrir la página
+        window.onload = () => {
+            mostrarSeccion('hardware');
+        };
+    </script>
+</body>
+</html>

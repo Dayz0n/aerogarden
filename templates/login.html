@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AeroGarden — Iniciar Sesión</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --v1: #1a3d2b;
+            --v2: #2d6a4f;
+            --v3: #52b788;
+            --v4: #95d5b2;
+            --v5: #d8f3dc;
+            --crema: #faf9f6;
+            --texto: #1a2e22;
+            --gris:  #6b7c72;
+            --borde: #c8ddd0;
+            --error: #c0392b;
+            --err-bg:#fdf0ef;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: var(--crema);
+        }
+
+        /* ── Panel izquierdo decorativo ── */
+        .panel-izq {
+            background: var(--v1);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 60px 56px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel-izq::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 0% 0%, rgba(82,183,136,.25) 0%, transparent 55%),
+                radial-gradient(ellipse at 100% 100%, rgba(149,213,178,.15) 0%, transparent 50%);
+        }
+
+        /* Círculos decorativos */
+        .deco-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid rgba(82,183,136,.18);
+        }
+        .ring-1 { width: 420px; height: 420px; top: -140px; left: -140px; }
+        .ring-2 { width: 280px; height: 280px; top: -60px; left: -60px; border-color: rgba(82,183,136,.28); }
+        .ring-3 { width: 600px; height: 600px; bottom: -250px; right: -250px; border-color: rgba(82,183,136,.12); }
+
+        /* Hoja decorativa SVG */
+        .hoja-deco {
+            position: absolute;
+            top: 38%;
+            right: -30px;
+            opacity: .13;
+        }
+
+        .panel-izq .tagline {
+            position: relative;
+            z-index: 1;
+        }
+        .panel-izq .tagline h1 {
+            font-family: 'Playfair Display', serif;
+            color: #fff;
+            font-size: 2.6rem;
+            line-height: 1.2;
+            margin-bottom: 16px;
+            letter-spacing: -.5px;
+        }
+        .panel-izq .tagline h1 em {
+            font-style: normal;
+            color: var(--v4);
+        }
+        .panel-izq .tagline p {
+            color: rgba(255,255,255,.58);
+            font-size: 14px;
+            font-weight: 300;
+            line-height: 1.7;
+            max-width: 320px;
+        }
+
+        /* Badges de características */
+        .features {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            gap: 10px;
+            margin-top: 36px;
+            flex-wrap: wrap;
+        }
+        .feat-badge {
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 100px;
+            padding: 6px 14px;
+            font-size: 12px;
+            color: rgba(255,255,255,.7);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .feat-badge span { font-size: 14px; }
+
+        /* ── Panel derecho (formulario) ── */
+        .panel-der {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 40px;
+        }
+
+        .form-wrap {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        /* Logo */
+        .logo-box {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+        .logo-box img {
+            width: 200px;
+            height: auto;
+            display: block;
+            margin: 0 auto 10px;
+        }
+        .logo-box .subtitulo {
+            font-size: 13px;
+            color: var(--gris);
+            font-weight: 400;
+            letter-spacing: .3px;
+        }
+
+        /* Título del formulario */
+        .form-titulo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            color: var(--texto);
+            margin-bottom: 6px;
+        }
+        .form-subtitulo {
+            font-size: 13px;
+            color: var(--gris);
+            margin-bottom: 28px;
+        }
+
+        /* Campos */
+        .campo { margin-bottom: 18px; }
+        label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--texto);
+            margin-bottom: 7px;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+        }
+        .input-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .input-ico {
+            position: absolute;
+            left: 14px;
+            color: var(--gris);
+            pointer-events: none;
+            display: flex;
+        }
+        .input-ico svg { width: 16px; height: 16px; }
+
+        input[type="email"],
+        input[type="password"],
+        input[type="text"] {
+            width: 100%;
+            padding: 13px 44px 13px 42px;
+            border: 1.5px solid var(--borde);
+            border-radius: 12px;
+            font-size: 14px;
+            font-family: 'DM Sans', sans-serif;
+            color: var(--texto);
+            background: #fff;
+            transition: border-color .2s, box-shadow .2s, background .2s;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--v3);
+            box-shadow: 0 0 0 3.5px rgba(82,183,136,.16);
+            background: #fff;
+        }
+        input::placeholder { color: #b0bdb5; }
+
+        .btn-ojo {
+            position: absolute;
+            right: 13px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            color: var(--gris);
+            display: flex;
+            align-items: center;
+            transition: color .2s;
+        }
+        .btn-ojo:hover { color: var(--v2); }
+        .btn-ojo svg  { width: 17px; height: 17px; pointer-events: none; }
+
+        /* Botón principal */
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            margin-top: 8px;
+            background: linear-gradient(135deg, var(--v2) 0%, var(--v3) 100%);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            letter-spacing: .4px;
+            transition: all .25s;
+            box-shadow: 0 6px 20px rgba(45,106,79,.28);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-login::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,.08), transparent);
+        }
+        .btn-login:hover   { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(45,106,79,.35); }
+        .btn-login:active  { transform: translateY(0); }
+        .btn-login:disabled { opacity: .55; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        /* Divisor */
+        .divisor {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 24px 0;
+        }
+        .divisor::before,
+        .divisor::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--borde);
+        }
+        .divisor span { font-size: 12px; color: var(--gris); }
+
+        /* Error */
+        .error-msg {
+            display: none;
+            background: var(--err-bg);
+            color: var(--error);
+            padding: 11px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            border-left: 3px solid var(--error);
+            align-items: center;
+            gap: 8px;
+        }
+        .error-msg.visible { display: flex; }
+
+        /* Pie */
+        .pie {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+            color: var(--gris);
+        }
+        .pie a {
+            color: var(--v2);
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .pie a:hover { text-decoration: underline; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body { grid-template-columns: 1fr; }
+            .panel-izq { display: none; }
+            .panel-der { padding: 40px 24px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Panel decorativo izquierdo -->
+    <div class="panel-izq">
+        <div class="deco-ring ring-1"></div>
+        <div class="deco-ring ring-2"></div>
+        <div class="deco-ring ring-3"></div>
+
+        <!-- Hoja SVG decorativa -->
+        <svg class="hoja-deco" width="340" height="420" viewBox="0 0 340 420" fill="none">
+            <path d="M170 10 C300 80, 340 200, 280 350 C220 420, 80 400, 40 300 C0 200, 60 80, 170 10Z" fill="#52b788"/>
+            <path d="M170 10 L170 390" stroke="#1a3d2b" stroke-width="3"/>
+            <path d="M170 80 C200 100, 230 140, 240 180" stroke="#1a3d2b" stroke-width="1.5"/>
+            <path d="M170 150 C140 170, 110 210, 100 250" stroke="#1a3d2b" stroke-width="1.5"/>
+            <path d="M170 220 C205 240, 240 275, 248 310" stroke="#1a3d2b" stroke-width="1.5"/>
+        </svg>
+
+        <div class="tagline">
+            <h1>Cultiva smarter,<br>crece <em>mejor</em></h1>
+            <p>Monitorea sensores, gestiona cultivos y recibe alertas en tiempo real desde un solo lugar.</p>
+
+            <div class="features">
+                <div class="feat-badge"><span>🌡️</span> Temperatura</div>
+                <div class="feat-badge"><span>💧</span> Humedad</div>
+                <div class="feat-badge"><span>⚗️</span> pH en tiempo real</div>
+                <div class="feat-badge"><span>☀️</span> Luz solar</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel formulario -->
+    <div class="panel-der">
+        <div class="form-wrap">
+
+            <div class="logo-box">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="AeroGarden Cloud">
+                <p class="subtitulo">Sistema de gestión de cultivos</p>
+            </div>
+
+            <h2 class="form-titulo">Bienvenido de vuelta</h2>
+            <p class="form-subtitulo">Inicia sesión para acceder a tu sistema</p>
+
+            <div id="error-msg" class="error-msg">
+                <span>⚠️</span>
+                <span id="error-texto"></span>
+            </div>
+
+            <div class="campo">
+                <label for="correo">Correo electrónico</label>
+                <div class="input-wrap">
+                    <span class="input-ico">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                    </span>
+                    <input type="email" id="correo" placeholder="ejemplo@correo.com" autofocus autocomplete="email">
+                </div>
+            </div>
+
+            <div class="campo">
+                <label for="contrasena">Contraseña</label>
+                <div class="input-wrap">
+                    <span class="input-ico">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                    </span>
+                    <input type="password" id="contrasena" placeholder="Tu contraseña" autocomplete="current-password">
+                    <button class="btn-ojo" type="button" onclick="toggleContrasena()" aria-label="Mostrar contraseña">
+                        <svg id="icoOjoAbierto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                        <svg id="icoOjoCerrado" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="display:none">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a9.97 9.97 0 012.126-3.33M6.53 6.53A9.966 9.966 0 0112 5c4.477 0 8.268 2.943 9.542 7a9.966 9.966 0 01-4.073 5.083M3 3l18 18"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <button class="btn-login" id="btnLogin" onclick="iniciarSesion()">Entrar al sistema</button>
+
+            <div class="divisor"><span>¿Nuevo aquí?</span></div>
+
+            <p class="pie">¿No tienes cuenta? <a href="/registro">Regístrate gratis</a></p>
+        </div>
+    </div>
+
+    <script>
+        function toggleContrasena() {
+            const input   = document.getElementById('contrasena');
+            const abierto = document.getElementById('icoOjoAbierto');
+            const cerrado = document.getElementById('icoOjoCerrado');
+            const visible = input.type === 'text';
+            input.type          = visible ? 'password' : 'text';
+            abierto.style.display = visible ? 'block' : 'none';
+            cerrado.style.display = visible ? 'none'  : 'block';
+        }
+
+        function mostrarError(msg) {
+            const wrap  = document.getElementById('error-msg');
+            document.getElementById('error-texto').textContent = msg;
+            wrap.classList.add('visible');
+        }
+        function limpiarError() {
+            document.getElementById('error-msg').classList.remove('visible');
+        }
+
+        async function iniciarSesion() {
+            limpiarError();
+            const correo     = document.getElementById('correo').value.trim();
+            const contrasena = document.getElementById('contrasena').value;
+
+            if (!correo || !contrasena) {
+                mostrarError('Por favor, ingresa tu correo y contraseña.');
+                return;
+            }
+
+            const btn = document.getElementById('btnLogin');
+            btn.disabled = true;
+            btn.textContent = 'Entrando…';
+
+            try {
+                const res  = await fetch('/api/auth/login', {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({ correo, contrasena })
+                });
+                const data = await res.json();
+
+                if (res.ok && data.status === 'success') {
+                    window.location.assign('/dashboard');
+                } else {
+                    mostrarError(data.mensaje || 'Credenciales inválidas');
+                    btn.disabled = false;
+                    btn.textContent = 'Entrar al sistema';
+                }
+            } catch {
+                mostrarError('No se pudo conectar con el servidor.');
+                btn.disabled = false;
+                btn.textContent = 'Entrar al sistema';
+            }
+        }
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Enter') iniciarSesion();
+        });
+    </script>
+</body>
+</html>

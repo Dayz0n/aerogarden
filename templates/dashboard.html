@@ -645,9 +645,6 @@
 <!-- ============================================================ -->
 <!-- INICIO — PANEL GENERAL                                        -->
 <!-- ============================================================ -->
-<div class="page-hero">
-    <div class="page-hero-inner" id="hero-bienvenida"></div>
-</div>
 <div id="dashboard-contenido">
 
     <!-- Bienvenida -->
@@ -659,7 +656,7 @@
         </div>
     </div>
 
-    <!-- KPIs -->
+    <!-- KPIs
     <div class="kpi-grid">
         <div class="kpi-card" onclick="mostrarSeccion('seccion-hardware')">
             <div class="kpi-icono kpi-icono-azul">🔌</div>
@@ -1520,30 +1517,7 @@ body {
     min-height: 100vh;
 }
 
-/* ── Barra superior de página debajo del nav ── */
-.page-hero {
-    background: linear-gradient(135deg, #1a3d2b 0%, #2d6a4f 100%);
-    padding: 28px 30px;
-    position: relative;
-    overflow: hidden;
-}
-.page-hero::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background:
-        radial-gradient(ellipse at 0% 50%, rgba(82,183,136,.2) 0%, transparent 55%),
-        radial-gradient(ellipse at 100% 50%, rgba(149,213,178,.12) 0%, transparent 50%);
-}
-.page-hero-inner {
-    max-width: 1100px;
-    margin: 0 auto;
-    position: relative;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    gap: 18px;
-}
+
 
 /* ── Botones generales más elegantes ── */
 button {
@@ -1633,18 +1607,4 @@ tr:hover td { background: #f0f7f3 !important; }
     border-bottom: 1px solid #c8ddd0 !important;
 }
 </style>
-<script>
-// Mover bienvenida al hero
-document.addEventListener('DOMContentLoaded', function() {
-    const hero = document.getElementById('hero-bienvenida');
-    const bienvenida = document.querySelector('.inicio-bienvenida');
-    if (hero && bienvenida) {
-        hero.appendChild(bienvenida);
-        // Adaptar colores para fondo oscuro
-        const saludo = bienvenida.querySelector('.inicio-saludo');
-        const fecha = bienvenida.querySelector('.inicio-fecha');
-        if (saludo) saludo.style.color = '#fff';
-        if (fecha) fecha.style.color = 'rgba(255,255,255,0.6)';
-    }
-});
-</script>
+

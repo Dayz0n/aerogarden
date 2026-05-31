@@ -217,11 +217,48 @@ async function guardarDispositivo() {
 
     const result = await response.json();
     if (response.ok && result.status === 'success') {
-        toast("Dispositivo guardado", "info");
         cerrarModal('modal-dispositivo');
         document.getElementById('nombreDispositivo').value = '';
         actualizarListaDispositivos();
+        mostrarModalPairing(result.pairing_code);
     }
+}
+
+function mostrarModalPairing(codigo) {
+    // Crear modal dinámico con el código de emparejamiento
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay activo';
+    overlay.id = 'modal-pairing-temp';
+    overlay.innerHTML = `
+        <div class="modal" style="text-align:center;">
+            <h3>✅ Dispositivo creado</h3>
+            <p style="color:#666; margin:10px 0 20px;">
+                Copia este código y pégalo en el sketch del Arduino:
+            </p>
+            <div style="background:#f4f4f4; border-radius:8px; padding:16px; margin-bottom:16px;">
+                <code style="font-size:13px; color:#555; display:block; margin-bottom:6px;">
+                    #define PAIRING_CODE  "${codigo}"
+                </code>
+                <div style="font-size:28px; font-weight:800; color:#2c3e50; letter-spacing:4px;">
+                    ${codigo}
+                </div>
+            </div>
+            <p style="font-size:12px; color:#e74c3c; margin-bottom:16px;">
+                ⚠️ Este código solo funciona una vez. Úsalo antes de encender el Arduino.
+            </p>
+            <button onclick="
+                navigator.clipboard.writeText('${codigo}');
+                toast('Código copiado', 'success');
+            " class="btn-verde" style="margin-bottom:8px; width:100%;">
+                📋 Copiar código
+            </button>
+            <button onclick="document.getElementById('modal-pairing-temp').remove()"
+                    style="width:100%; background:#95a5a6;">
+                Cerrar
+            </button>
+        </div>
+    `;
+    document.body.appendChild(overlay);
 }
 
 // CORREGIDO: Muestra dispositivos Y sus sensores vinculados con estado
@@ -262,6 +299,10 @@ async function actualizarListaDispositivos() {
                     <div>
                         <strong style="font-size:15px;">🔌 ${d.nombre}</strong>
                         <span class="badge badge-azul" style="margin-left:8px;">${d.tipo || 'Sin tipo'}</span>
+                        <span class="badge badge-gris" style="margin-left:6px; font-family:monospace;"
+                              title="Pon este número en el sketch: #define DEVICE_ID ${d.idDispositivo}">
+                            ID: ${d.idDispositivo}
+                        </span>
                     </div>
                     <div style="display:flex; align-items:center; gap:8px;">
                         <span class="badge ${sensoresDev.length > 0 ? 'badge-verde' : 'badge-gris'}">

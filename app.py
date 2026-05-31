@@ -6,6 +6,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 import threading
 import os
+import random
+import string
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 CORS(app)
@@ -347,6 +349,50 @@ def arduino_config():
     return jsonify({"relay": relay, "wifi": wifi})
 
 
+@app.route('/api/arduino/emparejar', methods=['POST'])
+def arduino_emparejar():
+    """
+    El Arduino llama esto la primera vez con su pairing_code.
+    Responde con el device_id si el código es válido y no expirado.
+    El código se invalida después de usarse.
+    """
+    data = request.json or {}
+    if data.get("token") != ARDUINO_TOKEN:
+        return jsonify({"error": "No autorizado"}), 401
+
+    codigo = data.get("pairing_code", "").strip().upper()
+    if not codigo:
+        return jsonify({"error": "Falta pairing_code"}), 400
+
+    try:
+        conexion = conectar_bd()
+        cursor   = conexion.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT idDispositivo FROM dispositivos
+            WHERE pairing_code = %s AND pairing_usado = 0
+            LIMIT 1
+        """, (codigo,))
+        row = cursor.fetchone()
+
+        if not row:
+            cursor.close(); conexion.close()
+            return jsonify({"error": "Código inválido o ya usado"}), 404
+
+        device_id = row['idDispositivo']
+
+        # Marcar código como usado
+        cursor.execute("""
+            UPDATE dispositivos SET pairing_usado = 1 WHERE idDispositivo = %s
+        """, (device_id,))
+        conexion.commit()
+        cursor.close(); conexion.close()
+
+        print(f"[EMPAREJAR] device_id={device_id} emparejado con código {codigo}")
+        return jsonify({"status": "ok", "device_id": device_id})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 # ============================================================
 # RUTAS DE PÁGINAS
 # ============================================================
@@ -525,6 +571,12 @@ def actualizar_foto():
 # DISPOSITIVOS
 # ============================================================
 
+def _generar_pairing_code():
+    """Genera un código único tipo HIDRO-XXXX."""
+    sufijo = ''.join(random.choices(string.digits, k=4))
+    return f"HIDRO-{sufijo}"
+
+
 @app.route('/api/dispositivos/agregar', methods=['POST'])
 @login_requerido
 def agregar_dispositivo():
@@ -536,16 +588,23 @@ def agregar_dispositivo():
         conexion = conectar_bd()
         cursor   = conexion.cursor()
         id_u     = get_id_usuario()
+
+        # Generar código de emparejamiento único
+        for _ in range(10):
+            codigo = _generar_pairing_code()
+            cursor.execute("SELECT idDispositivo FROM dispositivos WHERE pairing_code = %s", (codigo,))
+            if not cursor.fetchone():
+                break
+
         cursor.execute(
-            "INSERT INTO dispositivos (nombre, tipo, idSistema, idUsuario) VALUES (%s, %s, 1, %s)",
-            (nombre, tipo, id_u)
+            "INSERT INTO dispositivos (nombre, tipo, idSistema, idUsuario, pairing_code) VALUES (%s, %s, 1, %s, %s)",
+            (nombre, tipo, id_u, codigo)
         )
         conexion.commit()
         nuevo_id = cursor.lastrowid
         cursor.close()
         conexion.close()
-        # Devolvemos el id para que el frontend pueda mostrárselo al usuario
-        return jsonify({"status": "success", "idDispositivo": nuevo_id})
+        return jsonify({"status": "success", "idDispositivo": nuevo_id, "pairing_code": codigo})
     except Exception as e:
         return jsonify({"status": "error", "mensaje": str(e)}), 500
 

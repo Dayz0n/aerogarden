@@ -65,7 +65,7 @@ def get_id_usuario():
 # Las configs se guardan separadas — nunca se mezclan entre usuarios.
 # ============================================================
 
-relay_configs: dict = {}   # relay_configs[device_id] = {...}
+relay_configs: dict = {}   # cache en memoria para evitar consultas repetidas
 relay_lock = threading.Lock()
 
 wifi_pendiente: dict = {}  # wifi_pendiente[device_id] = {ssid, password}
@@ -80,20 +80,65 @@ def _relay_default():
 
 
 def get_relay(device_id: int) -> dict:
+    """Lee config del relay desde BD. Si no existe, devuelve valores por defecto."""
     with relay_lock:
-        if device_id not in relay_configs:
-            relay_configs[device_id] = _relay_default()
-        return relay_configs[device_id].copy()
+        if device_id in relay_configs:
+            return relay_configs[device_id].copy()
+    try:
+        cx  = conectar_bd()
+        cur = cx.cursor(dictionary=True)
+        cur.execute("""
+            SELECT tiempo_on, tiempo_off, modo, estado_manual
+            FROM config_relay
+            WHERE idDispositivo = %s
+            LIMIT 1
+        """, (device_id,))
+        row = cur.fetchone()
+        cur.close(); cx.close()
+        if row:
+            config = {
+                "tiempo_on":     row["tiempo_on"],
+                "tiempo_off":    row["tiempo_off"],
+                "modo":          row["modo"],
+                "estado_manual": row["estado_manual"],
+            }
+        else:
+            config = _relay_default()
+    except Exception as e:
+        print(f"[RELAY get_relay] Error BD: {e} — usando defaults")
+        config = _relay_default()
+    with relay_lock:
+        relay_configs[device_id] = config
+    return config.copy()
 
 
 def set_relay(device_id: int, data: dict):
+    """Guarda config del relay en BD y actualiza el cache."""
+    config = {
+        "tiempo_on":     int(data.get("tiempo_on",     30)),
+        "tiempo_off":    int(data.get("tiempo_off",    60)),
+        "modo":          data.get("modo",          "automatico"),
+        "estado_manual": data.get("estado_manual", "apagado"),
+    }
+    try:
+        cx  = conectar_bd()
+        cur = cx.cursor()
+        cur.execute("""
+            INSERT INTO config_relay (idDispositivo, tiempo_on, tiempo_off, modo, estado_manual)
+            VALUES (%s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE
+                tiempo_on     = VALUES(tiempo_on),
+                tiempo_off    = VALUES(tiempo_off),
+                modo          = VALUES(modo),
+                estado_manual = VALUES(estado_manual)
+        """, (device_id, config["tiempo_on"], config["tiempo_off"],
+              config["modo"], config["estado_manual"]))
+        cx.commit()
+        cur.close(); cx.close()
+    except Exception as e:
+        print(f"[RELAY set_relay] Error BD: {e}")
     with relay_lock:
-        relay_configs[device_id] = {
-            "tiempo_on":     int(data.get("tiempo_on",     30)),
-            "tiempo_off":    int(data.get("tiempo_off",    60)),
-            "modo":          data.get("modo",          "automatico"),
-            "estado_manual": data.get("estado_manual", "apagado"),
-        }
+        relay_configs[device_id] = config
 
 
 # ============================================================

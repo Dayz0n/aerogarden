@@ -645,6 +645,9 @@
 <!-- ============================================================ -->
 <!-- INICIO — PANEL GENERAL                                        -->
 <!-- ============================================================ -->
+<div class="page-hero">
+    <div class="page-hero-inner" id="hero-bienvenida"></div>
+</div>
 <div id="dashboard-contenido">
 
     <!-- Bienvenida -->
@@ -1507,3 +1510,141 @@ input:focus, select:focus, textarea:focus {
     border-radius: 14px !important;
 }
 </style>
+<style>
+/* ── Fondo general con textura sutil igual al login ── */
+body {
+    background: #faf9f6 !important;
+    background-image:
+        radial-gradient(ellipse at 0% 0%, rgba(82,183,136,.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 100% 100%, rgba(149,213,178,.06) 0%, transparent 50%) !important;
+    min-height: 100vh;
+}
+
+/* ── Barra superior de página debajo del nav ── */
+.page-hero {
+    background: linear-gradient(135deg, #1a3d2b 0%, #2d6a4f 100%);
+    padding: 28px 30px;
+    position: relative;
+    overflow: hidden;
+}
+.page-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse at 0% 50%, rgba(82,183,136,.2) 0%, transparent 55%),
+        radial-gradient(ellipse at 100% 50%, rgba(149,213,178,.12) 0%, transparent 50%);
+}
+.page-hero-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+/* ── Botones generales más elegantes ── */
+button {
+    font-family: 'DM Sans', sans-serif !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.2px !important;
+    border-radius: 10px !important;
+    transition: all 0.2s ease !important;
+}
+button:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(26,61,43,0.2) !important;
+}
+button:active { transform: translateY(0) !important; }
+
+.btn-verde {
+    background: #52b788 !important;
+    box-shadow: 0 3px 10px rgba(82,183,136,0.3) !important;
+}
+.btn-verde:hover { background: #2d6a4f !important; }
+
+.btn-rojo {
+    background: #e74c3c !important;
+    box-shadow: 0 3px 10px rgba(231,76,60,0.25) !important;
+}
+.btn-rojo:hover { background: #c0392b !important; }
+
+/* ── Inputs con estilo del login ── */
+input, select, textarea {
+    border: 1.5px solid #c8ddd0 !important;
+    border-radius: 10px !important;
+    font-family: 'DM Sans', sans-serif !important;
+    color: #1a2e22 !important;
+    background: #fff !important;
+    transition: border-color .2s, box-shadow .2s !important;
+}
+input:focus, select:focus, textarea:focus {
+    outline: none !important;
+    border-color: #52b788 !important;
+    box-shadow: 0 0 0 3.5px rgba(82,183,136,.16) !important;
+}
+
+/* ── Secciones con fondo limpio ── */
+.seccion {
+    background: transparent;
+}
+
+/* ── Cards más refinadas ── */
+.card, .inicio-panel, .kpi-card {
+    background: #fff !important;
+    border: 1px solid #c8ddd0 !important;
+    box-shadow: 0 2px 12px rgba(26,61,43,0.07) !important;
+}
+
+/* ── Tabla headers verdes ── */
+th {
+    background: #1a3d2b !important;
+    font-family: 'DM Sans', sans-serif !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.4px !important;
+    font-size: 12px !important;
+    text-transform: uppercase !important;
+}
+tr:hover td { background: #f0f7f3 !important; }
+
+/* ── Modal más elegante ── */
+.modal {
+    border-radius: 16px !important;
+    box-shadow: 0 20px 60px rgba(26,61,43,0.18) !important;
+}
+.modal h3 {
+    font-family: 'Playfair Display', serif !important;
+    color: #1a2e22 !important;
+    font-size: 20px !important;
+}
+
+/* ── Títulos de sección ── */
+.seccion h1, #dashboard-contenido h1 {
+    font-family: 'Playfair Display', serif !important;
+    color: #1a2e22 !important;
+    border-bottom: 2px solid #c8ddd0 !important;
+}
+
+/* ── Inicio panel header ── */
+.inicio-panel-header {
+    background: #f0f7f3 !important;
+    border-bottom: 1px solid #c8ddd0 !important;
+}
+</style>
+<script>
+// Mover bienvenida al hero
+document.addEventListener('DOMContentLoaded', function() {
+    const hero = document.getElementById('hero-bienvenida');
+    const bienvenida = document.querySelector('.inicio-bienvenida');
+    if (hero && bienvenida) {
+        hero.appendChild(bienvenida);
+        // Adaptar colores para fondo oscuro
+        const saludo = bienvenida.querySelector('.inicio-saludo');
+        const fecha = bienvenida.querySelector('.inicio-fecha');
+        if (saludo) saludo.style.color = '#fff';
+        if (fecha) fecha.style.color = 'rgba(255,255,255,0.6)';
+    }
+});
+</script>

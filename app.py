@@ -168,7 +168,7 @@ def guardar_lectura_bd(id_sensor, valor):
         )
         cursor.execute("""
             SELECT idParametro, nombre, condicion, valor_umbral, prioridad
-            FROM Parametros_Alerta
+            FROM parametros_alerta
             WHERE idSensor = %s AND activo = 1
         """, (id_sensor,))
         for p in cursor.fetchall():
@@ -182,7 +182,7 @@ def guardar_lectura_bd(id_sensor, valor):
             if disparo:
                 msg = f"Sensor {id_sensor}: valor {valor} {cond.replace('_',' ')} umbral {umbral}"
                 cursor.execute("""
-                    INSERT INTO Historial_Alertas
+                    INSERT INTO historial_alertas
                         (idParametro, idSensor, valor_detectado, prioridad, estado, mensaje)
                     VALUES (%s, %s, %s, %s, 'nueva', %s)
                 """, (p['idParametro'], id_sensor, valor, p['prioridad'], msg))
@@ -1049,7 +1049,7 @@ def listar_parametros():
             SELECT p.idParametro, p.nombre, p.condicion, p.valor_umbral,
                    p.prioridad, p.activo,
                    s.tipo_sensor, s.unidad_medida, s.idSensore AS idSensor
-            FROM Parametros_Alerta p
+            FROM parametros_alerta p
             JOIN sensores s ON p.idSensor = s.idSensore
             JOIN dispositivos d ON s.idDispositivo = d.idDispositivo
             WHERE d.idUsuario = %s
@@ -1074,7 +1074,7 @@ def agregar_parametro():
         conexion = conectar_bd()
         cursor   = conexion.cursor()
         cursor.execute(
-            """INSERT INTO Parametros_Alerta (idSensor, nombre, condicion, valor_umbral, prioridad, activo)
+            """INSERT INTO parametros_alerta (idSensor, nombre, condicion, valor_umbral, prioridad, activo)
                VALUES (%s, %s, %s, %s, %s, 1)""",
             (data['idSensor'], data['nombre'], data['condicion'], data['valor_umbral'], data['prioridad'])
         )
@@ -1094,7 +1094,7 @@ def editar_parametro(id_param):
         conexion = conectar_bd()
         cursor   = conexion.cursor()
         cursor.execute(
-            """UPDATE Parametros_Alerta
+            """UPDATE parametros_alerta
                SET nombre=%s, condicion=%s, valor_umbral=%s, prioridad=%s, activo=%s
                WHERE idParametro=%s""",
             (data['nombre'], data['condicion'], data['valor_umbral'],
@@ -1113,7 +1113,7 @@ def eliminar_parametro(id_param):
     try:
         conexion = conectar_bd()
         cursor   = conexion.cursor()
-        cursor.execute("DELETE FROM Parametros_Alerta WHERE idParametro=%s", (id_param,))
+        cursor.execute("DELETE FROM parametros_alerta WHERE idParametro=%s", (id_param,))
         conexion.commit()
         cursor.close(); conexion.close()
         return jsonify({"status": "success"})
@@ -1155,10 +1155,10 @@ def historial_alertas():
                    h.mensaje, h.fecha_hora, h.fecha_resolucion,
                    s.tipo_sensor, s.unidad_medida,
                    p.nombre AS nombre_parametro, p.condicion, p.valor_umbral
-            FROM Historial_Alertas h
+            FROM historial_alertas h
             JOIN sensores s ON h.idSensor = s.idSensore
             JOIN dispositivos d ON s.idDispositivo = d.idDispositivo
-            JOIN Parametros_Alerta p ON h.idParametro = p.idParametro
+            JOIN parametros_alerta p ON h.idParametro = p.idParametro
             {where}
             ORDER BY h.fecha_hora DESC
             LIMIT %s
@@ -1189,7 +1189,7 @@ def registrar_alerta():
         conexion = conectar_bd()
         cursor   = conexion.cursor()
         cursor.execute(
-            """INSERT INTO Historial_Alertas (idParametro, idSensor, valor_detectado, prioridad, estado, mensaje)
+            """INSERT INTO historial_alertas (idParametro, idSensor, valor_detectado, prioridad, estado, mensaje)
                VALUES (%s, %s, %s, %s, 'nueva', %s)""",
             (data['idParametro'], data['idSensor'], data['valor_detectado'],
              data['prioridad'], data.get('mensaje', ''))
@@ -1215,12 +1215,12 @@ def actualizar_estado_alerta(id_historial):
         cursor   = conexion.cursor()
         if nuevo_estado == 'resuelta':
             cursor.execute(
-                "UPDATE Historial_Alertas SET estado=%s, fecha_resolucion=NOW() WHERE idHistorial=%s",
+                "UPDATE historial_alertas SET estado=%s, fecha_resolucion=NOW() WHERE idHistorial=%s",
                 (nuevo_estado, id_historial)
             )
         else:
             cursor.execute(
-                "UPDATE Historial_Alertas SET estado=%s WHERE idHistorial=%s",
+                "UPDATE historial_alertas SET estado=%s WHERE idHistorial=%s",
                 (nuevo_estado, id_historial)
             )
         conexion.commit()
@@ -1236,7 +1236,7 @@ def conteo_alertas_nuevas():
     try:
         conexion = conectar_bd()
         cursor   = conexion.cursor()
-        cursor.execute("SELECT COUNT(*) FROM Historial_Alertas WHERE estado='nueva'")
+        cursor.execute("SELECT COUNT(*) FROM historial_alertas WHERE estado='nueva'")
         total = cursor.fetchone()[0]
         cursor.close(); conexion.close()
         return jsonify({"nuevas": total})

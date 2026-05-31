@@ -509,6 +509,7 @@
         <span id="badge-alertas-nav" class="badge-nav">0</span>
     </button>
     <button onclick="mostrarSeccion('seccion-relevador'); cargarSeccionRelevador()">💧 Bomba</button>
+    <button onclick="mostrarSeccion('seccion-wifi'); cargarRedActual()">📶 WiFi</button>
     <button onclick="mostrarSeccion('seccion-configuracion')">👤 Configuración</button>
     <a href="/logout">Cerrar sesión</a>
 </nav>
@@ -938,6 +939,57 @@
     <div class="card" style="margin-top:12px;">
         <h3>ℹ️ Ayuda y Soporte</h3>
         <p>Plataforma de gestión de cultivos e invernaderos inteligentes. Versión 1.0.</p>
+    </div>
+</div>
+
+
+<div id="seccion-wifi" class="seccion">
+    <h1>📶 Configuración de Red WiFi</h1>
+    <p style="color:#666; margin-bottom:20px;">
+        Desde aquí puedes cambiar la red WiFi a la que se conecta el Arduino/ESP32.
+        El cambio se aplica en segundos sin necesidad de tocar el hardware.
+    </p>
+
+    <!-- Estado actual -->
+    <div class="card" style="margin-bottom:16px;">
+        <h3>Estado actual del dispositivo</h3>
+        <div style="display:flex; align-items:center; gap:12px; margin-top:10px;">
+            <div id="wifi-estado-icon" style="font-size:28px;">⏳</div>
+            <div>
+                <div style="font-weight:600; font-size:15px;" id="wifi-red-actual">Cargando...</div>
+                <div style="font-size:13px; color:#888;" id="wifi-estado-texto">Consultando estado...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cambiar red -->
+    <div class="card">
+        <h3>🔧 Cambiar red WiFi</h3>
+        <p style="font-size:13px; color:#666; margin-bottom:14px;">
+            Ingresa el nombre (SSID) y contraseña de la red a la que quieres conectar el Arduino.
+            El dispositivo recibirá la nueva configuración y se reconectará automáticamente.
+        </p>
+        <label>Nombre de la red (SSID)</label>
+        <input type="text" id="wifi-ssid" placeholder="Ej: MiCasaWiFi">
+        <label style="margin-top:10px;">Contraseña</label>
+        <div style="position:relative;">
+            <input type="password" id="wifi-pass" placeholder="Contraseña de la red" style="padding-right:44px;">
+            <button onclick="toggleVerPass()" style="
+                position:absolute; right:10px; top:50%; transform:translateY(-50%);
+                background:none; border:none; cursor:pointer; font-size:18px;
+            " title="Ver contraseña">👁️</button>
+        </div>
+        <button onclick="enviarRedWifi()" class="btn-verde" style="margin-top:14px; width:100%;">
+            📡 Enviar al Arduino
+        </button>
+    </div>
+
+    <!-- Historial de redes enviadas -->
+    <div class="card" style="margin-top:16px;">
+        <h3>📋 Últimas redes configuradas</h3>
+        <div id="wifi-historial" style="margin-top:10px; color:#888; font-size:14px;">
+            Cargando historial...
+        </div>
     </div>
 </div>
 

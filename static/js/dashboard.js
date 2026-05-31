@@ -1861,3 +1861,109 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Actualiza badge de alertas cada 60 segundos
     setInterval(actualizarBadgeNav, 60000);
 });
+
+// ============================================================
+// SECCION WIFI — Configurar red del Arduino desde el dashboard
+// ============================================================
+
+async function cargarRedActual() {
+    try {
+        const r = await fetch('/api/wifi/estado');
+        const d = await r.json();
+        const icon  = document.getElementById('wifi-estado-icon');
+        const red   = document.getElementById('wifi-red-actual');
+        const texto = document.getElementById('wifi-estado-texto');
+
+        if (d.ssid) {
+            icon.textContent  = '✅';
+            red.textContent   = 'Red: ' + d.ssid;
+            texto.textContent = 'Última configuración enviada: ' + (d.fecha || 'desconocida');
+        } else {
+            icon.textContent  = '❓';
+            red.textContent   = 'Sin configuración enviada aún';
+            texto.textContent = 'Usa el formulario para enviar una red al Arduino';
+        }
+
+        cargarHistorialWifi();
+    } catch(e) {
+        document.getElementById('wifi-red-actual').textContent = 'Error al consultar estado';
+    }
+}
+
+async function cargarHistorialWifi() {
+    try {
+        const r = await fetch('/api/wifi/historial');
+        const d = await r.json();
+        const cont = document.getElementById('wifi-historial');
+
+        if (!d.historial || d.historial.length === 0) {
+            cont.innerHTML = '<p>Aún no has enviado ninguna red.</p>';
+            return;
+        }
+
+        cont.innerHTML = d.historial.map(item => `
+            <div style="display:flex; justify-content:space-between; align-items:center;
+                        padding:10px 0; border-bottom:1px solid #eee;">
+                <div>
+                    <div style="font-weight:600;">📶 ${item.ssid}</div>
+                    <div style="font-size:12px; color:#999;">${item.fecha}</div>
+                </div>
+                <button onclick="usarRedGuardada('${item.ssid}')"
+                    style="padding:5px 12px; border-radius:6px; border:1px solid #27ae60;
+                           color:#27ae60; background:white; cursor:pointer; font-size:13px;">
+                    Usar esta
+                </button>
+            </div>
+        `).join('');
+    } catch(e) {
+        document.getElementById('wifi-historial').textContent = 'Error al cargar historial';
+    }
+}
+
+function usarRedGuardada(ssid) {
+    document.getElementById('wifi-ssid').value = ssid;
+    document.getElementById('wifi-pass').value = '';
+    document.getElementById('wifi-pass').focus();
+    toast('Red seleccionada. Ingresa la contraseña y envía.', 'info');
+}
+
+function toggleVerPass() {
+    const input = document.getElementById('wifi-pass');
+    input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+async function enviarRedWifi() {
+    const ssid = document.getElementById('wifi-ssid').value.trim();
+    const pass = document.getElementById('wifi-pass').value;
+
+    if (!ssid) { toast('Ingresa el nombre de la red (SSID)', 'warning'); return; }
+    if (!pass)  { toast('Ingresa la contraseña de la red', 'warning'); return; }
+
+    const btn = document.querySelector('#seccion-wifi .btn-verde');
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+
+    try {
+        const r = await fetch('/api/wifi/configurar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ssid, password: pass })
+        });
+        const d = await r.json();
+
+        if (r.ok && d.status === 'ok') {
+            toast('¡Red enviada al Arduino correctamente!', 'success');
+            document.getElementById('wifi-ssid').value = '';
+            document.getElementById('wifi-pass').value = '';
+            cargarRedActual();
+        } else {
+            toast('Error: ' + (d.mensaje || 'No se pudo enviar'), 'error');
+        }
+    } catch(e) {
+        toast('Error de conexión al enviar la red', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '📡 Enviar al Arduino';
+    }
+}
+

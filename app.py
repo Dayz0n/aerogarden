@@ -1113,6 +1113,55 @@ def estado_relevador():
 
 
 # ============================================================
+# WIFI — Configurar red del Arduino desde el dashboard
+# ============================================================
+
+wifi_config_actual = {"ssid": None, "fecha": None}
+wifi_historial     = []
+
+@app.route('/api/wifi/estado', methods=['GET'])
+@login_requerido
+def wifi_estado():
+    return jsonify(wifi_config_actual)
+
+@app.route('/api/wifi/historial', methods=['GET'])
+@login_requerido
+def wifi_historial_endpoint():
+    return jsonify({"historial": wifi_historial[-10:]})  # ultimas 10
+
+@app.route('/api/wifi/configurar', methods=['POST'])
+@login_requerido
+def wifi_configurar():
+    """
+    Recibe {ssid, password} y lo publica a Adafruit IO.
+    El Arduino lo recibe y se reconecta a esa red.
+    """
+    data     = request.json
+    ssid     = data.get('ssid', '').strip()
+    password = data.get('password', '')
+
+    if not ssid or not password:
+        return jsonify({"status": "error", "mensaje": "SSID y contraseña requeridos"}), 400
+
+    # Publicar a Adafruit IO — el Arduino escucha estos feeds
+    publicar_mqtt('wifi-ssid',     ssid)
+    publicar_mqtt('wifi-password', password)
+
+    # Guardar en memoria
+    from datetime import datetime
+    fecha = datetime.now().strftime("%d/%m/%Y %H:%M")
+    wifi_config_actual['ssid']  = ssid
+    wifi_config_actual['fecha'] = fecha
+
+    # Agregar al historial (sin duplicados)
+    wifi_historial[:] = [h for h in wifi_historial if h['ssid'] != ssid]
+    wifi_historial.append({"ssid": ssid, "fecha": fecha})
+
+    print(f"[WiFi] Configuración enviada → SSID: {ssid}")
+    return jsonify({"status": "ok", "ssid": ssid})
+
+
+# ============================================================
 # INICIO
 # ============================================================
 

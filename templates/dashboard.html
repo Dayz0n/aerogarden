@@ -1320,15 +1320,17 @@
         <label>Dispositivo</label>
         <select id="selectDispositivoVinculado"></select>
         <label>Tipo de sensor</label>
-        <select id="tipoSensor">
-            <option value="Temperatura">Temperatura</option>
-            <option value="Humedad">Humedad</option>
-            <option value="pH">pH</option>
-            <option value="EC">EC</option>
-            <option value="CO2">CO2</option>
-            <option value="Luz">Luz</option>
-            <option value="Presión">Presión</option>
-            <option value="Caudal">Caudal</option>
+        <select id="tipoSensor" onchange="actualizarUnidadSegunTipo()">
+            <option value="temperatura">Temperatura</option>
+            <option value="humedad">Humedad</option>
+            <option value="ph">pH</option>
+            <option value="ec">EC</option>
+            <option value="co2">CO2</option>
+            <option value="luz">Luz</option>
+            <option value="distancia">Distancia (Ultrasónico)</option>
+            <option value="nivel agua">Nivel de Agua</option>
+            <option value="presion">Presión</option>
+            <option value="caudal">Caudal</option>
         </select>
         <label>Unidad de medida</label>
         <select id="unidadMedida">
@@ -1338,6 +1340,7 @@
             <option value="mS/cm">mS/cm (EC)</option>
             <option value="ppm">ppm (CO2)</option>
             <option value="lux">lux (Luz)</option>
+            <option value="cm">cm (Distancia / Nivel)</option>
             <option value="hPa">hPa (Presión)</option>
             <option value="L/min">L/min (Caudal)</option>
         </select>
@@ -1669,5 +1672,27 @@ setInterval(() => {
 })();
 </script>
 <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script>
+// Auto-selecciona la unidad según el tipo de sensor elegido
+function actualizarUnidadSegunTipo() {
+    const tipo = document.getElementById('tipoSensor').value;
+    const unidad = document.getElementById('unidadMedida');
+    const mapa = {
+        'temperatura': '°C',
+        'humedad':     '%',
+        'ph':          'pH',
+        'ec':          'mS/cm',
+        'co2':         'ppm',
+        'luz':         'lux',
+        'distancia':   'cm',
+        'nivel agua':  'cm',
+        'presion':     'hPa',
+        'caudal':      'L/min',
+    };
+    if (mapa[tipo] && unidad) {
+        unidad.value = mapa[tipo];
+    }
+}
+</script>
 </body>
 </html>

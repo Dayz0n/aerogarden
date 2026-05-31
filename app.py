@@ -161,12 +161,20 @@ def on_message(client, userdata, msg):
         print(f"[MQTT] Error procesando {topic}: {e}")
 
 
+# Cliente MQTT global para poder publicar desde los endpoints de Flask
+mqtt_cliente_global = None
+mqtt_cliente_lock   = threading.Lock()
+
 def iniciar_mqtt():
     """Corre en un hilo separado. Mantiene conexión permanente a Adafruit IO."""
+    global mqtt_cliente_global
     cliente = mqtt_client.Client()
     cliente.username_pw_set(AIO_USERNAME, AIO_KEY)
     cliente.on_connect = on_connect
     cliente.on_message = on_message
+
+    with mqtt_cliente_lock:
+        mqtt_cliente_global = cliente
 
     while True:
         try:
@@ -176,6 +184,18 @@ def iniciar_mqtt():
         except Exception as e:
             print(f"[MQTT] Reconectando en 10s... ({e})")
             import time; time.sleep(10)
+
+def publicar_mqtt(feed, valor):
+    """Publica un valor a un feed de Adafruit IO desde Flask."""
+    global mqtt_cliente_global
+    try:
+        topic = f"{AIO_USERNAME}/feeds/{feed}"
+        with mqtt_cliente_lock:
+            if mqtt_cliente_global and mqtt_cliente_global.is_connected():
+                mqtt_cliente_global.publish(topic, str(valor))
+                print(f"[MQTT] Publicado → {topic}: {valor}")
+    except Exception as e:
+        print(f"[MQTT] Error al publicar en {feed}: {e}")
 
 
 # Arrancar el hilo MQTT al iniciar Flask
@@ -1056,16 +1076,31 @@ def obtener_config_relevador():
 @login_requerido
 def guardar_config_relevador():
     """
-    El dashboard guarda nueva config.
-    Body: {"tiempo_on": 30, "tiempo_off": 60, "modo": "automatico"}
-    Flask publica el nuevo tiempo al feed MQTT de Adafruit IO
-    para que el Arduino lo reciba (si agregas suscripción en el Arduino).
+    El dashboard guarda nueva config y la publica a Adafruit IO
+    para que el Arduino la reciba en tiempo real.
+    Body: {"tiempo_on": 30, "tiempo_off": 60, "modo": "automatico", "estado_manual": "encendido"}
     """
     data = request.json
+    modo          = data.get('modo', 'automatico')
+    estado_manual = data.get('estado_manual', 'apagado')
+    tiempo_on     = int(data.get('tiempo_on', 30))
+    tiempo_off    = int(data.get('tiempo_off', 60))
+
     with relay_lock:
-        config_relevador['tiempo_on']  = int(data.get('tiempo_on', 30))
-        config_relevador['tiempo_off'] = int(data.get('tiempo_off', 60))
-        config_relevador['modo']       = data.get('modo', 'automatico')
+        config_relevador['tiempo_on']     = tiempo_on
+        config_relevador['tiempo_off']    = tiempo_off
+        config_relevador['modo']          = modo
+        config_relevador['estado_manual'] = estado_manual
+
+    # Publicar a Adafruit IO para que el Arduino lo reciba
+    publicar_mqtt('relay-tiempo-on',  tiempo_on)
+    publicar_mqtt('relay-tiempo-off', tiempo_off)
+
+    if modo == 'manual':
+        publicar_mqtt('relay-modo', f'manual:{estado_manual}')
+    else:
+        publicar_mqtt('relay-modo', 'automatico')
+
     return jsonify({"status": "ok", "config": config_relevador})
 
 

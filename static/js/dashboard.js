@@ -958,8 +958,20 @@ async function cargarInfoUsuario() {
     try {
         const res  = await fetch('/api/usuario/info');
         const user = await res.json();
-        document.getElementById('userNombre').textContent = user.nombre || '—';
+
+        // Nombre completo
+        const nombreCompleto = [user.nombre, user.apellido_paterno, user.apellido_materno]
+            .filter(Boolean).join(' ');
+        document.getElementById('userNombre').textContent = nombreCompleto || '—';
         document.getElementById('userCorreo').textContent = user.correo || '—';
+
+        // Pre-llenar campos de edición
+        const eN = document.getElementById('editNombre');
+        const eP = document.getElementById('editApellidoPaterno');
+        const eM = document.getElementById('editApellidoMaterno');
+        if (eN) eN.value = user.nombre || '';
+        if (eP) eP.value = user.apellido_paterno || '';
+        if (eM) eM.value = user.apellido_materno || '';
 
         // Cargar foto de perfil si existe
         const fotoEl = document.getElementById('fotoPerfil');
@@ -976,6 +988,47 @@ async function cargarInfoUsuario() {
             }
         }
     } catch (e) { console.error("Error usuario:", e); }
+}
+
+async function actualizarNombrePerfil() {
+    const nombre           = document.getElementById('editNombre')?.value.trim();
+    const apellido_paterno = document.getElementById('editApellidoPaterno')?.value.trim();
+    const apellido_materno = document.getElementById('editApellidoMaterno')?.value.trim();
+    const msgEl            = document.getElementById('msgNombre');
+    const btnEl            = document.getElementById('btnActualizarNombre');
+
+    if (!nombre || !apellido_paterno || !apellido_materno) {
+        if (msgEl) { msgEl.textContent = '⚠️ Completa todos los campos.'; msgEl.style.color = '#c0392b'; msgEl.style.display = 'inline'; }
+        return;
+    }
+
+    if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'Guardando...'; }
+
+    try {
+        const res  = await fetch('/api/usuario/actualizar_nombre', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ nombre, apellido_paterno, apellido_materno })
+        });
+        const data = await res.json();
+
+        if (res.ok && data.status === 'success') {
+            if (msgEl) { msgEl.textContent = '✅ Nombre actualizado.'; msgEl.style.color = '#1e7e4a'; msgEl.style.display = 'inline'; }
+            // Refrescar nombre mostrado
+            const nombreCompleto = [nombre, apellido_paterno, apellido_materno].join(' ');
+            const uN = document.getElementById('userNombre');
+            if (uN) uN.textContent = nombreCompleto;
+            const iN = document.getElementById('inicio-nombre');
+            if (iN) iN.textContent = nombre;
+            setTimeout(() => { if (msgEl) msgEl.style.display = 'none'; }, 3000);
+        } else {
+            if (msgEl) { msgEl.textContent = '⚠️ ' + (data.mensaje || 'Error al guardar.'); msgEl.style.color = '#c0392b'; msgEl.style.display = 'inline'; }
+        }
+    } catch {
+        if (msgEl) { msgEl.textContent = '⚠️ Error de conexión.'; msgEl.style.color = '#c0392b'; msgEl.style.display = 'inline'; }
+    } finally {
+        if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Guardar cambios'; }
+    }
 }
 
 async function cambiarPassword() {

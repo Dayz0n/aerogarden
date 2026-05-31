@@ -360,14 +360,39 @@
             </div>
 
             <div class="campo">
-                <label for="nombre">Nombre completo</label>
+                <label for="nombre">Nombre(s)</label>
                 <div class="input-wrap">
                     <span class="input-ico">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                         </svg>
                     </span>
-                    <input type="text" id="nombre" placeholder="Tu nombre completo" autofocus autocomplete="name">
+                    <input type="text" id="nombre" placeholder="Tu(s) nombre(s)" autofocus autocomplete="given-name">
+                </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                <div class="campo" style="margin-bottom:0;">
+                    <label for="apellido_paterno">Apellido paterno</label>
+                    <div class="input-wrap">
+                        <span class="input-ico">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </span>
+                        <input type="text" id="apellido_paterno" placeholder="Apellido paterno" autocomplete="family-name">
+                    </div>
+                </div>
+                <div class="campo" style="margin-bottom:0;">
+                    <label for="apellido_materno">Apellido materno</label>
+                    <div class="input-wrap">
+                        <span class="input-ico">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </span>
+                        <input type="text" id="apellido_materno" placeholder="Apellido materno" autocomplete="additional-name">
+                    </div>
                 </div>
             </div>
 
@@ -472,12 +497,14 @@
 
         async function enviarRegistro() {
             limpiarMsg();
-            const nombre     = document.getElementById('nombre').value.trim();
-            const correo     = document.getElementById('correo').value.trim();
-            const contrasena = document.getElementById('contrasena').value;
-            const confirmar  = document.getElementById('confirmar').value;
+            const nombre            = document.getElementById('nombre').value.trim();
+            const apellido_paterno  = document.getElementById('apellido_paterno').value.trim();
+            const apellido_materno  = document.getElementById('apellido_materno').value.trim();
+            const correo            = document.getElementById('correo').value.trim();
+            const contrasena        = document.getElementById('contrasena').value;
+            const confirmar         = document.getElementById('confirmar').value;
 
-            if (!nombre || !correo || !contrasena || !confirmar) {
+            if (!nombre || !apellido_paterno || !apellido_materno || !correo || !contrasena || !confirmar) {
                 mostrarMsg('error', '⚠️', 'Por favor, completa todos los campos.'); return;
             }
             if (contrasena.length < 6) {
@@ -495,7 +522,7 @@
                 const res  = await fetch('/api/auth/registrar', {
                     method:  'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body:    JSON.stringify({ nombre, correo, contrasena })
+                    body:    JSON.stringify({ nombre, apellido_paterno, apellido_materno, correo, contrasena })
                 });
                 const data = await res.json();
 

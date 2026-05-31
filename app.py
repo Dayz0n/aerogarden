@@ -423,19 +423,21 @@ def logout():
 @app.route('/api/auth/registrar', methods=['POST'])
 def registrar_usuario():
     try:
-        data      = request.json
-        nombre    = data.get('nombre')
-        correo    = data.get('correo')
-        contrasena = data.get('contrasena')
+        data               = request.json
+        nombre             = data.get('nombre', '').strip()
+        apellido_paterno   = data.get('apellido_paterno', '').strip()
+        apellido_materno   = data.get('apellido_materno', '').strip()
+        correo             = data.get('correo', '').strip()
+        contrasena         = data.get('contrasena')
 
-        if not nombre or not correo or not contrasena:
+        if not nombre or not apellido_paterno or not apellido_materno or not correo or not contrasena:
             return jsonify({"status": "error", "mensaje": "Datos incompletos"}), 400
 
         conexion = conectar_bd()
         cursor   = conexion.cursor()
         cursor.execute(
-            "INSERT INTO `usuarios` (`nombre`, `correo`, `contraseña`) VALUES (%s, %s, %s)",
-            (nombre, correo, generate_password_hash(contrasena))
+            "INSERT INTO `usuarios` (`nombre`, `apellido_paterno`, `apellido_materno`, `correo`, `contraseña`) VALUES (%s, %s, %s, %s, %s)",
+            (nombre, apellido_paterno, apellido_materno, correo, generate_password_hash(contrasena))
         )
         conexion.commit()
         cursor.close()
@@ -443,6 +445,34 @@ def registrar_usuario():
         return jsonify({"status": "success", "mensaje": "Usuario registrado"})
     except mysql.connector.Error as err:
         return jsonify({"status": "error", "mensaje": str(err)}), 500
+
+
+@app.route('/api/usuario/actualizar_nombre', methods=['POST'])
+@login_requerido
+def actualizar_nombre():
+    try:
+        data             = request.json or {}
+        nombre           = data.get('nombre', '').strip()
+        apellido_paterno = data.get('apellido_paterno', '').strip()
+        apellido_materno = data.get('apellido_materno', '').strip()
+
+        if not nombre or not apellido_paterno or not apellido_materno:
+            return jsonify({"status": "error", "mensaje": "Todos los campos son requeridos"}), 400
+
+        conexion = conectar_bd()
+        cursor   = conexion.cursor()
+        cursor.execute(
+            "UPDATE usuarios SET nombre=%s, apellido_paterno=%s, apellido_materno=%s WHERE correo=%s",
+            (nombre, apellido_paterno, apellido_materno, session['usuario_logueado'])
+        )
+        conexion.commit()
+        cursor.close()
+        conexion.close()
+
+        session['usuario_nombre'] = nombre
+        return jsonify({"status": "success", "mensaje": "Nombre actualizado correctamente"})
+    except Exception as e:
+        return jsonify({"status": "error", "mensaje": str(e)}), 500
 
 
 @app.route('/api/auth/login', methods=['POST'])
@@ -480,7 +510,7 @@ def obtener_usuario():
         conexion = conectar_bd()
         cursor   = conexion.cursor(dictionary=True)
         cursor.execute(
-            "SELECT nombre, correo, foto_perfil FROM usuarios WHERE correo = %s",
+            "SELECT nombre, apellido_paterno, apellido_materno, correo, foto_perfil FROM usuarios WHERE correo = %s",
             (session['usuario_logueado'],)
         )
         usuario = cursor.fetchone()
@@ -491,9 +521,11 @@ def obtener_usuario():
             return jsonify({"error": "Usuario no encontrado"}), 404
 
         return jsonify({
-            "nombre":      usuario['nombre'],
-            "correo":      usuario['correo'],
-            "foto_perfil": usuario.get('foto_perfil') or None
+            "nombre":           usuario['nombre'],
+            "apellido_paterno": usuario.get('apellido_paterno') or '',
+            "apellido_materno": usuario.get('apellido_materno') or '',
+            "correo":           usuario['correo'],
+            "foto_perfil":      usuario.get('foto_perfil') or None
         })
     except Exception:
         try:

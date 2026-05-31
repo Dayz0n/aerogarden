@@ -680,7 +680,12 @@ async function guardarSiembra() {
             body: JSON.stringify({ nombre, fecha, cantidad, tamano, idTipo, idSistema: 1 })
         });
         const result = await response.json();
-        if (response.ok && result.status === 'success') { toast("¡Siembra guardada correctamente!", "success"); cerrarModal('modal-siembra'); cargarTablaCultivosSeccion(); }
+        if (response.ok && result.status === 'success') {
+            toast("¡Siembra guardada correctamente!", "success");
+            cerrarModal('modal-siembra');
+            await cargarTablaCultivosSeccion();
+            await cargarTablaCultivos();
+        }
         else toast("Error al guardar siembra: " + (result.error || "Revisa los datos"), "error");
     } catch (error) { toast("Error de conexión: " + error.message, "error"); }
 }
@@ -702,7 +707,10 @@ async function guardarTipoCultivo() {
         cerrarModal('modal-tipo-cultivo');
         document.getElementById('nombrePlanta').value = '';
         document.getElementById('descPlanta').value   = '';
-    } else toast("Error al guardar", "error");
+        // Recargar dropdown de tipos para que aparezca el nuevo
+        await cargarTiposCultivo();
+        _tiposCultivoCache = [];  // limpiar cache para que se recargue en edición
+    } else toast("Error al guardar tipo de cultivo", "error");
 }
 
 
@@ -744,9 +752,15 @@ async function guardarCosecha() {
             body: JSON.stringify(data)
         });
         const result = await response.json();
-        if (response.ok && result.status === 'success') { toast("¡Cosecha guardada correctamente!", "success"); cerrarModal('modal-cosecha'); cargarTablaCosechasSeccion(); }
+        if (response.ok && result.status === 'success') {
+            toast("¡Cosecha guardada correctamente!", "success");
+            cerrarModal('modal-cosecha');
+            await cargarTablaCosechasSeccion();
+            await cargarTablaCosechas();
+            await cargarCultivosActivos();
+        }
         else toast("Error al guardar cosecha: " + (result.error || "Revisa los datos"), "error");
-    } catch (e) { toast("Error de conexión: " + e.message, "info"); }
+    } catch (e) { toast("Error de conexión: " + e.message, "error"); }
 }
 
 
@@ -839,31 +853,7 @@ async function abrirEditarCultivo(c) {
     abrirModal('modal-editar-cultivo');
 }
 
-async function guardarEdicionCultivo() {
-    const id = document.getElementById('editCultivoId').value;
-    const body = {
-        nombre:  document.getElementById('editNombreCultivo').value.trim(),
-        fecha:   document.getElementById('editFechaSiembra').value,
-        cantidad:document.getElementById('editCantidadPlantas').value,
-        tamano:  document.getElementById('editTamanoPlantas').value,
-        idTipo:  document.getElementById('editTipoCultivo').value
-    };
-    if (!body.nombre || !body.fecha || !body.cantidad) {
-        toast("Completa todos los campos obligatorios", "warning"); return;
-    }
-    try {
-        const res = await fetch(`/api/cultivos/editar/${id}`, {
-            method: 'PUT', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(body)
-        });
-        const data = await res.json();
-        if (data.status === 'success') {
-            cerrarModal('modal-editar-cultivo');
-            await cargarTablaCultivos();
-            await cargarCultivosActivos();
-        } else { toast('Error: ' + (data.error || 'desconocido', "info")); }
-    } catch(e) { toast('Error de red: ' + e, "info"); }
-}
+// guardarEdicionCultivo — definición completa más abajo (sección 15)
 
 async function eliminarCultivo(id) {
     if (!await confirmar('¿Eliminar este cultivo? También se eliminarán sus cosechas asociadas.')) return;
@@ -871,10 +861,13 @@ async function eliminarCultivo(id) {
         const res  = await fetch(`/api/cultivos/eliminar/${id}`, { method: 'DELETE' });
         const data = await res.json();
         if (data.status === 'success') {
+            toast('Cultivo eliminado', 'success');
             await cargarTablaCultivos();
+            await cargarTablaCultivosSeccion();
+            await cargarTablaCosechasSeccion();
             await cargarCultivosActivos();
-        } else { toast('Error: ' + (data.error || 'desconocido', "info")); }
-    } catch(e) { toast('Error de red: ' + e, "info"); }
+        } else { toast('Error: ' + (data.error || 'desconocido'), 'error'); }
+    } catch(e) { toast('Error de red: ' + e, 'error'); }
 }
 
 // ── TABLA COSECHAS ──────────────────────────────────────────
@@ -919,27 +912,7 @@ function abrirEditarCosecha(cs) {
     abrirModal('modal-editar-cosecha');
 }
 
-async function guardarEdicionCosecha() {
-    const id = document.getElementById('editCosechaId').value;
-    const body = {
-        fecha:         document.getElementById('editFechaCosecha').value,
-        cantidad:      document.getElementById('editCantidadCosecha').value,
-        calidad:       document.getElementById('editCalidadCosecha').value.trim(),
-        observaciones: document.getElementById('editObservacionesCosecha').value.trim()
-    };
-    if (!body.fecha || !body.cantidad) { toast("Completa todos los campos obligatorios", "warning"); return; }
-    try {
-        const res  = await fetch(`/api/cosechas/editar/${id}`, {
-            method: 'PUT', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(body)
-        });
-        const data = await res.json();
-        if (data.status === 'success') {
-            cerrarModal('modal-editar-cosecha');
-            await cargarTablaCosechas();
-        } else { toast('Error: ' + (data.error || 'desconocido', "info")); }
-    } catch(e) { toast('Error de red: ' + e, "info"); }
-}
+// guardarEdicionCosecha — definición completa más abajo (sección 15)
 
 async function eliminarCosecha(id) {
     if (!await confirmar('¿Seguro que quieres eliminar esta cosecha?')) return;
@@ -947,9 +920,11 @@ async function eliminarCosecha(id) {
         const res  = await fetch(`/api/cosechas/eliminar/${id}`, { method: 'DELETE' });
         const data = await res.json();
         if (data.status === 'success') {
+            toast('Cosecha eliminada', 'success');
             await cargarTablaCosechas();
-        } else { toast('Error: ' + (data.error || 'desconocido', "info")); }
-    } catch(e) { toast('Error de red: ' + e, "info"); }
+            await cargarTablaCosechasSeccion();
+        } else { toast('Error: ' + (data.error || 'desconocido'), 'error'); }
+    } catch(e) { toast('Error de red: ' + e, 'error'); }
 }
 
 
@@ -1128,11 +1103,13 @@ async function actualizarBadgeNav() {
 }
 
 async function cargarAlertasSeccion() {
-    await Promise.all([
-        cargarHistorialAlertas(),
-        cargarParametrosAlerta(),
-        cargarSensoresEnFiltro()
-    ]);
+    try {
+        await Promise.all([
+            cargarHistorialAlertas(),
+            cargarParametrosAlerta(),
+            cargarSensoresEnFiltro()
+        ]);
+    } catch(e) { console.error('Error cargando sección alertas:', e); }
 }
 
 async function cargarSensoresEnFiltro() {
@@ -1337,7 +1314,7 @@ async function guardarParametro() {
         return toast("Completa todos los campos obligatorios.", "info");
     }
 
-    const data = { idSensor, nombre, condicion, valor_umbral: umbral, prioridad, activo };
+    const data = { idSensor: parseInt(idSensor), nombre, condicion, valor_umbral: parseFloat(umbral), prioridad, activo: parseInt(activo) };
 
     try {
         let res;
@@ -1356,7 +1333,7 @@ async function guardarParametro() {
         }
 
         if (res.ok) {
-            toast(idParam ? "Parámetro actualizado." : "Parámetro creado.", "info");
+            toast(idParam ? "✅ Parámetro actualizado." : "✅ Parámetro creado.", "success");
             cerrarModal('modal-parametro');
             limpiarFormParametro();
             cargarParametrosAlerta();
@@ -1364,7 +1341,7 @@ async function guardarParametro() {
             const err = await res.json();
             toast("Error: " + (err.error || "Intenta de nuevo"), "error");
         }
-    } catch (e) { toast("Error de red: " + e.message, "info"); }
+    } catch (e) { toast("Error de red: " + e.message, "error"); }
 }
 
 async function editarParametro(idParam) {
@@ -1474,12 +1451,11 @@ async function eliminarCultivoSeccion(id) {
         if (data.status === 'success') {
             await cargarTablaCultivosSeccion();
             await cargarTablaCosechasSeccion();
-        } else { toast('Error: ' + (data.error || 'desconocido', "info")); }
-    } catch(e) { toast('Error de red: ' + e, "info"); }
+        } else { toast('Error: ' + (data.error || 'desconocido'), 'error'); }
+    } catch(e) { toast('Error de red: ' + e, "error"); }
 }
 
 // Override de guardarEdicionCultivo para refrescar tabla de sección también
-const _guardarEdicionCultivoOrig = guardarEdicionCultivo;
 async function guardarEdicionCultivo() {
     const id = document.getElementById('editCultivoId').value;
     const body = {
@@ -1503,8 +1479,8 @@ async function guardarEdicionCultivo() {
             await cargarTablaCultivosSeccion();
             await cargarTablaCultivos();
             await cargarCultivosActivos();
-        } else { toast('Error: ' + (data.error || 'desconocido', "info")); }
-    } catch(e) { toast('Error de red: ' + e, "info"); }
+        } else { toast('Error: ' + (data.error || 'desconocido'), 'error'); }
+    } catch(e) { toast('Error de red: ' + e, "error"); }
 }
 
 async function cargarTablaCosechasSeccion() {
@@ -1557,8 +1533,8 @@ async function eliminarCosechaSeccion(id) {
         if (data.status === 'success') {
             await cargarTablaCosechasSeccion();
             await cargarTablaCosechas();
-        } else { toast('Error: ' + (data.error || 'desconocido', "info")); }
-    } catch(e) { toast('Error de red: ' + e, "info"); }
+        } else { toast('Error: ' + (data.error || 'desconocido'), 'error'); }
+    } catch(e) { toast('Error de red: ' + e, "error"); }
 }
 
 // Override de guardarEdicionCosecha para refrescar tabla de sección
@@ -1581,8 +1557,8 @@ async function guardarEdicionCosecha() {
             cerrarModal('modal-editar-cosecha');
             await cargarTablaCosechasSeccion();
             await cargarTablaCosechas();
-        } else { toast('Error: ' + (data.error || 'desconocido', "info")); }
-    } catch(e) { toast('Error de red: ' + e, "info"); }
+        } else { toast('Error: ' + (data.error || 'desconocido'), 'error'); }
+    } catch(e) { toast('Error de red: ' + e, "error"); }
 }
 
 
@@ -1596,6 +1572,10 @@ function cambiarTabAnalitica(idTab, btn) {
     seccion.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('activo'));
     document.getElementById(idTab).classList.add('activo');
     btn.classList.add('activo');
+    // Cargar datos al cambiar tab
+    if (idTab === 'tab-an-cultivos')  cargarReporteCultivos();
+    if (idTab === 'tab-an-cosechas')  cargarReporteCosechas();
+    if (idTab === 'tab-an-sensores')  cargarSensoresEnAnalitica();
 }
 
 // Gráficas reutilizables de analítica
@@ -2047,6 +2027,84 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Actualiza badge de alertas cada 60 segundos
     setInterval(actualizarBadgeNav, 60000);
 });
+
+// ============================================================
+// SECCION RELEVADOR / BOMBA
+// ============================================================
+
+async function cargarSeccionRelevador() {
+    if (!dispositivoActualId) await cargarDispositivosGlobal();
+    if (!dispositivoActualId) return;
+    try {
+        const res  = await fetch('/api/relevador/config?device_id=' + dispositivoActualId);
+        const data = await res.json();
+        const modo    = document.getElementById('modoRelevador');
+        const tOn     = document.getElementById('tiempoOn');
+        const tOff    = document.getElementById('tiempoOff');
+        const estadoM = document.getElementById('estadoManual');
+        if (modo)    modo.value    = data.modo          || 'automatico';
+        if (tOn)     tOn.value     = data.tiempo_on     ?? 30;
+        if (tOff)    tOff.value    = data.tiempo_off    ?? 60;
+        if (estadoM) estadoM.value = data.estado_manual || 'apagado';
+        actualizarVistaRelevador(data);
+    } catch (e) { console.error('Error cargando relevador:', e); }
+}
+
+function actualizarVistaRelevador(data) {
+    const modo      = data.modo          || 'automatico';
+    const manual    = data.estado_manual || 'apagado';
+    const encendida = modo === 'manual' && manual === 'encendido';
+    const dot  = document.getElementById('bomba-estado-dot');
+    const txt  = document.getElementById('bomba-estado-texto');
+    const secM = document.getElementById('seccion-manual-relay');
+    if (dot)  dot.style.background = encendida ? '#27ae60' : '#e74c3c';
+    if (txt)  txt.textContent = encendida ? '⚡ Bomba encendida' : '⏹ Bomba apagada';
+    if (secM) secM.style.display = modo === 'manual' ? 'block' : 'none';
+}
+
+async function guardarConfigRelevador() {
+    if (!dispositivoActualId) { toast('Selecciona un dispositivo primero', 'warning'); return; }
+    const data = {
+        device_id:     dispositivoActualId,
+        modo:          document.getElementById('modoRelevador')?.value  || 'automatico',
+        tiempo_on:     parseInt(document.getElementById('tiempoOn')?.value  || 30),
+        tiempo_off:    parseInt(document.getElementById('tiempoOff')?.value || 60),
+        estado_manual: document.getElementById('estadoManual')?.value || 'apagado'
+    };
+    try {
+        const res = await fetch('/api/relevador/config', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        if (res.ok) {
+            toast('✅ Configuración del relevador guardada', 'success');
+            actualizarVistaRelevador(result.config || data);
+        } else { toast('Error: ' + (result.error || 'No se pudo guardar'), 'error'); }
+    } catch (e) { toast('Error de conexión', 'error'); }
+}
+
+async function controlManualBomba(estado) {
+    if (!dispositivoActualId) { toast('Selecciona un dispositivo primero', 'warning'); return; }
+    try {
+        const res = await fetch('/api/relevador/config', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                device_id:     dispositivoActualId,
+                modo:          'manual',
+                estado_manual: estado,
+                tiempo_on:     parseInt(document.getElementById('tiempoOn')?.value  || 30),
+                tiempo_off:    parseInt(document.getElementById('tiempoOff')?.value || 60)
+            })
+        });
+        const result = await res.json();
+        if (res.ok) {
+            toast(estado === 'encendido' ? '⚡ Bomba encendida' : '⏹ Bomba apagada',
+                  estado === 'encendido' ? 'success' : 'warning');
+            actualizarVistaRelevador(result.config || { modo: 'manual', estado_manual: estado });
+        } else { toast('Error al controlar la bomba', 'error'); }
+    } catch (e) { toast('Error de conexión', 'error'); }
+}
 
 // ============================================================
 // SECCION WIFI — Configurar red del Arduino desde el dashboard

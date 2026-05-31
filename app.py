@@ -655,7 +655,14 @@ def eliminar_dispositivo(id_dispositivo):
         )
         if not cursor.fetchone():
             return jsonify({"status": "error", "mensaje": "Dispositivo no encontrado"}), 404
-        # Eliminar sensores vinculados primero (integridad referencial)
+        # Borrar hijos en orden correcto (integridad referencial)
+        cursor.execute("SELECT idSensore FROM sensores WHERE idDispositivo=%s", (id_dispositivo,))
+        ids_sensores = [row[0] for row in cursor.fetchall()]
+        for sid in ids_sensores:
+            cursor.execute("DELETE FROM historial_alertas WHERE idSensor=%s", (sid,))
+            cursor.execute("DELETE FROM parametros_alerta WHERE idSensor=%s", (sid,))
+            cursor.execute("DELETE FROM registro_sensores WHERE idSensor=%s", (sid,))
+        cursor.execute("DELETE FROM config_relay WHERE idDispositivo=%s", (id_dispositivo,))
         cursor.execute("DELETE FROM sensores WHERE idDispositivo=%s", (id_dispositivo,))
         cursor.execute("DELETE FROM dispositivos WHERE idDispositivo=%s", (id_dispositivo,))
         conexion.commit()
@@ -696,6 +703,15 @@ def agregar_sensor():
     try:
         conexion = conectar_bd()
         cursor   = conexion.cursor()
+        id_u     = get_id_usuario()
+        # Verificar que el dispositivo pertenece al usuario
+        cursor.execute(
+            "SELECT idDispositivo FROM dispositivos WHERE idDispositivo=%s AND idUsuario=%s",
+            (data['idDispositivo'], id_u)
+        )
+        if not cursor.fetchone():
+            cursor.close(); conexion.close()
+            return jsonify({"status": "error", "mensaje": "Dispositivo no encontrado"}), 404
         cursor.execute(
             "INSERT INTO sensores (tipo_sensor, unidad_medida, idDispositivo) VALUES (%s, %s, %s)",
             (data['tipo'], data['unidad'], data['idDispositivo'])
@@ -723,6 +739,9 @@ def eliminar_sensor(id_sensor):
         """, (id_sensor, id_u))
         if not cursor.fetchone():
             return jsonify({"status": "error", "mensaje": "Sensor no encontrado"}), 404
+        cursor.execute("DELETE FROM historial_alertas WHERE idSensor=%s", (id_sensor,))
+        cursor.execute("DELETE FROM parametros_alerta WHERE idSensor=%s", (id_sensor,))
+        cursor.execute("DELETE FROM registro_sensores WHERE idSensor=%s", (id_sensor,))
         cursor.execute("DELETE FROM sensores WHERE idSensore=%s", (id_sensor,))
         conexion.commit()
         cursor.close()
@@ -941,6 +960,8 @@ def eliminar_cultivo(id_cultivo):
         conexion = conectar_bd()
         cursor   = conexion.cursor()
         id_u     = get_id_usuario()
+        # Borrar cosechas vinculadas primero (integridad referencial)
+        cursor.execute("DELETE FROM cosecha WHERE idCultivo=%s", (id_cultivo,))
         cursor.execute("DELETE FROM cultivos WHERE idCultivo=%s AND idUsuario=%s", (id_cultivo, id_u))
         conexion.commit()
         cursor.close(); conexion.close()
@@ -1145,6 +1166,7 @@ def eliminar_parametro(id_param):
     try:
         conexion = conectar_bd()
         cursor   = conexion.cursor()
+        cursor.execute("DELETE FROM historial_alertas WHERE idParametro=%s", (id_param,))
         cursor.execute("DELETE FROM parametros_alerta WHERE idParametro=%s", (id_param,))
         conexion.commit()
         cursor.close(); conexion.close()
@@ -1268,7 +1290,13 @@ def conteo_alertas_nuevas():
     try:
         conexion = conectar_bd()
         cursor   = conexion.cursor()
-        cursor.execute("SELECT COUNT(*) FROM historial_alertas WHERE estado='nueva'")
+        id_u     = get_id_usuario()
+        cursor.execute("""
+            SELECT COUNT(*) FROM historial_alertas h
+            JOIN sensores s ON h.idSensor = s.idSensore
+            JOIN dispositivos d ON s.idDispositivo = d.idDispositivo
+            WHERE h.estado='nueva' AND d.idUsuario=%s
+        """, (id_u,))
         total = cursor.fetchone()[0]
         cursor.close(); conexion.close()
         return jsonify({"nuevas": total})

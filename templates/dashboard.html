@@ -16,14 +16,15 @@
         }
 
         nav {
-            background: linear-gradient(135deg, #1a2e3d 0%, #2c3e50 100%);
+            background: #ffffff;
+            border-bottom: 1.5px solid #c8ddd0;
             padding: 0 24px;
             display: flex;
             align-items: center;
             gap: 2px;
-            flex-wrap: wrap;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.25);
-            min-height: 86px;
+            flex-wrap: nowrap;
+            box-shadow: 0 2px 16px rgba(26,61,43,0.08);
+            height: 64px;
             position: sticky;
             top: 0;
             z-index: 100;
@@ -33,14 +34,14 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-right: 16px;
+            margin-right: 12px;
             padding: 8px 0;
             flex-shrink: 0;
             text-decoration: none;
         }
 
         .nav-logo-img-wrap {
-            border-radius: 12px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -49,93 +50,82 @@
         }
 
         .nav-logo img {
-            height: 90px;
-            width: 90px;
+            height: 40px;
+            width: 40px;
             object-fit: contain;
-            border-radius: 12px;
+            border-radius: 8px;
             display: block;
         }
 
         .nav-logo-texto {
-            font-size: 19px;
+            font-size: 15px;
             font-weight: 800;
-            color: #fff;
-            letter-spacing: 0.3px;
-            line-height: 1.2;
-        }
-
-        .nav-logo-texto span {
-            color: #4fc3a1;
-            display: block;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 2.5px;
-            text-transform: uppercase;
-            opacity: 1;
-            margin-top: 2px;
-        }
-
-        .nav-logo-texto {
-            font-size: 16px;
-            font-weight: 800;
-            color: #fff;
-            letter-spacing: 0.3px;
+            color: #1a2e22;
+            letter-spacing: 0.2px;
             line-height: 1.15;
         }
 
         .nav-logo-texto span {
-            color: #4fc3a1;
+            color: #52b788;
             display: block;
-            font-size: 10px;
-            font-weight: 500;
-            letter-spacing: 2.5px;
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 2px;
             text-transform: uppercase;
-            opacity: 0.85;
+            opacity: 1;
+            margin-top: 1px;
         }
 
         .nav-divider {
             width: 1px;
-            height: 28px;
-            background: rgba(255,255,255,0.15);
-            margin: 0 8px;
+            height: 24px;
+            background: #c8ddd0;
+            margin: 0 12px;
             flex-shrink: 0;
         }
 
+        /* Nav links container */
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            flex: 1;
+            overflow: hidden;
+        }
+
         nav button {
-            background: rgba(255,255,255,0.07);
-            color: rgba(236,240,241,0.85);
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 7px 12px;
-            border-radius: 7px;
+            background: transparent;
+            color: #4a6b57;
+            border: none;
+            padding: 7px 11px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 13px;
             font-weight: 500;
-            transition: all 0.18s ease;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.16s ease;
             position: relative;
             display: flex;
             align-items: center;
             gap: 5px;
             white-space: nowrap;
-            margin: 8px 2px;
+            margin: 0 1px;
         }
 
         nav button:hover {
-            background: rgba(255,255,255,0.16);
-            color: #fff;
-            border-color: rgba(255,255,255,0.25);
-            transform: translateY(-1px);
-            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+            background: #f0f7f3;
+            color: #1a2e22;
         }
 
         nav button:active {
             transform: translateY(0);
-            box-shadow: none;
+            background: #e0f0e8;
         }
 
         nav button.nav-btn-activo {
-            background: rgba(79,195,161,0.2);
-            color: #4fc3a1;
-            border-color: rgba(79,195,161,0.4);
+            background: #e8f5ee;
+            color: #1a7a47;
+            font-weight: 600;
         }
 
         .nav-logout {
@@ -143,43 +133,43 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            color: rgba(236,240,241,0.7) !important;
+            color: #c0392b !important;
             text-decoration: none;
             font-size: 13px;
             font-weight: 500;
             padding: 7px 14px;
-            border-radius: 12px;
-            border: 1px solid rgba(231,76,60,0.4) !important;
-            background: rgba(231,76,60,0.08);
-            transition: all 0.2s ease;
+            border-radius: 8px;
+            border: 1.5px solid rgba(192,57,43,0.25) !important;
+            background: rgba(231,76,60,0.05);
+            transition: all 0.18s ease;
             white-space: nowrap;
             flex-shrink: 0;
         }
 
         .nav-logout:hover {
-            background: rgba(231,76,60,0.85) !important;
+            background: #e74c3c !important;
             color: white !important;
             border-color: #e74c3c !important;
-            transform: translateY(-1px);
         }
 
         /* Badge de alertas nuevas */
         .badge-nav {
             position: absolute;
             top: 2px;
-            right: 4px;
+            right: 3px;
             background: #e74c3c;
             color: white;
-            border-radius: 10px; font-family: 'DM Sans', sans-serif;
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
             font-size: 9px;
             font-weight: 700;
-            min-width: 16px;
-            height: 16px;
-            padding: 0 4px;
+            min-width: 15px;
+            height: 15px;
+            padding: 0 3px;
             display: none;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
         }
 
         .seccion {
@@ -626,19 +616,47 @@
         </div>
     </div>
     <div class="nav-divider"></div>
-    <button onclick="mostrarSeccion('dashboard-contenido')">🏠 Inicio</button>
-    <button onclick="mostrarSeccion('seccion-hardware')">🔧 Hardware</button>
-    <button onclick="mostrarSeccion('seccion-logica')">⚙️ Lógica</button>
-    <button onclick="mostrarSeccion('seccion-analitica')">📊 Analítica</button>
-    <button onclick="mostrarSeccion('seccion-cultivos')">🌱 Cultivos</button>
+    <button onclick="mostrarSeccion('dashboard-contenido')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Inicio
+    </button>
+    <button onclick="mostrarSeccion('seccion-hardware')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="2" x2="9" y2="4"/><line x1="15" y1="2" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="22"/><line x1="15" y1="20" x2="15" y2="22"/><line x1="20" y1="9" x2="22" y2="9"/><line x1="20" y1="14" x2="22" y2="14"/><line x1="2" y1="9" x2="4" y2="9"/><line x1="2" y1="14" x2="4" y2="14"/></svg>
+        Hardware
+    </button>
+    <button onclick="mostrarSeccion('seccion-logica')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+        Lógica
+    </button>
+    <button onclick="mostrarSeccion('seccion-analitica')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Analítica
+    </button>
+    <button onclick="mostrarSeccion('seccion-cultivos')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12m0 0C12 7 7 4 2 4c0 5 3 9 7 10m3-2c0-5 5-8 10-8-1 5-4 8-10 8"/></svg>
+        Cultivos
+    </button>
     <button id="btn-nav-alertas" onclick="mostrarSeccion('seccion-alertas'); cargarAlertasSeccion();">
-        🔔 Alertas
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        Alertas
         <span id="badge-alertas-nav" class="badge-nav">0</span>
     </button>
-    <button onclick="mostrarSeccion('seccion-relevador'); cargarSeccionRelevador()">💧 Bomba</button>
-    <button onclick="mostrarSeccion('seccion-wifi'); cargarRedActual()">📶 WiFi</button>
-    <button onclick="mostrarSeccion('seccion-configuracion')">👤 Perfil</button>
-    <a href="/logout" class="nav-logout">⏻ Cerrar sesión</a>
+    <button onclick="mostrarSeccion('seccion-relevador'); cargarSeccionRelevador()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6m0 0C10 12 6 14 6 18a6 6 0 0012 0c0-4-4-6-6-10z"/></svg>
+        Bomba
+    </button>
+    <button onclick="mostrarSeccion('seccion-wifi'); cargarRedActual()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><circle cx="12" cy="20" r="1" fill="currentColor"/></svg>
+        WiFi
+    </button>
+    <button onclick="mostrarSeccion('seccion-configuracion')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Perfil
+    </button>
+    <a href="/logout" class="nav-logout">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Cerrar sesión
+    </a>
 </nav>
 
 

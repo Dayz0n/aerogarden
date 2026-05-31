@@ -14,57 +14,142 @@
         }
 
         nav {
-            background: #2c3e50;
-            padding: 12px 20px;
+            background: linear-gradient(135deg, #1a2e3d 0%, #2c3e50 100%);
+            padding: 0 24px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 2px;
             flex-wrap: wrap;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+            min-height: 58px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-right: 16px;
+            padding: 10px 0;
+            flex-shrink: 0;
+            text-decoration: none;
+        }
+
+        .nav-logo img {
+            height: 38px;
+            width: auto;
+            object-fit: contain;
+            border-radius: 6px;
+        }
+
+        .nav-logo-texto {
+            font-size: 18px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: 0.5px;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+            line-height: 1.1;
+        }
+
+        .nav-logo-texto span {
+            color: #4fc3a1;
+            display: block;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+
+        .nav-divider {
+            width: 1px;
+            height: 28px;
+            background: rgba(255,255,255,0.15);
+            margin: 0 8px;
+            flex-shrink: 0;
         }
 
         nav button {
-            background: transparent;
-            color: #ecf0f1;
-            border: 1px solid #4a6278;
-            padding: 7px 14px;
-            border-radius: 5px;
+            background: rgba(255,255,255,0.07);
+            color: rgba(236,240,241,0.85);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 7px 12px;
+            border-radius: 7px;
             cursor: pointer;
-            font-size: 14px;
-            transition: background 0.2s;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.18s ease;
             position: relative;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+            margin: 8px 2px;
         }
 
-        nav button:hover { background: #3d5166; }
+        nav button:hover {
+            background: rgba(255,255,255,0.16);
+            color: #fff;
+            border-color: rgba(255,255,255,0.25);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+        }
 
-        nav a {
+        nav button:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        nav button.nav-btn-activo {
+            background: rgba(79,195,161,0.2);
+            color: #4fc3a1;
+            border-color: rgba(79,195,161,0.4);
+        }
+
+        .nav-logout {
             margin-left: auto;
-            color: #e74c3c;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: rgba(236,240,241,0.7) !important;
             text-decoration: none;
-            font-size: 14px;
-            border: 1px solid #e74c3c;
+            font-size: 13px;
+            font-weight: 500;
             padding: 7px 14px;
-            border-radius: 5px;
-            transition: background 0.2s;
+            border-radius: 8px;
+            border: 1px solid rgba(231,76,60,0.4) !important;
+            background: rgba(231,76,60,0.08);
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
-        nav a:hover { background: #e74c3c; color: white; }
+        .nav-logout:hover {
+            background: rgba(231,76,60,0.85) !important;
+            color: white !important;
+            border-color: #e74c3c !important;
+            transform: translateY(-1px);
+        }
 
         /* Badge de alertas nuevas */
         .badge-nav {
             position: absolute;
-            top: -6px;
-            right: -6px;
+            top: 2px;
+            right: 4px;
             background: #e74c3c;
             color: white;
-            border-radius: 50%;
-            font-size: 10px;
+            border-radius: 10px;
+            font-size: 9px;
             font-weight: 700;
-            width: 18px;
-            height: 18px;
-            display: flex;
+            min-width: 16px;
+            height: 16px;
+            padding: 0 4px;
+            display: none;
             align-items: center;
             justify-content: center;
-            display: none;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.3);
         }
 
         .seccion {
@@ -499,6 +584,14 @@
 <body>
 
 <nav>
+    <div class="nav-logo">
+        <img src="{{ url_for('static', filename='img/logo.jpg') }}" alt="Aerograden">
+        <div class="nav-logo-texto">
+            Aerograden
+            <span>Dashboard</span>
+        </div>
+    </div>
+    <div class="nav-divider"></div>
     <button onclick="mostrarSeccion('dashboard-contenido')">🏠 Inicio</button>
     <button onclick="mostrarSeccion('seccion-hardware')">🔧 Hardware</button>
     <button onclick="mostrarSeccion('seccion-logica')">⚙️ Lógica</button>
@@ -510,8 +603,8 @@
     </button>
     <button onclick="mostrarSeccion('seccion-relevador'); cargarSeccionRelevador()">💧 Bomba</button>
     <button onclick="mostrarSeccion('seccion-wifi'); cargarRedActual()">📶 WiFi</button>
-    <button onclick="mostrarSeccion('seccion-configuracion')">👤 Configuración</button>
-    <a href="/logout">Cerrar sesión</a>
+    <button onclick="mostrarSeccion('seccion-configuracion')">👤 Perfil</button>
+    <a href="/logout" class="nav-logout">⏻ Cerrar sesión</a>
 </nav>
 
 

@@ -1351,6 +1351,44 @@
     </div>
 </div>
 
+<!-- Modal: Editar Sensor -->
+<div id="modal-editar-sensor" class="modal-overlay" style="display:none;">
+    <div class="modal">
+        <h3>✏️ Editar Sensor</h3>
+        <input type="hidden" id="editSensorId">
+        <input type="hidden" id="editSensorIdDispositivo">
+        <label>Tipo de sensor</label>
+        <select id="editTipoSensor">
+            <option value="temperatura">Temperatura</option>
+            <option value="humedad">Humedad</option>
+            <option value="ph">pH</option>
+            <option value="ec">EC</option>
+            <option value="co2">CO2</option>
+            <option value="luz">Luz</option>
+            <option value="distancia">Distancia (Ultrasónico)</option>
+            <option value="nivel agua">Nivel de Agua</option>
+            <option value="presion">Presión</option>
+            <option value="caudal">Caudal</option>
+        </select>
+        <label>Unidad de medida</label>
+        <select id="editUnidadMedida">
+            <option value="°C">°C (Temperatura)</option>
+            <option value="%">% (Humedad)</option>
+            <option value="pH">pH</option>
+            <option value="mS/cm">mS/cm (EC)</option>
+            <option value="ppm">ppm (CO2)</option>
+            <option value="lux">lux (Luz)</option>
+            <option value="cm">cm (Distancia / Nivel)</option>
+            <option value="hPa">hPa (Presión)</option>
+            <option value="L/min">L/min (Caudal)</option>
+        </select>
+        <div class="modal-botones">
+            <button onclick="guardarEditarSensor()">Guardar cambios</button>
+            <button onclick="document.getElementById('modal-editar-sensor').style.display='none'">Cancelar</button>
+        </div>
+    </div>
+</div>
+
 <!-- Modal: Tipo de Cultivo -->
 <div id="modal-tipo-cultivo" class="modal-overlay">
     <div class="modal">

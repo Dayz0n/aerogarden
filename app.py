@@ -724,6 +724,35 @@ def agregar_sensor():
         return jsonify({"status": "error", "mensaje": str(e)}), 500
 
 
+@app.route('/api/sensores/editar/<int:id_sensor>', methods=['PUT'])
+@login_requerido
+def editar_sensor(id_sensor):
+    data = request.json
+    try:
+        conexion = conectar_bd()
+        cursor   = conexion.cursor()
+        id_u     = get_id_usuario()
+        # Verificar que el sensor pertenece a un dispositivo del usuario
+        cursor.execute("""
+            SELECT s.idSensore FROM sensores s
+            INNER JOIN dispositivos d ON s.idDispositivo = d.idDispositivo
+            WHERE s.idSensore=%s AND d.idUsuario=%s
+        """, (id_sensor, id_u))
+        if not cursor.fetchone():
+            cursor.close(); conexion.close()
+            return jsonify({"status": "error", "mensaje": "Sensor no encontrado"}), 404
+        cursor.execute(
+            "UPDATE sensores SET tipo_sensor=%s, unidad_medida=%s WHERE idSensore=%s",
+            (data['tipo'], data['unidad'], id_sensor)
+        )
+        conexion.commit()
+        cursor.close()
+        conexion.close()
+        return jsonify({"status": "success"})
+    except Exception as e:
+        return jsonify({"status": "error", "mensaje": str(e)}), 500
+
+
 @app.route('/api/sensores/eliminar/<int:id_sensor>', methods=['DELETE'])
 @login_requerido
 def eliminar_sensor(id_sensor):

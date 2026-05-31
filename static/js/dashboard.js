@@ -331,11 +331,18 @@ async function actualizarListaDispositivos() {
                             <div style="font-size:12px; color:#666;">Unidad: ${s.unidad_medida || '—'}</div>
                             <div style="font-size:11px; color:#999;">ID: ${s.idSensore}</div>
                         </div>
-                        <button onclick="eliminarSensor(${s.idSensore}, '${s.tipo_sensor}')"
-                            style="padding:3px 8px; border-radius:5px; border:1px solid #e74c3c;
-                                   color:#e74c3c; background:white; cursor:pointer; font-size:11px; flex-shrink:0;">
-                            🗑
-                        </button>
+                        <div style="display:flex; flex-direction:column; gap:4px;">
+                            <button onclick="abrirEditarSensor(${s.idSensore}, '${s.tipo_sensor}', '${s.unidad_medida || ''}', ${s.idDispositivo})"
+                                style="padding:3px 8px; border-radius:5px; border:1px solid #3498db;
+                                       color:#3498db; background:white; cursor:pointer; font-size:11px;">
+                                ✏️
+                            </button>
+                            <button onclick="eliminarSensor(${s.idSensore}, '${s.tipo_sensor}')"
+                                style="padding:3px 8px; border-radius:5px; border:1px solid #e74c3c;
+                                       color:#e74c3c; background:white; cursor:pointer; font-size:11px;">
+                                🗑
+                            </button>
+                        </div>
                     </div>`;
                 });
                 html += `</div>`;
@@ -366,6 +373,44 @@ async function eliminarDispositivo(id, nombre) {
             actualizarListaDispositivos();
         } else {
             toast('Error: ' + (d.mensaje || 'No se pudo eliminar'), 'error');
+        }
+    } catch(e) { toast('Error de conexión', 'error'); }
+}
+
+function abrirEditarSensor(id, tipo, unidad, idDispositivo) {
+    document.getElementById('editSensorId').value        = id;
+    document.getElementById('editSensorIdDispositivo').value = idDispositivo;
+
+    const tipoSel = document.getElementById('editTipoSensor');
+    for (let opt of tipoSel.options) {
+        if (opt.value === tipo) { opt.selected = true; break; }
+    }
+    const unidadSel = document.getElementById('editUnidadMedida');
+    for (let opt of unidadSel.options) {
+        if (opt.value === unidad) { opt.selected = true; break; }
+    }
+    document.getElementById('modal-editar-sensor').style.display = 'flex';
+}
+
+async function guardarEditarSensor() {
+    const id    = document.getElementById('editSensorId').value;
+    const tipo  = document.getElementById('editTipoSensor').value;
+    const unidad = document.getElementById('editUnidadMedida').value;
+    try {
+        const r = await fetch(`/api/sensores/editar/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tipo, unidad })
+        });
+        const d = await r.json();
+        if (r.ok && d.status === 'success') {
+            toast('✅ Sensor actualizado correctamente', 'success');
+            document.getElementById('modal-editar-sensor').style.display = 'none';
+            actualizarListaDispositivos();
+            cargarSensoresEnLogica();
+            cargarSensoresEnAnalitica();
+        } else {
+            toast('Error: ' + (d.mensaje || 'No se pudo actualizar'), 'error');
         }
     } catch(e) { toast('Error de conexión', 'error'); }
 }

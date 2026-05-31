@@ -829,6 +829,15 @@
 <div id="seccion-relevador" class="seccion">
     <h1>💧 Control de Bomba / Relevador</h1>
 
+    <!-- Selector de dispositivo -->
+    <div class="card" style="margin-bottom:16px;">
+        <label style="font-weight:600;">🔌 Dispositivo a controlar</label>
+        <select id="select-bomba-dispositivo" onchange="cambiarDispositivoBomba()"
+                style="margin-top:8px; width:100%; padding:10px; border-radius:8px; border:1px solid #ddd; font-size:14px;">
+            <option value="">Cargando dispositivos...</option>
+        </select>
+    </div>
+
     <!-- Estado actual -->
     <div class="card" style="display:flex; align-items:center; gap:20px; flex-wrap:wrap; margin-bottom:16px;">
         <div id="indicador-bomba" style="
@@ -949,6 +958,15 @@
         Desde aquí puedes cambiar la red WiFi a la que se conecta el Arduino/ESP32.
         El cambio se aplica en segundos sin necesidad de tocar el hardware.
     </p>
+
+    <!-- Selector de dispositivo -->
+    <div class="card" style="margin-bottom:16px;">
+        <label style="font-weight:600;">🔌 Dispositivo a configurar</label>
+        <select id="select-wifi-dispositivo" onchange="cambiarDispositivoWifi()"
+                style="margin-top:8px; width:100%; padding:10px; border-radius:8px; border:1px solid #ddd; font-size:14px;">
+            <option value="">Cargando dispositivos...</option>
+        </select>
+    </div>
 
     <!-- Estado actual -->
     <div class="card" style="margin-bottom:16px;">
@@ -1239,8 +1257,15 @@ const ID_SENSOR_NIVEL = 5;  // ← cambia por el idSensore real de tu sensor ult
 const UMBRAL_NIVEL_BAJO_CM = 20; // distancia > 20 cm = poco agua en el depósito
 
 async function cargarSeccionRelevador() {
+    if (!dispositivoActualId) {
+        await cargarDispositivosGlobal();
+    }
+    // Sincronizar el select de bomba con el dispositivo actual
+    const sel = document.getElementById('select-bomba-dispositivo');
+    if (sel && dispositivoActualId) sel.value = dispositivoActualId;
+
     try {
-        const res  = await fetch("/api/relevador/config");
+        const res  = await fetch("/api/relevador/config?device_id=" + dispositivoActualId);
         const data = await res.json();
         document.getElementById("input-tiempo-on").value  = data.tiempo_on  || 30;
         document.getElementById("input-tiempo-off").value = data.tiempo_off || 60;
@@ -1251,13 +1276,14 @@ async function cargarSeccionRelevador() {
 }
 
 async function guardarConfigBomba() {
+    if (!dispositivoActualId) { alert('Selecciona un dispositivo primero'); return; }
     const on  = parseInt(document.getElementById("input-tiempo-on").value)  || 30;
     const off = parseInt(document.getElementById("input-tiempo-off").value) || 60;
     try {
         await fetch("/api/relevador/config", {
             method:  "POST",
             headers: {"Content-Type": "application/json"},
-            body:    JSON.stringify({ tiempo_on: on, tiempo_off: off, modo: "automatico" })
+            body:    JSON.stringify({ device_id: dispositivoActualId, tiempo_on: on, tiempo_off: off, modo: "automatico" })
         });
         const msg = document.getElementById("msg-config-bomba");
         msg.style.display = "inline";
@@ -1267,13 +1293,14 @@ async function guardarConfigBomba() {
 }
 
 async function controlManualBomba(estado) {
+    if (!dispositivoActualId) { alert('Selecciona un dispositivo primero'); return; }
     const on  = parseInt(document.getElementById("input-tiempo-on").value)  || 30;
     const off = parseInt(document.getElementById("input-tiempo-off").value) || 60;
     try {
         await fetch("/api/relevador/config", {
             method:  "POST",
             headers: {"Content-Type": "application/json"},
-            body:    JSON.stringify({ modo: "manual", estado_manual: estado, tiempo_on: on, tiempo_off: off })
+            body:    JSON.stringify({ device_id: dispositivoActualId, modo: "manual", estado_manual: estado, tiempo_on: on, tiempo_off: off })
         });
         actualizarIndicadorBomba("manual", estado);
     } catch(e) { alert("Error: " + e); }

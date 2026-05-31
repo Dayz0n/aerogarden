@@ -107,6 +107,46 @@ function confirmar(mensaje) {
 // dashboard.js — corregido y mejorado
 // ============================================================
 
+// Variable global: dispositivo seleccionado para WiFi y Bomba
+let dispositivoActualId = null;
+let dispositivosGlobal  = [];   // lista completa cargada al inicio
+
+// ============================================================
+// CARGA GLOBAL DE DISPOSITIVOS (al arrancar)
+// ============================================================
+async function cargarDispositivosGlobal() {
+    try {
+        const res = await fetch('/api/dispositivos/lista');
+        dispositivosGlobal = await res.json();
+        if (dispositivosGlobal.length > 0 && !dispositivoActualId) {
+            dispositivoActualId = dispositivosGlobal[0].idDispositivo;
+        }
+        _llenarSelectoresDispositivo();
+    } catch(e) { console.error('Error cargando dispositivos globales:', e); }
+}
+
+function _llenarSelectoresDispositivo() {
+    ['select-wifi-dispositivo', 'select-bomba-dispositivo'].forEach(id => {
+        const sel = document.getElementById(id);
+        if (!sel) return;
+        sel.innerHTML = dispositivosGlobal.map(d =>
+            `<option value="${d.idDispositivo}">${d.nombre}</option>`
+        ).join('');
+        if (dispositivoActualId) sel.value = dispositivoActualId;
+    });
+}
+
+function cambiarDispositivoWifi() {
+    const sel = document.getElementById('select-wifi-dispositivo');
+    if (sel) dispositivoActualId = parseInt(sel.value);
+    cargarRedActual();
+}
+
+function cambiarDispositivoBomba() {
+    const sel = document.getElementById('select-bomba-dispositivo');
+    if (sel) dispositivoActualId = parseInt(sel.value);
+    cargarSeccionRelevador();
+}
 
 // --- 1. Navegación ---
 function mostrarSeccion(idSeccion) {
@@ -1823,7 +1863,8 @@ async function _panelBomba() {
     const cont = document.getElementById('inicio-bomba');
     if (!cont) return;
     try {
-        const res  = await fetch('/api/relevador/estado');
+        const did = dispositivoActualId || '';
+        const res  = await fetch('/api/relevador/estado' + (did ? '?device_id=' + did : ''));
         const data = await res.json();
         const modo     = data.modo || 'automatico';
         const manual   = data.estado_manual || 'apagado';
@@ -1851,6 +1892,7 @@ async function _panelBomba() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+    await cargarDispositivosGlobal();   // ← carga dispositivos y setea dispositivoActualId
     cargarDashboardInicio();
     await actualizarListaDispositivos();
     await cargarSensoresEnLogica();
@@ -1867,8 +1909,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 // ============================================================
 
 async function cargarRedActual() {
+    if (!dispositivoActualId) {
+        await cargarDispositivosGlobal();
+    }
     try {
-        const r = await fetch('/api/wifi/estado');
+        const r = await fetch('/api/wifi/estado?device_id=' + dispositivoActualId);
         const d = await r.json();
         const icon  = document.getElementById('wifi-estado-icon');
         const red   = document.getElementById('wifi-red-actual');
@@ -1892,7 +1937,7 @@ async function cargarRedActual() {
 
 async function cargarHistorialWifi() {
     try {
-        const r = await fetch('/api/wifi/historial');
+        const r = await fetch('/api/wifi/historial?device_id=' + dispositivoActualId);
         const d = await r.json();
         const cont = document.getElementById('wifi-historial');
 
@@ -1933,6 +1978,11 @@ function toggleVerPass() {
 }
 
 async function enviarRedWifi() {
+    if (!dispositivoActualId) {
+        toast('Selecciona un dispositivo primero', 'warning');
+        return;
+    }
+
     const ssid = document.getElementById('wifi-ssid').value.trim();
     const pass = document.getElementById('wifi-pass').value;
 
@@ -1947,7 +1997,7 @@ async function enviarRedWifi() {
         const r = await fetch('/api/wifi/configurar', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ssid, password: pass })
+            body: JSON.stringify({ ssid, password: pass, device_id: dispositivoActualId })
         });
         const d = await r.json();
 

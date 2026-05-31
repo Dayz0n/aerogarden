@@ -11,19 +11,37 @@
 
         body {
             font-family: 'DM Sans', sans-serif;
-            background: #faf9f6;
+            background-color: #f0f7f2;
             color: #1a2e22;
         }
 
+        /* Fondo SVG hidroponia */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='900'%3E%3Cpath d='M60 800 Q80 650 180 600 Q140 720 160 820Z' fill='%2352b788' opacity='0.07'/%3E%3Cpath d='M60 800 Q100 700 180 600' stroke='%2352b788' stroke-width='1.5' fill='none' opacity='0.12'/%3E%3Cpath d='M100 780 Q115 730 145 710' stroke='%2352b788' stroke-width='1' fill='none' opacity='0.1'/%3E%3Cpath d='M115 760 Q128 715 155 700' stroke='%2352b788' stroke-width='1' fill='none' opacity='0.09'/%3E%3Cpath d='M20 500 Q40 420 110 390 Q80 460 90 510Z' fill='%232d6a4f' opacity='0.06'/%3E%3Cpath d='M20 500 Q65 440 110 390' stroke='%232d6a4f' stroke-width='1.2' fill='none' opacity='0.1'/%3E%3Cpath d='M140 300 Q140 260 160 240 Q180 260 180 300 Q180 320 160 330 Q140 320 140 300Z' fill='%234fc3a1' opacity='0.08'/%3E%3Cpath d='M820 100 Q800 250 700 300 Q740 180 720 80Z' fill='%2352b788' opacity='0.07'/%3E%3Cpath d='M820 100 Q760 200 700 300' stroke='%2352b788' stroke-width='1.5' fill='none' opacity='0.12'/%3E%3Cpath d='M780 120 Q730 190 710 250' stroke='%2352b788' stroke-width='1' fill='none' opacity='0.09'/%3E%3Cpath d='M870 500 Q840 580 770 610 Q800 540 790 490Z' fill='%232d6a4f' opacity='0.06'/%3E%3Cpath d='M870 500 Q815 565 770 610' stroke='%232d6a4f' stroke-width='1.2' fill='none' opacity='0.1'/%3E%3Ccircle cx='750' cy='200' r='18' stroke='%234fc3a1' stroke-width='1.2' fill='none' opacity='0.1'/%3E%3Ccircle cx='750' cy='200' r='6' fill='%234fc3a1' opacity='0.08'/%3E%3Cline x1='768' y1='200' x2='800' y2='200' stroke='%234fc3a1' stroke-width='1' opacity='0.1'/%3E%3Cline x1='750' y1='182' x2='750' y2='155' stroke='%234fc3a1' stroke-width='1' opacity='0.1'/%3E%3Cpath d='M440 880 Q440 820 460 780 Q460 820 480 860' stroke='%2352b788' stroke-width='1.2' fill='none' opacity='0.08'/%3E%3Cpath d='M460 780 Q450 750 430 730' stroke='%2352b788' stroke-width='1' fill='none' opacity='0.07'/%3E%3Cpath d='M460 780 Q470 750 490 730' stroke='%2352b788' stroke-width='1' fill='none' opacity='0.07'/%3E%3Cpath d='M460 60 Q460 30 475 15 Q490 30 490 60 Q490 75 475 82 Q460 75 460 60Z' fill='%234fc3a1' opacity='0.07'/%3E%3Ccircle cx='200' cy='750' r='14' stroke='%234fc3a1' stroke-width='1' fill='none' opacity='0.09'/%3E%3Ccircle cx='200' cy='750' r='5' fill='%234fc3a1' opacity='0.07'/%3E%3Cline x1='186' y1='750' x2='160' y2='750' stroke='%234fc3a1' stroke-width='1' opacity='0.09'/%3E%3Cline x1='200' y1='764' x2='200' y2='790' stroke='%234fc3a1' stroke-width='1' opacity='0.09'/%3E%3C/svg%3E");
+            background-size: 900px 900px;
+            background-repeat: no-repeat;
+            background-position: center center;
+        }
+
+        nav, #dashboard-contenido, .seccion {
+            position: relative;
+            z-index: 1;
+        }
+
         nav {
-            background: #ffffff;
-            border-bottom: 1.5px solid #c8ddd0;
+            background: linear-gradient(135deg, #1a3d2b 0%, #2d6a4f 100%);
+            border-bottom: none;
             padding: 0 24px;
             display: flex;
             align-items: center;
             gap: 2px;
             flex-wrap: nowrap;
-            box-shadow: 0 2px 16px rgba(26,61,43,0.08);
+            box-shadow: 0 3px 20px rgba(26,61,43,0.25);
             height: 64px;
             position: sticky;
             top: 0;
@@ -60,13 +78,13 @@
         .nav-logo-texto {
             font-size: 15px;
             font-weight: 800;
-            color: #1a2e22;
+            color: #ffffff;
             letter-spacing: 0.2px;
             line-height: 1.15;
         }
 
         .nav-logo-texto span {
-            color: #52b788;
+            color: #95d5b2;
             display: block;
             font-size: 9px;
             font-weight: 600;
@@ -79,7 +97,7 @@
         .nav-divider {
             width: 1px;
             height: 24px;
-            background: #c8ddd0;
+            background: rgba(255,255,255,0.2);
             margin: 0 12px;
             flex-shrink: 0;
         }
@@ -95,7 +113,7 @@
 
         nav button {
             background: transparent;
-            color: #4a6b57;
+            color: rgba(255,255,255,0.75);
             border: none;
             padding: 7px 11px;
             border-radius: 8px;
@@ -113,19 +131,24 @@
         }
 
         nav button:hover {
-            background: #f0f7f3;
-            color: #1a2e22;
+            background: rgba(255,255,255,0.12);
+            color: #ffffff;
         }
 
         nav button:active {
             transform: translateY(0);
-            background: #e0f0e8;
+            background: rgba(255,255,255,0.18);
         }
 
         nav button.nav-btn-activo {
-            background: #e8f5ee;
-            color: #1a7a47;
+            background: rgba(255,255,255,0.15);
+            color: #ffffff;
             font-weight: 600;
+            box-shadow: inset 0 -2.5px 0 #95d5b2;
+        }
+
+        nav button.nav-btn-activo svg {
+            stroke: #ffffff;
         }
 
         .nav-logout {
@@ -133,14 +156,14 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            color: #c0392b !important;
+            color: rgba(255,255,255,0.7) !important;
             text-decoration: none;
             font-size: 13px;
             font-weight: 500;
             padding: 7px 14px;
             border-radius: 8px;
-            border: 1.5px solid rgba(192,57,43,0.25) !important;
-            background: rgba(231,76,60,0.05);
+            border: 1.5px solid rgba(255,255,255,0.25) !important;
+            background: rgba(255,255,255,0.06);
             transition: all 0.18s ease;
             white-space: nowrap;
             flex-shrink: 0;
@@ -600,6 +623,91 @@
             flex-direction: column;
             gap: 10px;
             pointer-events: none;
+        }
+
+        /* ── Fondo general ── */
+        body {
+            background-image:
+                radial-gradient(ellipse at 0% 0%, rgba(82,183,136,.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 100% 100%, rgba(149,213,178,.06) 0%, transparent 50%);
+            min-height: 100vh;
+        }
+
+        /* ── Botones generales ── */
+        button {
+            letter-spacing: 0.2px;
+        }
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(26,61,43,0.2);
+        }
+        button:active { transform: translateY(0); }
+
+        .btn-verde { background: #52b788; box-shadow: 0 3px 10px rgba(82,183,136,0.3); }
+        .btn-verde:hover { background: #2d6a4f; }
+        .btn-rojo { background: #e74c3c; box-shadow: 0 3px 10px rgba(231,76,60,0.25); }
+        .btn-rojo:hover { background: #c0392b; }
+
+        /* ── Inputs ── */
+        input, select, textarea {
+            border: 1.5px solid #c8ddd0;
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            color: #1a2e22;
+            background: #fff;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #52b788;
+            box-shadow: 0 0 0 3.5px rgba(82,183,136,.16);
+        }
+
+        /* ── Cards ── */
+        .card, .inicio-panel, .kpi-card {
+            background: #fff;
+            border: 1px solid #c8ddd0;
+            box-shadow: 0 2px 12px rgba(26,61,43,0.07);
+        }
+        .kpi-card { border-radius: 14px; }
+
+        /* ── Tablas ── */
+        th {
+            background: #1a3d2b;
+            font-weight: 600;
+            letter-spacing: 0.4px;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        tr:hover td { background: #f0f7f3; }
+
+        /* ── Modales ── */
+        .modal {
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(26,61,43,0.18);
+        }
+        .modal h3 {
+            font-family: 'Playfair Display', serif;
+            color: #1a2e22;
+            font-size: 20px;
+        }
+
+        /* ── Títulos de sección ── */
+        .seccion h1, #dashboard-contenido h1 {
+            font-family: 'Playfair Display', serif;
+            color: #1a2e22;
+            border-bottom: 2px solid #c8ddd0;
+        }
+
+        /* ── Inicio panel header ── */
+        .inicio-panel-header {
+            background: #f0f7f3;
+            border-bottom: 1px solid #c8ddd0;
+        }
+        .inicio-panel-header strong {
+            font-weight: 600;
+            color: #1a2e22;
+            font-size: 14px;
         }
     </style>
 </head>
@@ -1500,129 +1608,45 @@ setInterval(() => {
 }, 10000);
 </script>
 
+<script>
+// Interceptar mostrarSeccion para marcar nav activo
+(function() {
+    // Mapa seccion -> indice del boton en el nav
+    const seccionABtn = {
+        'dashboard-contenido': 0,
+        'seccion-hardware': 1,
+        'seccion-logica': 2,
+        'seccion-analitica': 3,
+        'seccion-cultivos': 4,
+        'seccion-alertas': 5,
+        'seccion-relevador': 6,
+        'seccion-wifi': 7,
+        'seccion-configuracion': 8,
+    };
+
+    function marcarNavActivo(seccionId) {
+        const btns = document.querySelectorAll('nav button');
+        btns.forEach(b => b.classList.remove('nav-btn-activo'));
+        const idx = seccionABtn[seccionId];
+        if (idx !== undefined && btns[idx]) {
+            btns[idx].classList.add('nav-btn-activo');
+        }
+    }
+
+    // Esperar a que dashboard.js cargue y sobreescribir mostrarSeccion
+    window.addEventListener('load', function() {
+        const originalMostrar = window.mostrarSeccion;
+        if (typeof originalMostrar === 'function') {
+            window.mostrarSeccion = function(id) {
+                originalMostrar(id);
+                marcarNavActivo(id);
+            };
+        }
+        // Marcar inicio por defecto
+        marcarNavActivo('dashboard-contenido');
+    });
+})();
+</script>
 <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 </body>
 </html>
-<style>
-input:focus, select:focus, textarea:focus {
-    outline: none;
-    border-color: #52b788 !important;
-    box-shadow: 0 0 0 3px rgba(82,183,136,0.15);
-}
-.seccion h1, #dashboard-contenido h1 {
-    font-family: 'Playfair Display', serif !important;
-}
-.inicio-panel-header strong {
-    font-weight: 600;
-    color: #1a2e22;
-    font-size: 14px;
-}
-.card {
-    box-shadow: 0 2px 8px rgba(26,61,43,0.07) !important;
-}
-.kpi-card {
-    box-shadow: 0 2px 8px rgba(26,61,43,0.07) !important;
-    border-radius: 14px !important;
-}
-</style>
-<style>
-/* ── Fondo general con textura sutil igual al login ── */
-body {
-    background: #faf9f6 !important;
-    background-image:
-        radial-gradient(ellipse at 0% 0%, rgba(82,183,136,.08) 0%, transparent 50%),
-        radial-gradient(ellipse at 100% 100%, rgba(149,213,178,.06) 0%, transparent 50%) !important;
-    min-height: 100vh;
-}
-
-
-
-/* ── Botones generales más elegantes ── */
-button {
-    font-family: 'DM Sans', sans-serif !important;
-    font-weight: 500 !important;
-    letter-spacing: 0.2px !important;
-    border-radius: 10px !important;
-    transition: all 0.2s ease !important;
-}
-button:hover {
-    transform: translateY(-1px) !important;
-    box-shadow: 0 4px 12px rgba(26,61,43,0.2) !important;
-}
-button:active { transform: translateY(0) !important; }
-
-.btn-verde {
-    background: #52b788 !important;
-    box-shadow: 0 3px 10px rgba(82,183,136,0.3) !important;
-}
-.btn-verde:hover { background: #2d6a4f !important; }
-
-.btn-rojo {
-    background: #e74c3c !important;
-    box-shadow: 0 3px 10px rgba(231,76,60,0.25) !important;
-}
-.btn-rojo:hover { background: #c0392b !important; }
-
-/* ── Inputs con estilo del login ── */
-input, select, textarea {
-    border: 1.5px solid #c8ddd0 !important;
-    border-radius: 10px !important;
-    font-family: 'DM Sans', sans-serif !important;
-    color: #1a2e22 !important;
-    background: #fff !important;
-    transition: border-color .2s, box-shadow .2s !important;
-}
-input:focus, select:focus, textarea:focus {
-    outline: none !important;
-    border-color: #52b788 !important;
-    box-shadow: 0 0 0 3.5px rgba(82,183,136,.16) !important;
-}
-
-/* ── Secciones con fondo limpio ── */
-.seccion {
-    background: transparent;
-}
-
-/* ── Cards más refinadas ── */
-.card, .inicio-panel, .kpi-card {
-    background: #fff !important;
-    border: 1px solid #c8ddd0 !important;
-    box-shadow: 0 2px 12px rgba(26,61,43,0.07) !important;
-}
-
-/* ── Tabla headers verdes ── */
-th {
-    background: #1a3d2b !important;
-    font-family: 'DM Sans', sans-serif !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.4px !important;
-    font-size: 12px !important;
-    text-transform: uppercase !important;
-}
-tr:hover td { background: #f0f7f3 !important; }
-
-/* ── Modal más elegante ── */
-.modal {
-    border-radius: 16px !important;
-    box-shadow: 0 20px 60px rgba(26,61,43,0.18) !important;
-}
-.modal h3 {
-    font-family: 'Playfair Display', serif !important;
-    color: #1a2e22 !important;
-    font-size: 20px !important;
-}
-
-/* ── Títulos de sección ── */
-.seccion h1, #dashboard-contenido h1 {
-    font-family: 'Playfair Display', serif !important;
-    color: #1a2e22 !important;
-    border-bottom: 2px solid #c8ddd0 !important;
-}
-
-/* ── Inicio panel header ── */
-.inicio-panel-header {
-    background: #f0f7f3 !important;
-    border-bottom: 1px solid #c8ddd0 !important;
-}
-</style>
-

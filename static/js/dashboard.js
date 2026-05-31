@@ -118,8 +118,11 @@ async function cargarDispositivosGlobal() {
     try {
         const res = await fetch('/api/dispositivos/lista');
         dispositivosGlobal = await res.json();
-        if (dispositivosGlobal.length > 0 && !dispositivoActualId) {
-            dispositivoActualId = dispositivosGlobal[0].idDispositivo;
+        if (dispositivosGlobal.length > 0) {
+            const ids = dispositivosGlobal.map(d => d.idDispositivo);
+            if (!dispositivoActualId || !ids.includes(dispositivoActualId)) {
+                dispositivoActualId = dispositivosGlobal[0].idDispositivo;
+            }
         }
         _llenarSelectoresDispositivo();
     } catch(e) { console.error('Error cargando dispositivos globales:', e); }
@@ -158,6 +161,7 @@ function mostrarSeccion(idSeccion) {
     // Recargar datos según la sección a la que se entra
     if (idSeccion === 'dashboard-contenido') cargarDashboardInicio();
     if (idSeccion === 'seccion-hardware')  actualizarListaDispositivos();
+    if (idSeccion === 'seccion-wifi')      cargarDispositivosGlobal().then(cargarRedActual);
     if (idSeccion === 'seccion-logica')    cargarSensoresEnLogica();
     if (idSeccion === 'seccion-analitica') cargarSensoresEnAnalitica();
     if (idSeccion === 'seccion-cultivos')  cargarSeccionCultivos();
@@ -219,6 +223,7 @@ async function guardarDispositivo() {
     if (response.ok && result.status === 'success') {
         cerrarModal('modal-dispositivo');
         document.getElementById('nombreDispositivo').value = '';
+        await cargarDispositivosGlobal();   // refresca selects de WiFi y Bomba
         actualizarListaDispositivos();
         mostrarModalPairing(result.pairing_code);
     }

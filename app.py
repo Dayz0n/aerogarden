@@ -162,6 +162,50 @@ TIPO_CONV_MAP = {
 }
 
 
+@app.route('/api/arduino/registrar', methods=['POST'])
+def arduino_registrar():
+    """
+    El Arduino llama esto UNA SOLA VEZ cuando no tiene device_id en EEPROM.
+    Body: { "token": "xxx", "nombre": "MiArduino" }
+    Responde: { "device_id": 3 }
+    El Arduino guarda ese id en EEPROM y ya nunca vuelve a llamar esto.
+    """
+    data = request.json or {}
+    if data.get("token") != ARDUINO_TOKEN:
+        return jsonify({"error": "No autorizado"}), 401
+
+    nombre = data.get("nombre", "Arduino").strip() or "Arduino"
+
+    try:
+        conexion = conectar_bd()
+        cursor   = conexion.cursor(dictionary=True)
+
+        # Buscar si ya existe un dispositivo con ese nombre sin usuario asignado
+        # (por si el Arduino se registró antes y perdió la EEPROM)
+        cursor.execute(
+            "SELECT idDispositivo FROM dispositivos WHERE nombre=%s AND idUsuario IS NULL LIMIT 1",
+            (nombre,)
+        )
+        existente = cursor.fetchone()
+
+        if existente:
+            device_id = existente['idDispositivo']
+        else:
+            cursor.execute(
+                "INSERT INTO dispositivos (nombre, tipo, idSistema, idUsuario) VALUES (%s, %s, 1, NULL)",
+                (nombre, "Arduino Mega + ESP-01")
+            )
+            conexion.commit()
+            device_id = cursor.lastrowid
+
+        cursor.close()
+        conexion.close()
+        print(f"[ARDUINO REGISTRAR] nombre='{nombre}' → device_id={device_id}")
+        return jsonify({"status": "ok", "device_id": device_id})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route('/api/arduino/datos', methods=['POST'])
 def arduino_datos():
     """

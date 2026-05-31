@@ -4,10 +4,8 @@ from flask_cors import CORS
 import mysql.connector
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
-import random
 import threading
 import os
-import paho.mqtt.client as mqtt_client
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 CORS(app)
@@ -16,7 +14,22 @@ app.secret_key = os.environ.get("SECRET_KEY", "cambia_esta_clave_en_produccion")
 
 
 # ============================================================
-# AUTENTICACIÓN — decorador y helper
+# BASE DE DATOS
+# ============================================================
+
+def conectar_bd():
+    return mysql.connector.connect(
+        host=os.environ.get("DB_HOST", "127.0.0.1"),
+        port=int(os.environ.get("DB_PORT", "3306")),
+        user=os.environ.get("DB_USER", "root"),
+        password=os.environ.get("DB_PASS", ""),
+        database=os.environ.get("DB_NAME", "mydb"),
+        charset="utf8mb4"
+    )
+
+
+# ============================================================
+# AUTENTICACIÓN
 # ============================================================
 
 def login_requerido(f):
@@ -31,12 +44,11 @@ def login_requerido(f):
 
 
 def get_id_usuario():
-    """Devuelve el idUsuario del usuario en sesión."""
     correo = session.get('usuario_logueado')
     if not correo:
         return None
     try:
-        cx = conectar_bd()
+        cx  = conectar_bd()
         cur = cx.cursor()
         cur.execute("SELECT idUsuario FROM usuarios WHERE correo = %s", (correo,))
         row = cur.fetchone()
@@ -46,74 +58,75 @@ def get_id_usuario():
     except:
         return None
 
-# ============================================================
-# CONFIGURACIÓN ADAFRUIT IO MQTT
-# ============================================================
-AIO_USERNAME = os.environ.get("AIO_USERNAME", "angeldedios")
-AIO_KEY      = os.environ.get("AIO_KEY", "")
-AIO_SERVER   = "io.adafruit.com"
-AIO_PORT     = 1883
 
-# Mapeo feed Adafruit → id_sensor en tu base de datos
-# IMPORTANTE: ajusta estos IDs al registrar tus sensores en el dashboard
-FEED_SENSOR_MAP = {
-    f"{AIO_USERNAME}/feeds/temperatura": {"id": 1, "tipo": "Temperatura",  "unidad": "°C",   "conv": None},
-    f"{AIO_USERNAME}/feeds/humedad":     {"id": 2, "tipo": "Humedad",      "unidad": "%",    "conv": None},
-    f"{AIO_USERNAME}/feeds/ph":          {"id": 3, "tipo": "pH",           "unidad": "pH",   "conv": "ph"},
-    f"{AIO_USERNAME}/feeds/luz":         {"id": 4, "tipo": "Luz",          "unidad": "lux",  "conv": "luz"},
-    f"{AIO_USERNAME}/feeds/distancia":   {"id": 5, "tipo": "Nivel Agua",   "unidad": "cm",   "conv": None},
-}
+# ============================================================
+# CONFIG POR DISPOSITIVO
+# Cada Arduino se identifica con su device_id (= idDispositivo).
+# Las configs se guardan separadas — nunca se mezclan entre usuarios.
+# ============================================================
 
-# Config del relevador (se comparte entre el hilo MQTT y Flask)
-config_relevador = {
-    "tiempo_on":     30,
-    "tiempo_off":    60,
-    "modo":          "automatico",
-    "estado_manual": "apagado"
-}
+relay_configs: dict = {}   # relay_configs[device_id] = {...}
 relay_lock = threading.Lock()
 
+wifi_pendiente: dict = {}  # wifi_pendiente[device_id] = {ssid, password}
+wifi_actual:    dict = {}  # wifi_actual[device_id]    = {ssid, fecha}
+wifi_historial: dict = {}  # wifi_historial[device_id] = [{ssid, fecha}, ...]
+wifi_lock = threading.Lock()
+
+
+def _relay_default():
+    return {"tiempo_on": 30, "tiempo_off": 60,
+            "modo": "automatico", "estado_manual": "apagado"}
+
+
+def get_relay(device_id: int) -> dict:
+    with relay_lock:
+        if device_id not in relay_configs:
+            relay_configs[device_id] = _relay_default()
+        return relay_configs[device_id].copy()
+
+
+def set_relay(device_id: int, data: dict):
+    with relay_lock:
+        relay_configs[device_id] = {
+            "tiempo_on":     int(data.get("tiempo_on",     30)),
+            "tiempo_off":    int(data.get("tiempo_off",    60)),
+            "modo":          data.get("modo",          "automatico"),
+            "estado_manual": data.get("estado_manual", "apagado"),
+        }
+
+
+# ============================================================
+# CONVERSIÓN DE VALORES
+# ============================================================
 
 def convertir_valor(raw, tipo_conv):
-    """
-    Convierte valores crudos del ADC a unidades reales.
-    El Arduino manda analogRead() directo (0-1023) para pH y luz.
-    """
     v = float(raw)
     if tipo_conv == "ph":
-        # analogRead A0 (0-1023) → voltaje → pH
         voltaje = v * (5.0 / 1023.0)
-        ph = 7.0 + ((2.5 - voltaje) / 0.18)   # ajusta 0.18 según tu sensor
+        ph = 7.0 + ((2.5 - voltaje) / 0.18)
         return round(max(0.0, min(14.0, ph)), 2)
     elif tipo_conv == "luz":
-        # analogRead A1 (0-1023) → lux aproximado
         return round((v / 1023.0) * 5000, 1)
     return round(v, 2)
 
 
 def guardar_lectura_bd(id_sensor, valor):
-    """Inserta una lectura en registro_sensores y evalúa alertas."""
     try:
         conexion = conectar_bd()
         cursor   = conexion.cursor(dictionary=True)
-
-        # Guardar lectura
         cursor.execute(
             "INSERT INTO registro_sensores (idSensor, valor, fecha_hora) VALUES (%s, %s, NOW())",
             (id_sensor, valor)
         )
-
-        # Evaluar parámetros de alerta activos
         cursor.execute("""
             SELECT idParametro, nombre, condicion, valor_umbral, prioridad
             FROM Parametros_Alerta
             WHERE idSensor = %s AND activo = 1
         """, (id_sensor,))
-        parametros = cursor.fetchall()
-
-        for p in parametros:
-            umbral = float(p['valor_umbral'])
-            cond   = p['condicion']
+        for p in cursor.fetchall():
+            umbral  = float(p['valor_umbral'])
+            cond    = p['condicion']
             disparo = (
                 (cond == 'mayor_que' and valor > umbral) or
                 (cond == 'menor_que' and valor < umbral) or
@@ -126,7 +139,6 @@ def guardar_lectura_bd(id_sensor, valor):
                         (idParametro, idSensor, valor_detectado, prioridad, estado, mensaje)
                     VALUES (%s, %s, %s, %s, 'nueva', %s)
                 """, (p['idParametro'], id_sensor, valor, p['prioridad'], msg))
-
         conexion.commit()
         cursor.close()
         conexion.close()
@@ -134,92 +146,116 @@ def guardar_lectura_bd(id_sensor, valor):
         print(f"[BD ERROR] {e}")
 
 
-# ── MQTT callbacks ──────────────────────────────────────────
-def on_connect(client, userdata, flags, rc):
-    if rc == 0:
-        print("[MQTT] Conectado a Adafruit IO")
-        for feed in FEED_SENSOR_MAP:
-            client.subscribe(feed)
-            print(f"[MQTT] Suscrito a: {feed}")
-    else:
-        print(f"[MQTT] Error de conexión, código: {rc}")
-
-
-def on_message(client, userdata, msg):
-    topic   = msg.topic
-    payload = msg.payload.decode("utf-8").strip()
-
-    if topic not in FEED_SENSOR_MAP:
-        return
-
-    info = FEED_SENSOR_MAP[topic]
-    try:
-        valor = convertir_valor(payload, info["conv"])
-        print(f"[MQTT] {info['tipo']}: {valor} {info['unidad']}")
-        guardar_lectura_bd(info["id"], valor)
-    except Exception as e:
-        print(f"[MQTT] Error procesando {topic}: {e}")
-
-
-# Cliente MQTT global para poder publicar desde los endpoints de Flask
-mqtt_cliente_global = None
-mqtt_cliente_lock   = threading.Lock()
-
-def iniciar_mqtt():
-    """Corre en un hilo separado. Mantiene conexión permanente a Adafruit IO."""
-    global mqtt_cliente_global
-    cliente = mqtt_client.Client()
-    cliente.username_pw_set(AIO_USERNAME, AIO_KEY)
-    cliente.on_connect = on_connect
-    cliente.on_message = on_message
-
-    with mqtt_cliente_lock:
-        mqtt_cliente_global = cliente
-
-    while True:
-        try:
-            print("[MQTT] Conectando a Adafruit IO...")
-            cliente.connect(AIO_SERVER, AIO_PORT, keepalive=60)
-            cliente.loop_forever()
-        except Exception as e:
-            print(f"[MQTT] Reconectando en 10s... ({e})")
-            import time; time.sleep(10)
-
-def publicar_mqtt(feed, valor):
-    """Publica un valor a un feed de Adafruit IO desde Flask."""
-    global mqtt_cliente_global
-    try:
-        topic = f"{AIO_USERNAME}/feeds/{feed}"
-        with mqtt_cliente_lock:
-            if mqtt_cliente_global and mqtt_cliente_global.is_connected():
-                mqtt_cliente_global.publish(topic, str(valor))
-                print(f"[MQTT] Publicado → {topic}: {valor}")
-    except Exception as e:
-        print(f"[MQTT] Error al publicar en {feed}: {e}")
-
-
-# Arrancar el hilo MQTT al iniciar Flask
-hilo_mqtt = threading.Thread(target=iniciar_mqtt, daemon=True)
-hilo_mqtt.start()
-
-
 # ============================================================
-# ENDPOINTS PARA EL RELEVADOR
+# ENDPOINTS PARA EL ARDUINO — sin sesión, protegidos con token
 # ============================================================
 
-# El Arduino consulta esta URL para saber cuánto tiempo ON/OFF
-# En tu caso, lo puedes integrar publicando a un feed de Adafruit
-# o consultando directamente desde el dashboard + BD.
+ARDUINO_TOKEN = os.environ.get("ARDUINO_TOKEN", "token_secreto_arduino")
 
-def conectar_bd():
-    return mysql.connector.connect(
-        host=os.environ.get("DB_HOST", "127.0.0.1"),
-        port=int(os.environ.get("DB_PORT", "3306")),
-        user=os.environ.get("DB_USER", "root"),
-        password=os.environ.get("DB_PASS", ""),
-        database=os.environ.get("DB_NAME", "mydb"),
-        charset="utf8mb4"
-    )
+TIPO_CONV_MAP = {
+    "temperatura": None,
+    "humedad":     None,
+    "ph":          "ph",
+    "luz":         "luz",
+    "nivel agua":  None,
+    "distancia":   None,
+}
+
+
+@app.route('/api/arduino/datos', methods=['POST'])
+def arduino_datos():
+    """
+    El Arduino Mega manda un POST cada 10 s.
+    Body JSON:
+    {
+      "token":     "token_secreto_arduino",
+      "device_id": 1,
+      "sensores": {
+        "temperatura": 25.3,
+        "humedad":     68.0,
+        "ph":          512,
+        "luz":         780,
+        "distancia":   14.5
+      }
+    }
+    Busca los sensores DEL dispositivo indicado — cada usuario
+    tiene sus propios registros, no hay mezcla.
+    """
+    data = request.json or {}
+    if data.get("token") != ARDUINO_TOKEN:
+        return jsonify({"error": "No autorizado"}), 401
+
+    device_id = data.get("device_id")
+    sensores  = data.get("sensores", {})
+
+    if not device_id:
+        return jsonify({"error": "Falta device_id"}), 400
+    if not sensores:
+        return jsonify({"error": "Sin datos de sensores"}), 400
+
+    guardados = []
+    errores   = []
+
+    try:
+        conexion = conectar_bd()
+        cursor   = conexion.cursor(dictionary=True)
+
+        for tipo_raw, valor_raw in sensores.items():
+            tipo = tipo_raw.lower().strip()
+            cursor.execute("""
+                SELECT s.idSensore
+                FROM sensores s
+                WHERE s.idDispositivo = %s
+                  AND LOWER(s.tipo_sensor) = %s
+                LIMIT 1
+            """, (device_id, tipo))
+            row = cursor.fetchone()
+
+            if not row:
+                errores.append(f"Sensor '{tipo}' no registrado para dispositivo {device_id}")
+                continue
+
+            id_sensor = row['idSensore']
+            conv      = TIPO_CONV_MAP.get(tipo, None)
+            try:
+                valor = convertir_valor(valor_raw, conv)
+                guardar_lectura_bd(id_sensor, valor)
+                guardados.append({"tipo": tipo, "id": id_sensor, "valor": valor})
+                print(f"[ARDUINO dev={device_id}] {tipo}: {valor}")
+            except Exception as e:
+                errores.append(f"{tipo}: {e}")
+
+        cursor.close()
+        conexion.close()
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    return jsonify({"status": "ok", "guardados": guardados, "errores": errores})
+
+
+@app.route('/api/arduino/config', methods=['GET'])
+def arduino_config():
+    """
+    El Arduino consulta esta URL cada ciclo para recibir:
+    - Config del relevador (modo, tiempos, estado manual)
+    - Config WiFi pendiente (si el dashboard mandó nueva red)
+    La WiFi pendiente se entrega UNA SOLA VEZ y se borra.
+
+    GET /api/arduino/config?token=XXX&device_id=1
+    """
+    if request.args.get("token") != ARDUINO_TOKEN:
+        return jsonify({"error": "No autorizado"}), 401
+
+    device_id = request.args.get("device_id", type=int)
+    if not device_id:
+        return jsonify({"error": "Falta device_id"}), 400
+
+    relay = get_relay(device_id)
+
+    with wifi_lock:
+        wifi = wifi_pendiente.pop(device_id, {"ssid": None, "password": None})
+
+    return jsonify({"relay": relay, "wifi": wifi})
 
 
 # ============================================================
@@ -246,13 +282,13 @@ def logout():
 
 
 # ============================================================
-# AUTENTICACIÓN
+# AUTENTICACIÓN API
 # ============================================================
 
 @app.route('/api/auth/registrar', methods=['POST'])
 def registrar_usuario():
     try:
-        data = request.json
+        data      = request.json
         nombre    = data.get('nombre')
         correo    = data.get('correo')
         contrasena = data.get('contrasena')
@@ -262,8 +298,10 @@ def registrar_usuario():
 
         conexion = conectar_bd()
         cursor   = conexion.cursor()
-        query    = "INSERT INTO `usuarios` (`nombre`, `correo`, `contraseña`) VALUES (%s, %s, %s)"
-        cursor.execute(query, (nombre, correo, generate_password_hash(contrasena)))
+        cursor.execute(
+            "INSERT INTO `usuarios` (`nombre`, `correo`, `contraseña`) VALUES (%s, %s, %s)",
+            (nombre, correo, generate_password_hash(contrasena))
+        )
         conexion.commit()
         cursor.close()
         conexion.close()
@@ -303,14 +341,14 @@ def login():
 @app.route('/api/usuario/info', methods=['GET'])
 @login_requerido
 def obtener_usuario():
-    if 'usuario_logueado' not in session:
-        return jsonify({"error": "No autorizado"}), 401
-
     try:
         conexion = conectar_bd()
         cursor   = conexion.cursor(dictionary=True)
-        cursor.execute("SELECT nombre, correo, foto_perfil FROM usuarios WHERE correo = %s", (session['usuario_logueado'],))
-        usuario  = cursor.fetchone()
+        cursor.execute(
+            "SELECT nombre, correo, foto_perfil FROM usuarios WHERE correo = %s",
+            (session['usuario_logueado'],)
+        )
+        usuario = cursor.fetchone()
         cursor.close()
         conexion.close()
 
@@ -318,17 +356,19 @@ def obtener_usuario():
             return jsonify({"error": "Usuario no encontrado"}), 404
 
         return jsonify({
-            "nombre": usuario['nombre'],
-            "correo": usuario['correo'],
+            "nombre":      usuario['nombre'],
+            "correo":      usuario['correo'],
             "foto_perfil": usuario.get('foto_perfil') or None
         })
-    except Exception as e:
-        # Si foto_perfil no existe en la BD, devolver sin ella
+    except Exception:
         try:
             conexion = conectar_bd()
             cursor   = conexion.cursor(dictionary=True)
-            cursor.execute("SELECT nombre, correo FROM usuarios WHERE correo = %s", (session['usuario_logueado'],))
-            usuario  = cursor.fetchone()
+            cursor.execute(
+                "SELECT nombre, correo FROM usuarios WHERE correo = %s",
+                (session['usuario_logueado'],)
+            )
+            usuario = cursor.fetchone()
             cursor.close()
             conexion.close()
             return jsonify({"nombre": usuario['nombre'], "correo": usuario['correo'], "foto_perfil": None})
@@ -339,9 +379,6 @@ def obtener_usuario():
 @app.route('/api/usuario/password', methods=['POST'])
 @login_requerido
 def cambiar_password():
-    if 'usuario_logueado' not in session:
-        return jsonify({"error": "No autorizado"}), 401
-
     data  = request.json
     nueva = data.get('password', '').strip()
 
@@ -369,14 +406,8 @@ def cambiar_password():
 @app.route('/api/usuario/foto', methods=['POST'])
 @login_requerido
 def actualizar_foto():
-    """Guarda foto de perfil como base64 en la BD.
-    Requiere columna foto_perfil LONGTEXT en tabla usuarios.
-    Si no existe la columna, la crea automáticamente."""
-    if 'usuario_logueado' not in session:
-        return jsonify({"error": "No autorizado"}), 401
-
     data = request.json
-    foto = data.get('foto')  # string base64 con data URI
+    foto = data.get('foto')
 
     if not foto:
         return jsonify({"error": "No se recibió imagen"}), 400
@@ -384,14 +415,11 @@ def actualizar_foto():
     try:
         conexion = conectar_bd()
         cursor   = conexion.cursor()
-
-        # Intentar agregar la columna si no existe (falla silenciosamente si ya existe)
         try:
             cursor.execute("ALTER TABLE usuarios ADD COLUMN foto_perfil LONGTEXT NULL")
             conexion.commit()
         except Exception:
-            pass  # La columna ya existe
-
+            pass
         cursor.execute(
             "UPDATE usuarios SET foto_perfil = %s WHERE correo = %s",
             (foto, session['usuario_logueado'])
@@ -418,12 +446,17 @@ def agregar_dispositivo():
     try:
         conexion = conectar_bd()
         cursor   = conexion.cursor()
-        id_u = get_id_usuario()
-        cursor.execute("INSERT INTO dispositivos (nombre, tipo, idSistema, idUsuario) VALUES (%s, %s, 1, %s)", (nombre, tipo, id_u))
+        id_u     = get_id_usuario()
+        cursor.execute(
+            "INSERT INTO dispositivos (nombre, tipo, idSistema, idUsuario) VALUES (%s, %s, 1, %s)",
+            (nombre, tipo, id_u)
+        )
         conexion.commit()
+        nuevo_id = cursor.lastrowid
         cursor.close()
         conexion.close()
-        return jsonify({"status": "success"})
+        # Devolvemos el id para que el frontend pueda mostrárselo al usuario
+        return jsonify({"status": "success", "idDispositivo": nuevo_id})
     except Exception as e:
         return jsonify({"status": "error", "mensaje": str(e)}), 500
 
@@ -432,11 +465,13 @@ def agregar_dispositivo():
 @login_requerido
 def obtener_lista_dispositivos():
     try:
-        conexion     = conectar_bd()
-        cursor       = conexion.cursor(dictionary=True)
-        # CORREGIDO: incluye el campo 'tipo' para mostrarlo en hardware
-        id_u = get_id_usuario()
-        cursor.execute("SELECT idDispositivo, nombre, tipo FROM dispositivos WHERE idUsuario = %s", (id_u,))
+        conexion = conectar_bd()
+        cursor   = conexion.cursor(dictionary=True)
+        id_u     = get_id_usuario()
+        cursor.execute(
+            "SELECT idDispositivo, nombre, tipo FROM dispositivos WHERE idUsuario = %s",
+            (id_u,)
+        )
         dispositivos = cursor.fetchall()
         cursor.close()
         conexion.close()
@@ -474,7 +509,7 @@ def obtener_lista_sensores():
     try:
         conexion = conectar_bd()
         cursor   = conexion.cursor(dictionary=True)
-        id_u = get_id_usuario()
+        id_u     = get_id_usuario()
         cursor.execute("""
             SELECT s.idSensore, s.tipo_sensor, s.unidad_medida, s.idDispositivo,
                    d.nombre AS nombre_dispositivo
@@ -493,56 +528,46 @@ def obtener_lista_sensores():
 @app.route('/api/sensores/estado/<int:id_sensor>', methods=['GET'])
 @login_requerido
 def verificar_estado(id_sensor):
-    """
-    Verifica si el sensor tiene lecturas recientes (últimos 5 minutos).
-    Devuelve activo=True si hay datos recientes, junto con la última lectura.
-    """
     try:
-        conexion = conectar_bd()
-        cursor   = conexion.cursor(dictionary=True)
-
-        # Verificar si existe el sensor
-        cursor.execute("SELECT idSensore, tipo_sensor, unidad_medida FROM sensores WHERE idSensore = %s", (id_sensor,))
+        conexion  = conectar_bd()
+        cursor    = conexion.cursor(dictionary=True)
+        cursor.execute(
+            "SELECT idSensore, tipo_sensor, unidad_medida FROM sensores WHERE idSensore = %s",
+            (id_sensor,)
+        )
         sensor = cursor.fetchone()
         if not sensor:
-            cursor.close()
-            conexion.close()
+            cursor.close(); conexion.close()
             return jsonify({"error": "Sensor no encontrado"}), 404
 
-        # Buscar la última lectura (últimos 5 minutos = activo)
         hace_5min = datetime.now() - timedelta(minutes=5)
         cursor.execute(
             "SELECT valor, fecha_hora FROM registro_sensores WHERE idSensor = %s ORDER BY fecha_hora DESC LIMIT 1",
             (id_sensor,)
         )
         ultima = cursor.fetchone()
-        cursor.close()
-        conexion.close()
+        cursor.close(); conexion.close()
 
-        activo = False
+        activo         = False
         ultima_lectura = None
 
         if ultima:
             if isinstance(ultima['fecha_hora'], datetime):
                 activo = ultima['fecha_hora'] >= hace_5min
                 ultima_lectura = {
-                    "valor": ultima['valor'],
-                    "unidad": sensor['unidad_medida'],
+                    "valor":      ultima['valor'],
+                    "unidad":     sensor['unidad_medida'],
                     "fecha_hora": ultima['fecha_hora'].strftime('%Y-%m-%d %H:%M:%S')
                 }
             else:
+                activo = True
                 ultima_lectura = {
-                    "valor": ultima['valor'],
-                    "unidad": sensor['unidad_medida'],
+                    "valor":      ultima['valor'],
+                    "unidad":     sensor['unidad_medida'],
                     "fecha_hora": str(ultima['fecha_hora'])
                 }
-                activo = True  # Si hay fecha como string, asumimos activo
 
-        return jsonify({
-            "activo": activo,
-            "ultima_lectura": ultima_lectura
-        })
-
+        return jsonify({"activo": activo, "ultima_lectura": ultima_lectura})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -550,42 +575,27 @@ def verificar_estado(id_sensor):
 @app.route('/api/sensores/datos-actuales/<int:id_sensor>', methods=['GET'])
 @login_requerido
 def datos_actuales(id_sensor):
-    """
-    Devuelve el dato más reciente del sensor desde la BD.
-    Si no hay datos, devuelve error indicándolo.
-    """
     try:
         conexion = conectar_bd()
         cursor   = conexion.cursor(dictionary=True)
-
-        # Obtener unidad del sensor
         cursor.execute("SELECT unidad_medida FROM sensores WHERE idSensore = %s", (id_sensor,))
         sensor = cursor.fetchone()
         if not sensor:
-            cursor.close()
-            conexion.close()
+            cursor.close(); conexion.close()
             return jsonify({"error": "Sensor no encontrado"}), 404
 
-        # Obtener última lectura
         cursor.execute(
             "SELECT valor, fecha_hora FROM registro_sensores WHERE idSensor = %s ORDER BY fecha_hora DESC LIMIT 1",
             (id_sensor,)
         )
         dato = cursor.fetchone()
-        cursor.close()
-        conexion.close()
+        cursor.close(); conexion.close()
 
         if not dato:
             return jsonify({"error": "Sin datos disponibles para este sensor"}), 404
 
         fecha_str = dato['fecha_hora'].strftime('%Y-%m-%d %H:%M:%S') if isinstance(dato['fecha_hora'], datetime) else str(dato['fecha_hora'])
-
-        return jsonify({
-            "valor": dato['valor'],
-            "unidad": sensor['unidad_medida'],
-            "fecha_hora": fecha_str
-        })
-
+        return jsonify({"valor": dato['valor'], "unidad": sensor['unidad_medida'], "fecha_hora": fecha_str})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -609,8 +619,7 @@ def obtener_analitica(id_sensor, rango):
             (id_sensor, fecha_inicio)
         )
         datos = cursor.fetchall()
-        cursor.close()
-        conexion.close()
+        cursor.close(); conexion.close()
 
         for fila in datos:
             if isinstance(fila['fecha_hora'], datetime):
@@ -629,23 +638,22 @@ def obtener_analitica(id_sensor, rango):
 @login_requerido
 def sembrar_cultivo():
     data = request.json
-
-    campos_requeridos = ['nombre', 'fecha', 'cantidad', 'tamano', 'idTipo', 'idSistema']
-    if not all(k in data for k in campos_requeridos):
+    if not all(k in data for k in ['nombre', 'fecha', 'cantidad', 'tamano', 'idTipo', 'idSistema']):
         return jsonify({"error": "Faltan datos requeridos"}), 400
 
     try:
         conexion = conectar_bd()
         cursor   = conexion.cursor()
-        id_u = get_id_usuario()
+        id_u     = get_id_usuario()
         cursor.execute(
-            """INSERT INTO cultivos (nombreCultivo, fecha_siembra, cantidad, tamano_planta, idTipo_Cultivo, idSistema, idUsuario)
+            """INSERT INTO cultivos (nombreCultivo, fecha_siembra, cantidad, tamano_planta,
+                                     idTipo_Cultivo, idSistema, idUsuario)
                VALUES (%s, %s, %s, %s, %s, %s, %s)""",
-            (data['nombre'], data['fecha'], data['cantidad'], data['tamano'], data['idTipo'], data['idSistema'], id_u)
+            (data['nombre'], data['fecha'], data['cantidad'], data['tamano'],
+             data['idTipo'], data['idSistema'], id_u)
         )
         conexion.commit()
-        cursor.close()
-        conexion.close()
+        cursor.close(); conexion.close()
         return jsonify({"status": "success", "message": "Siembra registrada correctamente"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -657,7 +665,7 @@ def obtener_cultivos():
     try:
         conexion = conectar_bd()
         cursor   = conexion.cursor(dictionary=True)
-        id_u = get_id_usuario()
+        id_u     = get_id_usuario()
         cursor.execute("""
             SELECT c.idCultivo, c.nombreCultivo, c.fecha_siembra, c.cantidad,
                    c.tamano_planta, t.nombre_planta AS tipo_cultivo
@@ -669,8 +677,7 @@ def obtener_cultivos():
         for row in cultivos:
             if hasattr(row.get('fecha_siembra'), 'strftime'):
                 row['fecha_siembra'] = row['fecha_siembra'].strftime('%Y-%m-%d')
-        cursor.close()
-        conexion.close()
+        cursor.close(); conexion.close()
         return jsonify(cultivos)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -683,7 +690,7 @@ def editar_cultivo(id_cultivo):
     try:
         conexion = conectar_bd()
         cursor   = conexion.cursor()
-        id_u = get_id_usuario()
+        id_u     = get_id_usuario()
         cursor.execute("""
             UPDATE cultivos
             SET nombreCultivo=%s, fecha_siembra=%s, cantidad=%s,
@@ -692,8 +699,7 @@ def editar_cultivo(id_cultivo):
         """, (data['nombre'], data['fecha'], data['cantidad'],
               data['tamano'], data['idTipo'], id_cultivo, id_u))
         conexion.commit()
-        cursor.close()
-        conexion.close()
+        cursor.close(); conexion.close()
         return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -705,11 +711,10 @@ def eliminar_cultivo(id_cultivo):
     try:
         conexion = conectar_bd()
         cursor   = conexion.cursor()
-        id_u = get_id_usuario()
+        id_u     = get_id_usuario()
         cursor.execute("DELETE FROM cultivos WHERE idCultivo=%s AND idUsuario=%s", (id_cultivo, id_u))
         conexion.commit()
-        cursor.close()
-        conexion.close()
+        cursor.close(); conexion.close()
         return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -726,9 +731,8 @@ def obtener_tipos_cultivo():
         conexion = conectar_bd()
         cursor   = conexion.cursor(dictionary=True)
         cursor.execute("SELECT idTipo_Cultivo, nombre_planta FROM tipo_cultivo")
-        tipos    = cursor.fetchall()
-        cursor.close()
-        conexion.close()
+        tipos = cursor.fetchall()
+        cursor.close(); conexion.close()
         return jsonify(tipos)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -746,8 +750,7 @@ def agregar_tipo_cultivo():
             (data['nombre'], data['descripcion'])
         )
         conexion.commit()
-        cursor.close()
-        conexion.close()
+        cursor.close(); conexion.close()
         return jsonify({"status": "success", "message": "Tipo de cultivo agregado correctamente"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -769,8 +772,7 @@ def registrar_cosecha():
             (data['fecha'], data['cantidad'], data['calidad'], data.get('observaciones', ''), data['idCultivo'])
         )
         conexion.commit()
-        cursor.close()
-        conexion.close()
+        cursor.close(); conexion.close()
         return jsonify({"status": "success", "message": "Cosecha registrada con éxito"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -782,7 +784,7 @@ def obtener_cosechas():
     try:
         conexion = conectar_bd()
         cursor   = conexion.cursor(dictionary=True)
-        id_u = get_id_usuario()
+        id_u     = get_id_usuario()
         cursor.execute("""
             SELECT cs.idCosecha, cs.fecha, cs.cantidad, cs.calidad,
                    cs.observaciones, c.nombreCultivo
@@ -795,8 +797,7 @@ def obtener_cosechas():
         for row in cosechas:
             if hasattr(row.get('fecha'), 'strftime'):
                 row['fecha'] = row['fecha'].strftime('%Y-%m-%d')
-        cursor.close()
-        conexion.close()
+        cursor.close(); conexion.close()
         return jsonify(cosechas)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -816,8 +817,7 @@ def editar_cosecha(id_cosecha):
         """, (data['fecha'], data['cantidad'], data['calidad'],
               data.get('observaciones', ''), id_cosecha))
         conexion.commit()
-        cursor.close()
-        conexion.close()
+        cursor.close(); conexion.close()
         return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -831,15 +831,14 @@ def eliminar_cosecha(id_cosecha):
         cursor   = conexion.cursor()
         cursor.execute("DELETE FROM cosecha WHERE idCosecha=%s", (id_cosecha,))
         conexion.commit()
-        cursor.close()
-        conexion.close()
+        cursor.close(); conexion.close()
         return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
 # ============================================================
-# ALERTAS — Parámetros (umbrales)
+# ALERTAS — Parámetros
 # ============================================================
 
 @app.route('/api/alertas/parametros/lista', methods=['GET'])
@@ -848,7 +847,7 @@ def listar_parametros():
     try:
         conexion = conectar_bd()
         cursor   = conexion.cursor(dictionary=True)
-        id_u = get_id_usuario()
+        id_u     = get_id_usuario()
         cursor.execute("""
             SELECT p.idParametro, p.nombre, p.condicion, p.valor_umbral,
                    p.prioridad, p.activo,
@@ -860,8 +859,7 @@ def listar_parametros():
             ORDER BY p.prioridad DESC, p.idParametro DESC
         """, (id_u,))
         datos = cursor.fetchall()
-        cursor.close()
-        conexion.close()
+        cursor.close(); conexion.close()
         return jsonify(datos)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -885,8 +883,7 @@ def agregar_parametro():
         )
         conexion.commit()
         nuevo_id = cursor.lastrowid
-        cursor.close()
-        conexion.close()
+        cursor.close(); conexion.close()
         return jsonify({"status": "success", "idParametro": nuevo_id})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -907,8 +904,7 @@ def editar_parametro(id_param):
              data['prioridad'], data.get('activo', 1), id_param)
         )
         conexion.commit()
-        cursor.close()
-        conexion.close()
+        cursor.close(); conexion.close()
         return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -922,8 +918,7 @@ def eliminar_parametro(id_param):
         cursor   = conexion.cursor()
         cursor.execute("DELETE FROM Parametros_Alerta WHERE idParametro=%s", (id_param,))
         conexion.commit()
-        cursor.close()
-        conexion.close()
+        cursor.close(); conexion.close()
         return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -946,18 +941,14 @@ def historial_alertas():
         valores     = []
 
         if prioridad:
-            condiciones.append("h.prioridad = %s")
-            valores.append(prioridad)
+            condiciones.append("h.prioridad = %s"); valores.append(prioridad)
         if estado:
-            condiciones.append("h.estado = %s")
-            valores.append(estado)
+            condiciones.append("h.estado = %s");    valores.append(estado)
         if id_sensor:
-            condiciones.append("h.idSensor = %s")
-            valores.append(id_sensor)
+            condiciones.append("h.idSensor = %s");  valores.append(id_sensor)
 
         id_u = get_id_usuario()
-        condiciones.append("d.idUsuario = %s")
-        valores.append(id_u)
+        condiciones.append("d.idUsuario = %s"); valores.append(id_u)
         where = "WHERE " + " AND ".join(condiciones)
 
         conexion = conectar_bd()
@@ -983,8 +974,7 @@ def historial_alertas():
             if isinstance(row.get('fecha_resolucion'), datetime):
                 row['fecha_resolucion'] = row['fecha_resolucion'].strftime('%Y-%m-%d %H:%M:%S')
 
-        cursor.close()
-        conexion.close()
+        cursor.close(); conexion.close()
         return jsonify(datos)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -1008,8 +998,7 @@ def registrar_alerta():
              data['prioridad'], data.get('mensaje', ''))
         )
         conexion.commit()
-        cursor.close()
-        conexion.close()
+        cursor.close(); conexion.close()
         return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -1038,8 +1027,7 @@ def actualizar_estado_alerta(id_historial):
                 (nuevo_estado, id_historial)
             )
         conexion.commit()
-        cursor.close()
-        conexion.close()
+        cursor.close(); conexion.close()
         return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -1052,9 +1040,8 @@ def conteo_alertas_nuevas():
         conexion = conectar_bd()
         cursor   = conexion.cursor()
         cursor.execute("SELECT COUNT(*) FROM Historial_Alertas WHERE estado='nueva'")
-        total    = cursor.fetchone()[0]
-        cursor.close()
-        conexion.close()
+        total = cursor.fetchone()[0]
+        cursor.close(); conexion.close()
         return jsonify({"nuevas": total})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -1067,97 +1054,87 @@ def conteo_alertas_nuevas():
 @app.route('/api/relevador/config', methods=['GET'])
 @login_requerido
 def obtener_config_relevador():
-    """El dashboard lee la configuración actual."""
-    with relay_lock:
-        return jsonify(config_relevador.copy())
+    device_id = request.args.get("device_id", type=int)
+    if not device_id:
+        return jsonify({"error": "Falta device_id"}), 400
+    return jsonify(get_relay(device_id))
 
 
 @app.route('/api/relevador/config', methods=['POST'])
 @login_requerido
 def guardar_config_relevador():
     """
-    El dashboard guarda nueva config y la publica a Adafruit IO
-    para que el Arduino la reciba en tiempo real.
-    Body: {"tiempo_on": 30, "tiempo_off": 60, "modo": "automatico", "estado_manual": "encendido"}
+    Body: {"device_id": 1, "tiempo_on": 30, "tiempo_off": 60,
+           "modo": "automatico", "estado_manual": "encendido"}
+    El Arduino lo recoge en su próxima llamada a /api/arduino/config
     """
-    data = request.json
-    modo          = data.get('modo', 'automatico')
-    estado_manual = data.get('estado_manual', 'apagado')
-    tiempo_on     = int(data.get('tiempo_on', 30))
-    tiempo_off    = int(data.get('tiempo_off', 60))
-
-    with relay_lock:
-        config_relevador['tiempo_on']     = tiempo_on
-        config_relevador['tiempo_off']    = tiempo_off
-        config_relevador['modo']          = modo
-        config_relevador['estado_manual'] = estado_manual
-
-    # Publicar a Adafruit IO para que el Arduino lo reciba
-    publicar_mqtt('relay-tiempo-on',  tiempo_on)
-    publicar_mqtt('relay-tiempo-off', tiempo_off)
-
-    if modo == 'manual':
-        publicar_mqtt('relay-modo', f'manual:{estado_manual}')
-    else:
-        publicar_mqtt('relay-modo', 'automatico')
-
-    return jsonify({"status": "ok", "config": config_relevador})
+    data      = request.json or {}
+    device_id = data.get("device_id")
+    if not device_id:
+        return jsonify({"error": "Falta device_id"}), 400
+    set_relay(device_id, data)
+    print(f"[RELAY dev={device_id}] modo={data.get('modo')} on={data.get('tiempo_on')}s")
+    return jsonify({"status": "ok", "config": get_relay(device_id)})
 
 
 @app.route('/api/relevador/estado', methods=['GET'])
 @login_requerido
 def estado_relevador():
-    """El dashboard consulta el estado actual del relevador."""
-    with relay_lock:
-        return jsonify(config_relevador.copy())
+    device_id = request.args.get("device_id", type=int)
+    if not device_id:
+        return jsonify({"error": "Falta device_id"}), 400
+    return jsonify(get_relay(device_id))
 
 
 # ============================================================
 # WIFI — Configurar red del Arduino desde el dashboard
 # ============================================================
 
-wifi_config_actual = {"ssid": None, "fecha": None}
-wifi_historial     = []
-
 @app.route('/api/wifi/estado', methods=['GET'])
 @login_requerido
 def wifi_estado():
-    return jsonify(wifi_config_actual)
+    device_id = request.args.get("device_id", type=int)
+    if not device_id:
+        return jsonify({"ssid": None, "fecha": None})
+    return jsonify(wifi_actual.get(device_id, {"ssid": None, "fecha": None}))
+
 
 @app.route('/api/wifi/historial', methods=['GET'])
 @login_requerido
 def wifi_historial_endpoint():
-    return jsonify({"historial": wifi_historial[-10:]})  # ultimas 10
+    device_id = request.args.get("device_id", type=int)
+    hist = wifi_historial.get(device_id, []) if device_id else []
+    return jsonify({"historial": hist[-10:]})
+
 
 @app.route('/api/wifi/configurar', methods=['POST'])
 @login_requerido
 def wifi_configurar():
     """
-    Recibe {ssid, password} y lo publica a Adafruit IO.
-    El Arduino lo recibe y se reconecta a esa red.
+    Body: {"device_id": 1, "ssid": "MiRed", "password": "clave"}
+    El Arduino la recoge en /api/arduino/config y se reconecta.
     """
-    data     = request.json
-    ssid     = data.get('ssid', '').strip()
-    password = data.get('password', '')
+    data      = request.json or {}
+    device_id = data.get("device_id")
+    ssid      = data.get("ssid", "").strip()
+    password  = data.get("password", "")
 
+    if not device_id:
+        return jsonify({"status": "error", "mensaje": "Falta device_id"}), 400
     if not ssid or not password:
         return jsonify({"status": "error", "mensaje": "SSID y contraseña requeridos"}), 400
 
-    # Publicar a Adafruit IO — el Arduino escucha estos feeds
-    publicar_mqtt('wifi-ssid',     ssid)
-    publicar_mqtt('wifi-password', password)
+    with wifi_lock:
+        wifi_pendiente[device_id] = {"ssid": ssid, "password": password}
 
-    # Guardar en memoria
-    from datetime import datetime
     fecha = datetime.now().strftime("%d/%m/%Y %H:%M")
-    wifi_config_actual['ssid']  = ssid
-    wifi_config_actual['fecha'] = fecha
+    wifi_actual[device_id] = {"ssid": ssid, "fecha": fecha}
 
-    # Agregar al historial (sin duplicados)
-    wifi_historial[:] = [h for h in wifi_historial if h['ssid'] != ssid]
-    wifi_historial.append({"ssid": ssid, "fecha": fecha})
+    hist = wifi_historial.setdefault(device_id, [])
+    hist[:] = [h for h in hist if h["ssid"] != ssid]
+    hist.append({"ssid": ssid, "fecha": fecha})
 
-    print(f"[WiFi] Configuración enviada → SSID: {ssid}")
+    print(f"[WiFi dev={device_id}] Config pendiente → SSID: {ssid}")
     return jsonify({"status": "ok", "ssid": ssid})
 
 
@@ -1166,4 +1143,8 @@ def wifi_configurar():
 # ============================================================
 
 if __name__ == '__main__':
-    app.run(debug=os.environ.get('FLASK_DEBUG', 'False') == 'True', host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+    app.run(
+        debug=os.environ.get('FLASK_DEBUG', 'False') == 'True',
+        host='0.0.0.0',
+        port=int(os.environ.get('PORT', 5000))
+    )

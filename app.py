@@ -461,6 +461,31 @@ def agregar_dispositivo():
         return jsonify({"status": "error", "mensaje": str(e)}), 500
 
 
+@app.route('/api/dispositivos/eliminar/<int:id_dispositivo>', methods=['DELETE'])
+@login_requerido
+def eliminar_dispositivo(id_dispositivo):
+    try:
+        conexion = conectar_bd()
+        cursor   = conexion.cursor()
+        id_u     = get_id_usuario()
+        # Verificar que el dispositivo pertenece al usuario
+        cursor.execute(
+            "SELECT idDispositivo FROM dispositivos WHERE idDispositivo=%s AND idUsuario=%s",
+            (id_dispositivo, id_u)
+        )
+        if not cursor.fetchone():
+            return jsonify({"status": "error", "mensaje": "Dispositivo no encontrado"}), 404
+        # Eliminar sensores vinculados primero (integridad referencial)
+        cursor.execute("DELETE FROM sensores WHERE idDispositivo=%s", (id_dispositivo,))
+        cursor.execute("DELETE FROM dispositivos WHERE idDispositivo=%s", (id_dispositivo,))
+        conexion.commit()
+        cursor.close()
+        conexion.close()
+        return jsonify({"status": "success"})
+    except Exception as e:
+        return jsonify({"status": "error", "mensaje": str(e)}), 500
+
+
 @app.route('/api/dispositivos/lista', methods=['GET'])
 @login_requerido
 def obtener_lista_dispositivos():
@@ -495,6 +520,30 @@ def agregar_sensor():
             "INSERT INTO sensores (tipo_sensor, unidad_medida, idDispositivo) VALUES (%s, %s, %s)",
             (data['tipo'], data['unidad'], data['idDispositivo'])
         )
+        conexion.commit()
+        cursor.close()
+        conexion.close()
+        return jsonify({"status": "success"})
+    except Exception as e:
+        return jsonify({"status": "error", "mensaje": str(e)}), 500
+
+
+@app.route('/api/sensores/eliminar/<int:id_sensor>', methods=['DELETE'])
+@login_requerido
+def eliminar_sensor(id_sensor):
+    try:
+        conexion = conectar_bd()
+        cursor   = conexion.cursor()
+        id_u     = get_id_usuario()
+        # Verificar que el sensor pertenece a un dispositivo del usuario
+        cursor.execute("""
+            SELECT s.idSensore FROM sensores s
+            INNER JOIN dispositivos d ON s.idDispositivo = d.idDispositivo
+            WHERE s.idSensore=%s AND d.idUsuario=%s
+        """, (id_sensor, id_u))
+        if not cursor.fetchone():
+            return jsonify({"status": "error", "mensaje": "Sensor no encontrado"}), 404
+        cursor.execute("DELETE FROM sensores WHERE idSensore=%s", (id_sensor,))
         conexion.commit()
         cursor.close()
         conexion.close()

@@ -263,20 +263,33 @@ async function actualizarListaDispositivos() {
                         <strong style="font-size:15px;">🔌 ${d.nombre}</strong>
                         <span class="badge badge-azul" style="margin-left:8px;">${d.tipo || 'Sin tipo'}</span>
                     </div>
-                    <span class="badge ${sensoresDev.length > 0 ? 'badge-verde' : 'badge-gris'}">
-                        ${sensoresDev.length} sensor${sensoresDev.length !== 1 ? 'es' : ''}
-                    </span>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span class="badge ${sensoresDev.length > 0 ? 'badge-verde' : 'badge-gris'}">
+                            ${sensoresDev.length} sensor${sensoresDev.length !== 1 ? 'es' : ''}
+                        </span>
+                        <button onclick="eliminarDispositivo(${d.idDispositivo}, '${d.nombre}')"
+                            style="padding:4px 10px; border-radius:6px; border:1px solid #e74c3c;
+                                   color:#e74c3c; background:white; cursor:pointer; font-size:12px;">
+                            🗑 Eliminar
+                        </button>
+                    </div>
                 </div>`;
 
             if (sensoresDev.length > 0) {
                 html += `<div style="margin-top:10px; display:flex; flex-wrap:wrap; gap:8px;">`;
                 sensoresDev.forEach(s => {
                     html += `
-                    <div style="background:#f8f9fa; border:1px solid #e0e0e0; border-radius:6px; padding:8px 12px; min-width:160px;">
-                        <div style="font-weight:600; font-size:13px;">📡 ${s.tipo_sensor}</div>
-
-                        <div style="font-size:12px; color:#666;">Unidad: ${s.unidad_medida || '—'}</div>
-                        <div style="font-size:11px; color:#999;">ID: ${s.idSensore}</div>
+                    <div style="background:#f8f9fa; border:1px solid #e0e0e0; border-radius:6px; padding:8px 12px; min-width:160px; display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                        <div>
+                            <div style="font-weight:600; font-size:13px;">📡 ${s.tipo_sensor}</div>
+                            <div style="font-size:12px; color:#666;">Unidad: ${s.unidad_medida || '—'}</div>
+                            <div style="font-size:11px; color:#999;">ID: ${s.idSensore}</div>
+                        </div>
+                        <button onclick="eliminarSensor(${s.idSensore}, '${s.tipo_sensor}')"
+                            style="padding:3px 8px; border-radius:5px; border:1px solid #e74c3c;
+                                   color:#e74c3c; background:white; cursor:pointer; font-size:11px; flex-shrink:0;">
+                            🗑
+                        </button>
                     </div>`;
                 });
                 html += `</div>`;
@@ -292,6 +305,38 @@ async function actualizarListaDispositivos() {
         contenedor.innerHTML = '<p style="color:red;">Error al cargar dispositivos.</p>';
         console.error(e);
     }
+}
+
+
+async function eliminarDispositivo(id, nombre) {
+    const ok = await confirmar(`¿Eliminar el dispositivo <strong>${nombre}</strong>?<br><span style="color:#e74c3c;font-size:13px;">⚠️ También se eliminarán todos sus sensores vinculados.</span>`);
+    if (!ok) return;
+    try {
+        const r = await fetch(`/api/dispositivos/eliminar/${id}`, { method: 'DELETE' });
+        const d = await r.json();
+        if (r.ok && d.status === 'success') {
+            toast(`Dispositivo "${nombre}" eliminado`, 'success');
+            await cargarDispositivosGlobal();
+            actualizarListaDispositivos();
+        } else {
+            toast('Error: ' + (d.mensaje || 'No se pudo eliminar'), 'error');
+        }
+    } catch(e) { toast('Error de conexión', 'error'); }
+}
+
+async function eliminarSensor(id, tipo) {
+    const ok = await confirmar(`¿Eliminar el sensor <strong>${tipo}</strong> (ID: ${id})?`);
+    if (!ok) return;
+    try {
+        const r = await fetch(`/api/sensores/eliminar/${id}`, { method: 'DELETE' });
+        const d = await r.json();
+        if (r.ok && d.status === 'success') {
+            toast(`Sensor "${tipo}" eliminado`, 'success');
+            actualizarListaDispositivos();
+        } else {
+            toast('Error: ' + (d.mensaje || 'No se pudo eliminar'), 'error');
+        }
+    } catch(e) { toast('Error de conexión', 'error'); }
 }
 
 

@@ -2,15 +2,17 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard Principal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <title>Dashboard — AeroGarden Cloud</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: 'Segoe UI', sans-serif;
-            background: #f0f2f5;
-            color: #333;
+            font-family: 'DM Sans', sans-serif;
+            background: #faf9f6;
+            color: #1a2e22;
         }
 
         nav {
@@ -146,7 +148,7 @@
             font-size: 13px;
             font-weight: 500;
             padding: 7px 14px;
-            border-radius: 8px;
+            border-radius: 12px;
             border: 1px solid rgba(231,76,60,0.4) !important;
             background: rgba(231,76,60,0.08);
             transition: all 0.2s ease;
@@ -168,7 +170,7 @@
             right: 4px;
             background: #e74c3c;
             color: white;
-            border-radius: 10px;
+            border-radius: 10px; font-family: 'DM Sans', sans-serif;
             font-size: 9px;
             font-weight: 700;
             min-width: 16px;
@@ -187,11 +189,11 @@
             margin: 0 auto;
         }
 
-        .seccion h1, #dashboard-contenido h1 {
-            font-size: 24px;
+        .seccion h1, #dashboard-contenido h1 { font-family: 'Playfair Display', serif;
+            font-size: 26px;
             margin-bottom: 20px;
-            color: #2c3e50;
-            border-bottom: 2px solid #e0e0e0;
+            color: #1a2e22;
+            border-bottom: 2px solid #c8ddd0;
             padding-bottom: 10px;
         }
 
@@ -203,26 +205,26 @@
 
         .card {
             background: white;
-            border: 1px solid #e0e0e0;
+            border: 1px solid #c8ddd0;
             padding: 15px 20px;
             margin: 8px 0;
-            border-radius: 8px;
+            border-radius: 12px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.06);
         }
 
         button {
-            background: #2c3e50;
+            background: #2d6a4f;
             color: white;
             border: none;
             padding: 8px 16px;
-            border-radius: 5px;
+            border-radius: 10px; font-family: 'DM Sans', sans-serif;
             cursor: pointer;
             font-size: 14px;
             margin: 4px 2px;
             transition: background 0.2s;
         }
 
-        button:hover { background: #3d5166; }
+        button:hover { background: #1a3d2b; }
         button:disabled { background: #aaa; cursor: not-allowed; }
 
         input, select, textarea {
@@ -230,8 +232,8 @@
             width: 100%;
             padding: 8px 10px;
             margin: 8px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            border: 1.5px solid #c8ddd0;
+            border-radius: 10px; font-family: 'DM Sans', sans-serif;
             font-size: 14px;
             font-family: inherit;
         }
@@ -253,7 +255,7 @@
         .modal {
             background: white;
             padding: 25px;
-            border-radius: 10px;
+            border-radius: 10px; font-family: 'DM Sans', sans-serif;
             width: 420px;
             max-width: 95%;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
@@ -262,7 +264,7 @@
 
         .modal h3 {
             margin-bottom: 15px;
-            color: #2c3e50;
+            color: #1a2e22;
             font-size: 18px;
         }
 
@@ -281,13 +283,13 @@
             border-collapse: collapse;
             margin-top: 10px;
             background: white;
-            border-radius: 8px;
+            border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 1px 3px rgba(0,0,0,0.06);
         }
 
         th {
-            background: #2c3e50;
+            background: #2d6a4f;
             color: white;
             padding: 10px 14px;
             text-align: left;
@@ -301,7 +303,7 @@
         }
 
         tr:last-child td { border-bottom: none; }
-        tr:hover td { background: #f9f9f9; }
+        tr:hover td { background: #f0f7f3; }
 
         label {
             font-size: 13px;
@@ -310,8 +312,8 @@
             display: block;
         }
 
-        .btn-verde  { background: #27ae60; }
-        .btn-verde:hover  { background: #219150; }
+        .btn-verde  { background: #52b788; }
+        .btn-verde:hover  { background: #2d6a4f; }
         .btn-rojo   { background: #e74c3c; }
         .btn-rojo:hover   { background: #c0392b; }
         .btn-naranja { background: #e67e22; }
@@ -330,7 +332,7 @@
             color: #555;
             margin: 0;
         }
-        .tab-btn.activo { background: #2c3e50; color: white; }
+        .tab-btn.activo { background: #2d6a4f; color: white; }
         .tab-contenido { display: none; }
         .tab-contenido.activo { display: block; }
         .modal-wide { width: 860px !important; max-height: 85vh; overflow-y: auto; }
@@ -365,7 +367,7 @@
         .panel-titulo {
             font-size: 15px;
             font-weight: 600;
-            color: #2c3e50;
+            color: #1a2e22;
             margin-bottom: 10px;
             padding-bottom: 6px;
             border-bottom: 1px solid #e0e0e0;
@@ -411,14 +413,14 @@
         .inicio-avatar {
             width: 52px; height: 52px;
             border-radius: 50%;
-            background: #2c3e50;
+            background: #2d6a4f;
             color: white;
             display: flex; align-items: center; justify-content: center;
             font-size: 22px; font-weight: 700;
             flex-shrink: 0;
         }
 
-        .inicio-saludo { font-size: 22px; font-weight: 700; color: #2c3e50; }
+        .inicio-saludo { font-size: 26px; font-weight: 700; color: #1a2e22; font-family: 'Playfair Display', serif; letter-spacing: -0.3px; }
         .inicio-fecha  { font-size: 13px; color: #999; margin-top: 2px; }
 
         /* Fila de KPI cards */
@@ -434,9 +436,9 @@
 
         .kpi-card {
             background: white;
-            border-radius: 10px;
+            border-radius: 10px; font-family: 'DM Sans', sans-serif;
             padding: 18px 20px;
-            border: 1px solid #e8e8e8;
+            border: 1px solid #c8ddd0;
             box-shadow: 0 1px 4px rgba(0,0,0,0.05);
             display: flex;
             align-items: center;
@@ -446,7 +448,7 @@
             text-decoration: none;
         }
 
-        .kpi-card:hover {
+        .kpi-card:hover { border-color: #52b788;
             box-shadow: 0 4px 16px rgba(0,0,0,0.1);
             transform: translateY(-2px);
         }
@@ -459,14 +461,14 @@
             flex-shrink: 0;
         }
 
-        .kpi-icono-verde  { background: #e8f5e9; }
+        .kpi-icono-verde  { background: #d8f3dc; }
         .kpi-icono-azul   { background: #e3f2fd; }
         .kpi-icono-naranja{ background: #fff3e0; }
         .kpi-icono-rojo   { background: #ffebee; }
         .kpi-icono-morado { background: #f3e5f5; }
 
-        .kpi-valor { font-size: 26px; font-weight: 800; color: #2c3e50; line-height: 1; }
-        .kpi-label { font-size: 12px; color: #999; margin-top: 3px; }
+        .kpi-valor { font-size: 28px; font-weight: 700; color: #1a2e22; line-height: 1; font-family: 'Playfair Display', serif; }
+        .kpi-label { font-size: 12px; color: #6b7c72; margin-top: 4px; font-weight: 500; letter-spacing: 0.3px; text-transform: uppercase; font-size: 11px; }
 
         /* Grid inferior */
         .inicio-grid {
@@ -479,22 +481,22 @@
 
         .inicio-panel {
             background: white;
-            border-radius: 10px;
-            border: 1px solid #e0e0e0;
+            border-radius: 10px; font-family: 'DM Sans', sans-serif;
+            border: 1px solid #c8ddd0;
             box-shadow: 0 1px 4px rgba(0,0,0,0.05);
             overflow: hidden;
         }
 
         .inicio-panel-header {
             padding: 12px 16px;
-            background: #f8f9fa;
+            background: #f0f7f3;
             border-bottom: 1px solid #e8e8e8;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .inicio-panel-header strong { font-size: 14px; color: #2c3e50; }
+        .inicio-panel-header strong { font-size: 14px; color: #1a2e22; }
 
         .inicio-panel-link {
             font-size: 12px;
@@ -527,7 +529,7 @@
         .sensor-valor-big {
             font-size: 18px;
             font-weight: 700;
-            color: #2c3e50;
+            color: #1a2e22;
         }
 
         .sensor-unidad { font-size: 12px; color: #aaa; margin-left: 3px; }
@@ -539,7 +541,7 @@
             flex-shrink: 0;
         }
 
-        .sensor-dot-on  { background: #27ae60; box-shadow: 0 0 0 3px #e8f5e9; }
+        .sensor-dot-on  { background: #52b788; box-shadow: 0 0 0 3px #e8f5e9; }
         .sensor-dot-off { background: #e74c3c; box-shadow: 0 0 0 3px #ffebee; }
 
         .alerta-fila {
@@ -586,7 +588,7 @@
             transition: background 0.3s;
         }
 
-        .bomba-dot-on  { background: #27ae60; box-shadow: 0 0 0 4px #e8f5e9; animation: pulso 1.5s infinite; }
+        .bomba-dot-on  { background: #52b788; box-shadow: 0 0 0 4px #e8f5e9; animation: pulso 1.5s infinite; }
         .bomba-dot-off { background: #e74c3c; }
 
         @keyframes pulso {
@@ -1481,3 +1483,25 @@ setInterval(() => {
 <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 </body>
 </html>
+<style>
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #52b788 !important;
+    box-shadow: 0 0 0 3px rgba(82,183,136,0.15);
+}
+.seccion h1, #dashboard-contenido h1 {
+    font-family: 'Playfair Display', serif !important;
+}
+.inicio-panel-header strong {
+    font-weight: 600;
+    color: #1a2e22;
+    font-size: 14px;
+}
+.card {
+    box-shadow: 0 2px 8px rgba(26,61,43,0.07) !important;
+}
+.kpi-card {
+    box-shadow: 0 2px 8px rgba(26,61,43,0.07) !important;
+    border-radius: 14px !important;
+}
+</style>

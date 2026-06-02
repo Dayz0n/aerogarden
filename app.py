@@ -1387,21 +1387,54 @@ def obtener_config_relevador():
     device_id = request.args.get("device_id", type=int)
     if not device_id:
         return jsonify({"error": "Falta device_id"}), 400
+    id_u = get_id_usuario()
+    try:
+        conexion = conectar_bd()
+        cursor   = conexion.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT d.idDispositivo FROM dispositivos d
+            WHERE d.idDispositivo = %s AND (
+                d.idUsuario = %s OR
+                EXISTS (SELECT 1 FROM dispositivo_miembros dm
+                        WHERE dm.idDispositivo = d.idDispositivo AND dm.idUsuario = %s)
+            )
+        """, (device_id, id_u, id_u))
+        if not cursor.fetchone():
+            cursor.close(); conexion.close()
+            return jsonify({"error": "No autorizado"}), 403
+        cursor.close(); conexion.close()
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
     return jsonify(get_relay(device_id))
 
 
 @app.route('/api/relevador/config', methods=['POST'])
 @login_requerido
 def guardar_config_relevador():
-    """
-    Body: {"device_id": 1, "tiempo_on": 30, "tiempo_off": 60,
-           "modo": "automatico", "estado_manual": "encendido"}
-    El Arduino lo recoge en su próxima llamada a /api/arduino/config
-    """
     data      = request.json or {}
     device_id = data.get("device_id")
     if not device_id:
         return jsonify({"error": "Falta device_id"}), 400
+    id_u = get_id_usuario()
+    try:
+        conexion = conectar_bd()
+        cursor   = conexion.cursor(dictionary=True)
+        # Dueño o miembro con permiso controlar
+        cursor.execute("""
+            SELECT d.idDispositivo FROM dispositivos d
+            WHERE d.idDispositivo = %s AND (
+                d.idUsuario = %s OR
+                EXISTS (SELECT 1 FROM dispositivo_miembros dm
+                        WHERE dm.idDispositivo = d.idDispositivo
+                          AND dm.idUsuario = %s AND dm.permiso = 'controlar')
+            )
+        """, (device_id, id_u, id_u))
+        if not cursor.fetchone():
+            cursor.close(); conexion.close()
+            return jsonify({"error": "No autorizado"}), 403
+        cursor.close(); conexion.close()
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
     set_relay(device_id, data)
     print(f"[RELAY dev={device_id}] modo={data.get('modo')} on={data.get('tiempo_on')}s")
     return jsonify({"status": "ok", "config": get_relay(device_id)})
@@ -1413,6 +1446,24 @@ def estado_relevador():
     device_id = request.args.get("device_id", type=int)
     if not device_id:
         return jsonify({"error": "Falta device_id"}), 400
+    id_u = get_id_usuario()
+    try:
+        conexion = conectar_bd()
+        cursor   = conexion.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT d.idDispositivo FROM dispositivos d
+            WHERE d.idDispositivo = %s AND (
+                d.idUsuario = %s OR
+                EXISTS (SELECT 1 FROM dispositivo_miembros dm
+                        WHERE dm.idDispositivo = d.idDispositivo AND dm.idUsuario = %s)
+            )
+        """, (device_id, id_u, id_u))
+        if not cursor.fetchone():
+            cursor.close(); conexion.close()
+            return jsonify({"error": "No autorizado"}), 403
+        cursor.close(); conexion.close()
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
     return jsonify(get_relay(device_id))
 
 

@@ -802,7 +802,16 @@ def obtener_lista_sensores():
             FROM sensores s
             INNER JOIN dispositivos d ON s.idDispositivo = d.idDispositivo
             WHERE d.idUsuario = %s
-        """, (id_u,))
+
+            UNION
+
+            SELECT s.idSensore, s.tipo_sensor, s.unidad_medida, s.idDispositivo,
+                   d.nombre AS nombre_dispositivo
+            FROM sensores s
+            INNER JOIN dispositivos d ON s.idDispositivo = d.idDispositivo
+            INNER JOIN dispositivo_miembros dm ON dm.idDispositivo = d.idDispositivo
+            WHERE dm.idUsuario = %s
+        """, (id_u, id_u))
         sensores = cursor.fetchall()
         cursor.close()
         conexion.close()
@@ -862,9 +871,20 @@ def verificar_estado(id_sensor):
 @login_requerido
 def datos_actuales(id_sensor):
     try:
+        id_u     = get_id_usuario()
         conexion = conectar_bd()
         cursor   = conexion.cursor(dictionary=True)
-        cursor.execute("SELECT unidad_medida FROM sensores WHERE idSensore = %s", (id_sensor,))
+
+        # Verificar que el sensor pertenece a un dispositivo propio o compartido
+        cursor.execute("""
+            SELECT s.idSensore, s.unidad_medida FROM sensores s
+            INNER JOIN dispositivos d ON s.idDispositivo = d.idDispositivo
+            WHERE s.idSensore = %s AND (
+                d.idUsuario = %s OR
+                EXISTS (SELECT 1 FROM dispositivo_miembros dm
+                        WHERE dm.idDispositivo = d.idDispositivo AND dm.idUsuario = %s)
+            )
+        """, (id_sensor, id_u, id_u))
         sensor = cursor.fetchone()
         if not sensor:
             cursor.close(); conexion.close()
@@ -890,8 +910,23 @@ def datos_actuales(id_sensor):
 @login_requerido
 def obtener_analitica(id_sensor, rango):
     try:
+        id_u     = get_id_usuario()
         conexion = conectar_bd()
         cursor   = conexion.cursor(dictionary=True)
+
+        # Verificar acceso propio o como miembro
+        cursor.execute("""
+            SELECT s.idSensore FROM sensores s
+            INNER JOIN dispositivos d ON s.idDispositivo = d.idDispositivo
+            WHERE s.idSensore = %s AND (
+                d.idUsuario = %s OR
+                EXISTS (SELECT 1 FROM dispositivo_miembros dm
+                        WHERE dm.idDispositivo = d.idDispositivo AND dm.idUsuario = %s)
+            )
+        """, (id_sensor, id_u, id_u))
+        if not cursor.fetchone():
+            cursor.close(); conexion.close()
+            return jsonify({"error": "No autorizado"}), 403
 
         if rango == '24h':
             fecha_inicio = datetime.now() - timedelta(hours=24)

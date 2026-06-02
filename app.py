@@ -680,10 +680,19 @@ def obtener_lista_dispositivos():
         conexion = conectar_bd()
         cursor   = conexion.cursor(dictionary=True)
         id_u     = get_id_usuario()
-        cursor.execute(
-            "SELECT idDispositivo, nombre, tipo FROM dispositivos WHERE idUsuario = %s",
-            (id_u,)
-        )
+        # Dispositivos propios + dispositivos compartidos como miembro
+        cursor.execute("""
+            SELECT d.idDispositivo, d.nombre, d.tipo, 'dueno' AS rol
+            FROM dispositivos d
+            WHERE d.idUsuario = %s
+
+            UNION
+
+            SELECT d.idDispositivo, d.nombre, d.tipo, dm.permiso AS rol
+            FROM dispositivo_miembros dm
+            JOIN dispositivos d ON dm.idDispositivo = d.idDispositivo
+            WHERE dm.idUsuario = %s
+        """, (id_u, id_u))
         dispositivos = cursor.fetchall()
         cursor.close()
         conexion.close()

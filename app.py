@@ -1415,7 +1415,9 @@ def guardar_config_relevador():
     device_id = data.get("device_id")
     if not device_id:
         return jsonify({"error": "Falta device_id"}), 400
+    device_id = int(device_id)
     id_u = get_id_usuario()
+    print(f"[RELAY POST] device_id={device_id} id_u={id_u}")
     try:
         conexion = conectar_bd()
         cursor   = conexion.cursor(dictionary=True)
@@ -1425,10 +1427,10 @@ def guardar_config_relevador():
             WHERE d.idDispositivo = %s AND (
                 d.idUsuario = %s OR
                 EXISTS (SELECT 1 FROM dispositivo_miembros dm
-                        WHERE dm.idDispositivo = d.idDispositivo
+                        WHERE dm.idDispositivo = %s
                           AND dm.idUsuario = %s AND dm.permiso = 'controlar')
             )
-        """, (device_id, id_u, id_u))
+        """, (device_id, id_u, device_id, id_u))
         if not cursor.fetchone():
             cursor.close(); conexion.close()
             return jsonify({"error": "No autorizado"}), 403

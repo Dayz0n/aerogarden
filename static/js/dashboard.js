@@ -148,6 +148,7 @@ function cambiarDispositivoWifi() {
 function cambiarDispositivoBomba() {
     const sel = document.getElementById('select-bomba-dispositivo');
     if (sel) dispositivoActualId = parseInt(sel.value);
+    if (typeof ID_SENSOR_NIVEL !== 'undefined') ID_SENSOR_NIVEL = null;
     cargarSeccionRelevador();
 }
 

@@ -1568,7 +1568,7 @@
 //  CONTROL BOMBA / RELEVADOR — integrado en dashboard.html
 // ================================================================
 
-const ID_SENSOR_NIVEL = 5;  // ← cambia por el idSensore real de tu sensor ultrasónico
+let ID_SENSOR_NIVEL = null; // se detecta automáticamente según el dispositivo seleccionado
 const UMBRAL_NIVEL_BAJO_CM = 20; // distancia > 20 cm = poco agua en el depósito
 
 async function cargarSeccionRelevador() {
@@ -1650,10 +1650,24 @@ function fmtSeg(s) {
 
 async function actualizarNivelAgua() {
     try {
+        // Si no tenemos el id del sensor, buscarlo automáticamente
+        if (!ID_SENSOR_NIVEL && dispositivoActualId) {
+            const resSensores = await fetch('/api/sensores/lista');
+            const sensores    = await resSensores.json();
+            const sensorNivel = sensores.find(s =>
+                s.idDispositivo == dispositivoActualId &&
+                (s.tipo_sensor.toLowerCase().includes('distancia') ||
+                 s.tipo_sensor.toLowerCase().includes('nivel'))
+            );
+            if (sensorNivel) ID_SENSOR_NIVEL = sensorNivel.idSensore;
+        }
+
+        if (!ID_SENSOR_NIVEL) return;
+
         const res  = await fetch("/api/sensores/datos-actuales/" + ID_SENSOR_NIVEL);
         const data = await res.json();
         if (data.error) return;
-        const cm     = parseFloat(data.valor);
+        const cm      = parseFloat(data.valor);
         const display = document.getElementById("display-nivel-agua");
         const fecha   = document.getElementById("fecha-nivel-agua");
         const alerta  = document.getElementById("alerta-nivel-bajo");

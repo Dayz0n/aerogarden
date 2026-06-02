@@ -166,6 +166,138 @@ function mostrarSeccion(idSeccion) {
     if (idSeccion === 'seccion-logica')    cargarSensoresEnLogica();
     if (idSeccion === 'seccion-analitica') cargarSensoresEnAnalitica();
     if (idSeccion === 'seccion-cultivos')  cargarSeccionCultivos();
+    if (idSeccion === 'seccion-configuracion') cargarSeccionMiembros();
+}
+
+// ============================================================
+// MIEMBROS
+// ============================================================
+
+async function cargarSeccionMiembros() {
+    // Llenar select de dispositivos
+    const sel = document.getElementById('select-miembros-dispositivo');
+    if (!sel) return;
+    try {
+        const res  = await fetch('/api/dispositivos/lista');
+        const devs = await res.json();
+        sel.innerHTML = devs.length === 0
+            ? '<option value="">Sin dispositivos</option>'
+            : devs.map(d => `<option value="${d.idDispositivo}">${d.nombre}</option>`).join('');
+        if (devs.length > 0) cargarMiembros();
+    } catch(e) { console.error('Error cargando dispositivos miembros:', e); }
+
+    // Cargar dispositivos compartidos conmigo
+    cargarAccesosPropios();
+}
+
+async function cargarMiembros() {
+    const sel = document.getElementById('select-miembros-dispositivo');
+    if (!sel || !sel.value) return;
+    const deviceId = parseInt(sel.value);
+    const cont = document.getElementById('lista-miembros');
+    cont.innerHTML = '<p style="color:#aaa; font-size:13px;">Cargando...</p>';
+    try {
+        const res  = await fetch('/api/miembros/lista?device_id=' + deviceId);
+        const data = await res.json();
+        if (data.error) { cont.innerHTML = `<p style="color:#e74c3c;">${data.error}</p>`; return; }
+        if (data.length === 0) {
+            cont.innerHTML = '<p style="color:#aaa; font-size:13px;">Aún no hay miembros en este dispositivo.</p>';
+            return;
+        }
+        cont.innerHTML = `
+            <table style="width:100%; border-collapse:collapse; font-size:14px;">
+                <thead>
+                    <tr style="border-bottom:2px solid #eee; color:#888; text-align:left;">
+                        <th style="padding:8px 6px;">Usuario</th>
+                        <th style="padding:8px 6px;">Correo</th>
+                        <th style="padding:8px 6px;">Permiso</th>
+                        <th style="padding:8px 6px;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${data.map(m => `
+                    <tr style="border-bottom:1px solid #f0f0f0;">
+                        <td style="padding:8px 6px; font-weight:500;">${m.nombre} ${m.apellido_paterno || ''}</td>
+                        <td style="padding:8px 6px; color:#666;">${m.correo}</td>
+                        <td style="padding:8px 6px;">
+                            <span style="
+                                background:${m.permiso === 'controlar' ? '#27ae6022' : '#2980b922'};
+                                color:${m.permiso === 'controlar' ? '#27ae60' : '#2980b9'};
+                                padding:3px 10px; border-radius:20px; font-size:12px; font-weight:600;">
+                                ${m.permiso === 'controlar' ? '🎮 Controlar' : '👁 Solo ver'}
+                            </span>
+                        </td>
+                        <td style="padding:8px 6px; text-align:right;">
+                            <button onclick="eliminarMiembro(${m.idUsuario}, ${deviceId})"
+                                style="background:none; border:none; color:#e74c3c;
+                                       cursor:pointer; font-size:18px;" title="Eliminar miembro">🗑</button>
+                        </td>
+                    </tr>`).join('')}
+                </tbody>
+            </table>`;
+    } catch(e) { cont.innerHTML = '<p style="color:#e74c3c;">Error cargando miembros.</p>'; }
+}
+
+async function invitarMiembro() {
+    const sel     = document.getElementById('select-miembros-dispositivo');
+    const correo  = document.getElementById('input-correo-invitado').value.trim();
+    const permiso = document.getElementById('select-permiso-invitado').value;
+    if (!sel || !sel.value) { toast('Selecciona un dispositivo', 'warning'); return; }
+    if (!correo) { toast('Ingresa el correo del usuario', 'warning'); return; }
+    try {
+        const res  = await fetch('/api/miembros/invitar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ correo, device_id: parseInt(sel.value), permiso })
+        });
+        const data = await res.json();
+        if (data.error) { toast(data.error, 'error'); return; }
+        toast(data.mensaje, 'success');
+        document.getElementById('input-correo-invitado').value = '';
+        cargarMiembros();
+    } catch(e) { toast('Error al invitar', 'error'); }
+}
+
+async function eliminarMiembro(idUsuario, deviceId) {
+    if (!confirm('¿Eliminar a este miembro del dispositivo?')) return;
+    try {
+        const res  = await fetch('/api/miembros/eliminar', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ device_id: deviceId, idUsuario })
+        });
+        const data = await res.json();
+        if (data.error) { toast(data.error, 'error'); return; }
+        toast('Miembro eliminado', 'success');
+        cargarMiembros();
+    } catch(e) { toast('Error al eliminar', 'error'); }
+}
+
+async function cargarAccesosPropios() {
+    const cont = document.getElementById('lista-accesos-propios');
+    if (!cont) return;
+    try {
+        const res  = await fetch('/api/miembros/mis-accesos');
+        const data = await res.json();
+        if (!data.length) {
+            cont.innerHTML = '<p style="color:#aaa; font-size:13px;">No tienes dispositivos compartidos contigo aún.</p>';
+            return;
+        }
+        cont.innerHTML = data.map(d => `
+            <div style="display:flex; align-items:center; justify-content:space-between;
+                        padding:10px 0; border-bottom:1px solid #f0f0f0; flex-wrap:wrap; gap:8px;">
+                <div>
+                    <div style="font-weight:600;">${d.nombre}</div>
+                    <div style="font-size:12px; color:#888;">Dueño: ${d.nombre_dueno} · ${d.correo_dueno}</div>
+                </div>
+                <span style="
+                    background:${d.permiso === 'controlar' ? '#27ae6022' : '#2980b922'};
+                    color:${d.permiso === 'controlar' ? '#27ae60' : '#2980b9'};
+                    padding:3px 10px; border-radius:20px; font-size:12px; font-weight:600;">
+                    ${d.permiso === 'controlar' ? '🎮 Controlar' : '👁 Solo ver'}
+                </span>
+            </div>`).join('');
+    } catch(e) { cont.innerHTML = '<p style="color:#e74c3c;">Error cargando accesos.</p>'; }
 }
 
 

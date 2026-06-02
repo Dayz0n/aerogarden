@@ -1425,6 +1425,159 @@ def wifi_configurar():
 
 
 # ============================================================
+# MIEMBROS — Invitar usuarios a ver/controlar dispositivos
+# ============================================================
+
+@app.route('/api/miembros/invitar', methods=['POST'])
+@login_requerido
+def invitar_miembro():
+    """
+    El dueño del dispositivo invita a otro usuario por correo.
+    Body: { "correo": "otro@correo.com", "device_id": 1, "permiso": "ver" | "controlar" }
+    """
+    data      = request.json or {}
+    correo    = data.get('correo', '').strip().lower()
+    device_id = data.get('device_id')
+    permiso   = data.get('permiso', 'ver')
+
+    if not correo or not device_id:
+        return jsonify({"error": "Faltan datos"}), 400
+    if permiso not in ('ver', 'controlar'):
+        return jsonify({"error": "Permiso inválido"}), 400
+
+    try:
+        id_u     = get_id_usuario()
+        conexion = conectar_bd()
+        cursor   = conexion.cursor(dictionary=True)
+
+        # Verificar que el dispositivo pertenece al usuario
+        cursor.execute(
+            "SELECT idDispositivo, nombre FROM dispositivos WHERE idDispositivo=%s AND idUsuario=%s",
+            (device_id, id_u)
+        )
+        disp = cursor.fetchone()
+        if not disp:
+            cursor.close(); conexion.close()
+            return jsonify({"error": "Dispositivo no encontrado"}), 404
+
+        # Verificar que el correo invitado existe
+        cursor.execute("SELECT idUsuario, nombre FROM usuarios WHERE correo=%s", (correo,))
+        invitado = cursor.fetchone()
+        if not invitado:
+            cursor.close(); conexion.close()
+            return jsonify({"error": "No existe un usuario con ese correo"}), 404
+
+        # No invitarse a sí mismo
+        if invitado['idUsuario'] == id_u:
+            cursor.close(); conexion.close()
+            return jsonify({"error": "No puedes invitarte a ti mismo"}), 400
+
+        # Insertar o actualizar membresía
+        cursor.execute("""
+            INSERT INTO dispositivo_miembros (idDispositivo, idUsuario, permiso)
+            VALUES (%s, %s, %s)
+            ON DUPLICATE KEY UPDATE permiso = VALUES(permiso)
+        """, (device_id, invitado['idUsuario'], permiso))
+        conexion.commit()
+        cursor.close(); conexion.close()
+
+        return jsonify({"status": "ok", "mensaje": f"{invitado['nombre']} agregado como miembro"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/miembros/lista', methods=['GET'])
+@login_requerido
+def listar_miembros():
+    """Lista los miembros de un dispositivo del usuario."""
+    device_id = request.args.get('device_id', type=int)
+    if not device_id:
+        return jsonify({"error": "Falta device_id"}), 400
+    try:
+        id_u     = get_id_usuario()
+        conexion = conectar_bd()
+        cursor   = conexion.cursor(dictionary=True)
+
+        # Verificar dueño
+        cursor.execute(
+            "SELECT idDispositivo FROM dispositivos WHERE idDispositivo=%s AND idUsuario=%s",
+            (device_id, id_u)
+        )
+        if not cursor.fetchone():
+            cursor.close(); conexion.close()
+            return jsonify({"error": "No autorizado"}), 403
+
+        cursor.execute("""
+            SELECT u.idUsuario, u.nombre, u.apellido_paterno, u.correo, dm.permiso
+            FROM dispositivo_miembros dm
+            JOIN usuarios u ON dm.idUsuario = u.idUsuario
+            WHERE dm.idDispositivo = %s
+        """, (device_id,))
+        miembros = cursor.fetchall()
+        cursor.close(); conexion.close()
+        return jsonify(miembros)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/miembros/eliminar', methods=['DELETE'])
+@login_requerido
+def eliminar_miembro():
+    """Elimina a un miembro de un dispositivo."""
+    data      = request.json or {}
+    device_id = data.get('device_id')
+    id_miembro = data.get('idUsuario')
+    if not device_id or not id_miembro:
+        return jsonify({"error": "Faltan datos"}), 400
+    try:
+        id_u     = get_id_usuario()
+        conexion = conectar_bd()
+        cursor   = conexion.cursor()
+
+        # Verificar dueño
+        cursor.execute(
+            "SELECT idDispositivo FROM dispositivos WHERE idDispositivo=%s AND idUsuario=%s",
+            (device_id, id_u)
+        )
+        if not cursor.fetchone():
+            cursor.close(); conexion.close()
+            return jsonify({"error": "No autorizado"}), 403
+
+        cursor.execute(
+            "DELETE FROM dispositivo_miembros WHERE idDispositivo=%s AND idUsuario=%s",
+            (device_id, id_miembro)
+        )
+        conexion.commit()
+        cursor.close(); conexion.close()
+        return jsonify({"status": "ok"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/miembros/mis-accesos', methods=['GET'])
+@login_requerido
+def mis_accesos():
+    """Devuelve los dispositivos a los que el usuario fue invitado."""
+    try:
+        id_u     = get_id_usuario()
+        conexion = conectar_bd()
+        cursor   = conexion.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT d.idDispositivo, d.nombre, d.tipo, dm.permiso,
+                   u.nombre AS nombre_dueno, u.correo AS correo_dueno
+            FROM dispositivo_miembros dm
+            JOIN dispositivos d ON dm.idDispositivo = d.idDispositivo
+            JOIN usuarios u ON d.idUsuario = u.idUsuario
+            WHERE dm.idUsuario = %s
+        """, (id_u,))
+        accesos = cursor.fetchall()
+        cursor.close(); conexion.close()
+        return jsonify(accesos)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ============================================================
 # INICIO
 # ============================================================
 

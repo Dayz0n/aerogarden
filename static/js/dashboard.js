@@ -166,7 +166,7 @@ function mostrarSeccion(idSeccion) {
     if (idSeccion === 'seccion-logica')    cargarSensoresEnLogica();
     if (idSeccion === 'seccion-analitica') cargarSensoresEnAnalitica();
     if (idSeccion === 'seccion-cultivos')  cargarSeccionCultivos();
-    if (idSeccion === 'seccion-configuracion') cargarSeccionMiembros();
+    if (idSeccion === 'seccion-configuracion') { cargarSeccionMiembros(); cargarInfoUsuario(); }
 }
 
 // ============================================================

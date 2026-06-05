@@ -1220,8 +1220,79 @@
     </div>
 
     <div class="card" style="margin-top:12px;">
-        <h3>ℹ️ Ayuda y Soporte</h3>
-        <p>Plataforma de gestión de cultivos e invernaderos inteligentes. Versión 1.0.</p>
+        <h3>❓ Ayuda y Tips de uso</h3>
+        <p style="font-size:13px; color:#888; margin-bottom:16px;">Guía rápida para sacarle el mayor provecho a Aerogarden Cloud.</p>
+
+        <div style="display:flex; flex-direction:column; gap:12px;">
+
+            <details style="border:1px solid #e0ece6; border-radius:10px; padding:12px 16px; cursor:pointer;">
+                <summary style="font-weight:600; color:#1a3d2b; font-size:14px;">🔌 ¿Cómo conectar mi Arduino por primera vez?</summary>
+                <p style="margin-top:10px; font-size:13px; color:#555; line-height:1.7;">
+                    1. Ve a <strong>Hardware</strong> y crea un nuevo dispositivo.<br>
+                    2. Se generará un <strong>código de emparejamiento</strong> (ej: HIDRO-1234).<br>
+                    3. Carga ese código en el sketch de tu Arduino.<br>
+                    4. El Arduino se emparejará automáticamente y recibirás su device_id.<br>
+                    5. Regresa a Hardware y agrega los sensores de ese dispositivo.
+                </p>
+            </details>
+
+            <details style="border:1px solid #e0ece6; border-radius:10px; padding:12px 16px; cursor:pointer;">
+                <summary style="font-weight:600; color:#1a3d2b; font-size:14px;">📡 ¿Por qué un sensor aparece como "Sin señal" o "Desconectado"?</summary>
+                <p style="margin-top:10px; font-size:13px; color:#555; line-height:1.7;">
+                    El sistema espera una lectura cada <strong>10 segundos</strong>. Si pasan más de 30 segundos sin recibir datos, el sensor se marca como <strong>Sin señal</strong>.<br><br>
+                    Causas comunes: el Arduino perdió WiFi, cambió la IP del servidor, o el token del Arduino no coincide con el del servidor.<br><br>
+                    Revisa el <strong>Monitor Serial</strong> del Arduino IDE para ver qué está pasando.
+                </p>
+            </details>
+
+            <details style="border:1px solid #e0ece6; border-radius:10px; padding:12px 16px; cursor:pointer;">
+                <summary style="font-weight:600; color:#1a3d2b; font-size:14px;">📶 ¿Cómo cambio la red WiFi del Arduino sin tocarlo físicamente?</summary>
+                <p style="margin-top:10px; font-size:13px; color:#555; line-height:1.7;">
+                    Ve a la sección <strong>WiFi</strong> en el menú.<br>
+                    Selecciona el dispositivo, escribe el nombre de la nueva red (SSID) y su contraseña, y presiona <strong>Enviar al Arduino</strong>.<br>
+                    En el próximo ciclo (máx. 10 seg) el Arduino recibirá la nueva config y se reconectará automáticamente.
+                </p>
+            </details>
+
+            <details style="border:1px solid #e0ece6; border-radius:10px; padding:12px 16px; cursor:pointer;">
+                <summary style="font-weight:600; color:#1a3d2b; font-size:14px;">💧 ¿Cómo funciona el control de la bomba?</summary>
+                <p style="margin-top:10px; font-size:13px; color:#555; line-height:1.7;">
+                    Desde la sección <strong>Bomba</strong> puedes elegir entre dos modos:<br><br>
+                    <strong>Automático:</strong> defines cuántos segundos permanece encendida y cuántos apagada. El Arduino alterna solo.<br><br>
+                    <strong>Manual:</strong> tú decides cuándo encender o apagar desde el dashboard en tiempo real.
+                </p>
+            </details>
+
+            <details style="border:1px solid #e0ece6; border-radius:10px; padding:12px 16px; cursor:pointer;">
+                <summary style="font-weight:600; color:#1a3d2b; font-size:14px;">🔔 ¿Cómo configuro alertas para mis sensores?</summary>
+                <p style="margin-top:10px; font-size:13px; color:#555; line-height:1.7;">
+                    Ve a <strong>Alertas → Parámetros / Umbrales</strong> y crea un nuevo parámetro.<br>
+                    Elige el sensor, la condición (mayor que, menor que, igual a) y el valor umbral.<br>
+                    Cuando el Arduino mande una lectura que supere ese umbral, se registrará automáticamente una alerta.
+                </p>
+            </details>
+
+            <details style="border:1px solid #e0ece6; border-radius:10px; padding:12px 16px; cursor:pointer;">
+                <summary style="font-weight:600; color:#1a3d2b; font-size:14px;">👥 ¿Cómo comparto mi dispositivo con otra persona?</summary>
+                <p style="margin-top:10px; font-size:13px; color:#555; line-height:1.7;">
+                    Baja en esta misma página hasta la sección <strong>Miembros y Accesos</strong>.<br>
+                    Selecciona el dispositivo, escribe el correo del otro usuario (debe estar registrado) y elige si tendrá permiso de <strong>solo ver</strong> o <strong>controlar</strong>.
+                </p>
+            </details>
+
+            <details style="border:1px solid #e0ece6; border-radius:10px; padding:12px 16px; cursor:pointer;">
+                <summary style="font-weight:600; color:#1a3d2b; font-size:14px;">🌱 ¿Cómo registro mis cultivos y cosechas?</summary>
+                <p style="margin-top:10px; font-size:13px; color:#555; line-height:1.7;">
+                    Ve a la sección <strong>Cultivos</strong>.<br>
+                    Primero agrega un <strong>Tipo de Cultivo</strong> (ej: Lechuga, Tomate) si aún no existe.<br>
+                    Luego usa <strong>Registrar Siembra</strong> para crear un cultivo activo.<br>
+                    Cuando coseches, usa <strong>Registrar Cosecha</strong> y selecciona el cultivo correspondiente.<br>
+                    En <strong>Analítica</strong> podrás ver reportes y gráficas de tus cultivos y cosechas.
+                </p>
+            </details>
+
+        </div>
+        <p style="font-size:12px; color:#bbb; margin-top:16px; text-align:center;">Aerogarden Cloud v1.0 · Plataforma de gestión de cultivos inteligentes</p>
     </div>
 
     <!-- MIEMBROS -->
@@ -1482,8 +1553,6 @@
         <input type="date" id="fechaSiembra">
         <label>Cantidad de plantas</label>
         <input type="number" id="cantidadPlantas" placeholder="Ej: 50">
-        <label>Tamaño inicial (cm)</label>
-        <input type="text" id="tamanoPlanta" placeholder="Ej: 5">
         <div class="modal-botones">
             <button onclick="guardarSiembra()">Guardar Siembra</button>
             <button onclick="cerrarModal('modal-siembra')">Cancelar</button>
@@ -1601,8 +1670,6 @@
         <input type="date" id="editFechaSiembra">
         <label>Cantidad de plantas</label>
         <input type="number" id="editCantidadPlantas" placeholder="Ej: 50">
-        <label>Tamano (cm)</label>
-        <input type="text" id="editTamanoPlantas" placeholder="Ej: 5">
         <div class="modal-botones">
             <button class="btn-verde" onclick="guardarEdicionCultivo()">Guardar cambios</button>
             <button onclick="cerrarModal('modal-editar-cultivo')">Cancelar</button>

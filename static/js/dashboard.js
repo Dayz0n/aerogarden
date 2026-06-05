@@ -845,17 +845,17 @@ async function guardarSiembra() {
     const nombre   = document.getElementById('nombreCultivo').value;
     const fecha    = document.getElementById('fechaSiembra').value;
     const cantidad = document.getElementById('cantidadPlantas').value;
-    const tamano   = document.getElementById('tamanoPlanta').value;
     const idTipo   = document.getElementById('selectTipoCultivo').value;
 
-    if (!nombre || !fecha || !cantidad || !tamano || !idTipo) {
+    if (!nombre || !fecha || !cantidad || !idTipo) {
         return toast("Completa todos los campos", "warning");
     }
     try {
         const response = await fetch('/api/cultivos/sembrar', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nombre, fecha, cantidad, tamano, idTipo, idSistema: 1 })
+            body: JSON.stringify({ nombre, fecha, cantidad, tamano: 0, idTipo, idSistema: 1 })
+            // tamano se envía como 0 — campo eliminado de la UI pero requerido por la BD
         });
         const result = await response.json();
         if (response.ok && result.status === 'success') {
@@ -2078,33 +2078,74 @@ async function _panelLecturas() {
     const cont = document.getElementById('inicio-lecturas');
     if (!cont) return;
     try {
-        const res     = await fetch('/api/sensores/lista');
+        const res      = await fetch('/api/sensores/lista');
         const sensores = await res.json();
         if (!Array.isArray(sensores) || sensores.length === 0) {
             cont.innerHTML = '<div class="inicio-vacio">No hay sensores registrados.</div>'; return;
         }
-        // Pedir última lectura de cada sensor (máx 5)
-        const slice = sensores.slice(0, 5);
+        const slice    = sensores.slice(0, 6);
         const lecturas = await Promise.allSettled(
             slice.map(s => fetch(`/api/sensores/datos-actuales/${s.idSensore}`).then(r => r.json()))
         );
+        const ahora = new Date();
         cont.innerHTML = slice.map((s, i) => {
-            const lec = lecturas[i].status === 'fulfilled' ? lecturas[i].value : null;
-            const valor = lec && !lec.error ? lec.valor : null;
-            const unidad = lec && !lec.error ? (lec.unidad || '') : '';
-            const activo = valor !== null;
+            const lec      = lecturas[i].status === 'fulfilled' ? lecturas[i].value : null;
+            const hayDato  = lec && !lec.error;
+            const valor    = hayDato ? lec.valor  : null;
+            const unidad   = hayDato ? (lec.unidad || '') : '';
+            const fechaStr = hayDato ? lec.fecha_hora : null;
+
+            // Calcular segundos desde última lectura
+            let segsAtras = null;
+            if (fechaStr) {
+                const diff = ahora - new Date(fechaStr.replace(' ', 'T'));
+                segsAtras  = Math.floor(diff / 1000);
+            }
+
+            // Estado basado en tiempo desde última lectura
+            // Activo: menos de 30s | Sin señal: entre 30s y 5min | Desconectado: más de 5min o sin datos
+            const activo      = hayDato && segsAtras !== null && segsAtras <= 30;
+            const sinSenal    = hayDato && segsAtras !== null && segsAtras > 30 && segsAtras <= 300;
+            const desconectado = !hayDato || (segsAtras !== null && segsAtras > 300);
+
+            let estadoBadge = '';
+            let dotClass    = '';
+            if (activo) {
+                dotClass    = 'sensor-dot-on';
+                estadoBadge = `<span style="font-size:11px;color:#27ae60;font-weight:600;">● En línea</span>`;
+            } else if (sinSenal) {
+                dotClass    = 'sensor-dot-off';
+                const mins  = segsAtras < 60 ? segsAtras + 's' : Math.floor(segsAtras/60) + 'm';
+                estadoBadge = `<span style="font-size:11px;color:#e67e22;font-weight:600;">⚠ Sin señal (${mins})</span>`;
+            } else {
+                dotClass    = 'sensor-dot-off';
+                estadoBadge = `<span style="font-size:11px;color:#bbb;">● Desconectado</span>`;
+            }
+
+            // Siempre mostrar el último valor guardado (aunque esté desconectado)
+            let valorHtml = '';
+            if (valor !== null) {
+                const esViejo = sinSenal || desconectado;
+                valorHtml = `
+                    <div style="text-align:right;">
+                        <span class="sensor-valor-big" style="${esViejo ? 'color:#bbb;' : ''}">${valor}</span>
+                        <span class="sensor-unidad" style="${esViejo ? 'color:#ccc;' : ''}">${unidad}</span>
+                        ${esViejo ? `<div style="font-size:10px;color:#ccc;">último dato</div>` : ''}
+                    </div>`;
+            } else {
+                valorHtml = `<div style="text-align:right;"><span style="color:#ccc;font-size:13px;">Sin datos</span></div>`;
+            }
+
             return `
             <div class="sensor-fila">
                 <div style="display:flex;align-items:center;gap:8px;">
-                    <div class="sensor-dot ${activo ? 'sensor-dot-on' : 'sensor-dot-off'}"></div>
-                    <div class="sensor-nombre">${s.tipo_sensor}</div>
+                    <div class="sensor-dot ${dotClass}"></div>
+                    <div>
+                        <div class="sensor-nombre">${s.tipo_sensor}</div>
+                        <div>${estadoBadge}</div>
+                    </div>
                 </div>
-                <div>
-                    ${activo
-                        ? `<span class="sensor-valor-big">${valor}</span><span class="sensor-unidad">${unidad}</span>`
-                        : `<span style="color:#ccc;font-size:13px;">Sin datos</span>`
-                    }
-                </div>
+                ${valorHtml}
             </div>`;
         }).join('');
     } catch (e) {
@@ -2204,6 +2245,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Actualiza badge de alertas cada 60 segundos
     setInterval(actualizarBadgeNav, 60000);
+
+    // Actualiza lecturas del panel inicio cada 15 segundos si está visible
+    setInterval(() => {
+        const sec = document.getElementById('dashboard-contenido');
+        if (sec && sec.style.display !== 'none') _panelLecturas();
+    }, 15000);
 });
 
 // ============================================================

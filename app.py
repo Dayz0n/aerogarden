@@ -475,6 +475,56 @@ def actualizar_nombre():
         return jsonify({"status": "error", "mensaje": str(e)}), 500
 
 
+@app.route('/api/auth/verificar-correo', methods=['POST'])
+def verificar_correo():
+    """Verifica si un correo existe en la BD (para recuperar contraseña)."""
+    data   = request.json or {}
+    correo = data.get('correo', '').strip().lower()
+    if not correo:
+        return jsonify({"existe": False, "mensaje": "Correo requerido"}), 400
+    try:
+        conexion = conectar_bd()
+        cursor   = conexion.cursor()
+        cursor.execute("SELECT idUsuario FROM usuarios WHERE correo = %s", (correo,))
+        row = cursor.fetchone()
+        cursor.close(); conexion.close()
+        if row:
+            return jsonify({"existe": True})
+        else:
+            return jsonify({"existe": False, "mensaje": "No existe una cuenta con ese correo"}), 404
+    except Exception as e:
+        return jsonify({"existe": False, "mensaje": str(e)}), 500
+
+
+@app.route('/api/auth/restablecer-password', methods=['POST'])
+def restablecer_password():
+    """Restablece la contraseña de un usuario dado su correo."""
+    data            = request.json or {}
+    correo          = data.get('correo', '').strip().lower()
+    nueva_password  = data.get('nueva_password', '')
+
+    if not correo or not nueva_password:
+        return jsonify({"status": "error", "mensaje": "Datos incompletos"}), 400
+    if len(nueva_password) < 6:
+        return jsonify({"status": "error", "mensaje": "La contraseña debe tener al menos 6 caracteres"}), 400
+
+    try:
+        conexion = conectar_bd()
+        cursor   = conexion.cursor()
+        cursor.execute(
+            "UPDATE usuarios SET `contraseña` = %s WHERE correo = %s",
+            (generate_password_hash(nueva_password), correo)
+        )
+        conexion.commit()
+        filas = cursor.rowcount
+        cursor.close(); conexion.close()
+        if filas == 0:
+            return jsonify({"status": "error", "mensaje": "No existe una cuenta con ese correo"}), 404
+        return jsonify({"status": "success", "mensaje": "Contraseña actualizada correctamente"})
+    except Exception as e:
+        return jsonify({"status": "error", "mensaje": str(e)}), 500
+
+
 @app.route('/api/auth/login', methods=['POST'])
 def login():
     data             = request.json

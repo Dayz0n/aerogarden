@@ -294,6 +294,45 @@
         }
         .pie a:hover { text-decoration: underline; }
 
+        /* Panel recuperar contraseña */
+        .panel-recuperar {
+            display: none;
+            animation: fadeIn .25s ease;
+        }
+        .panel-recuperar.visible { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .link-recuperar {
+            background: none;
+            border: none;
+            color: var(--v2);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 0;
+            text-decoration: none;
+            font-family: 'DM Sans', sans-serif;
+        }
+        .link-recuperar:hover { text-decoration: underline; }
+
+        .exito-msg {
+            display: none;
+            background: #f0faf4;
+            color: #1a6e3c;
+            padding: 11px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            border-left: 3px solid var(--v3);
+            align-items: center;
+            gap: 8px;
+        }
+        .exito-msg.visible { display: flex; }
+
         /* Responsive */
         @media (max-width: 768px) {
             body { grid-template-columns: 1fr; }
@@ -384,11 +423,89 @@
 
             <button class="btn-login" id="btnLogin" onclick="iniciarSesion()">Entrar al sistema</button>
 
-            <div class="divisor"><span>¿Nuevo aquí?</span></div>
+            <div style="text-align:right; margin-top:10px; margin-bottom:4px;">
+                <button class="link-recuperar" onclick="mostrarRecuperar()">¿Olvidaste tu contraseña?</button>
+            </div>
 
+            <div class="divisor"><span>¿Nuevo aquí?</span></div>
             <p class="pie">¿No tienes cuenta? <a href="/registro">Regístrate gratis</a></p>
-        </div>
-    </div>
+
+        </div><!-- fin form-wrap login -->
+
+        <!-- ── Panel recuperar contraseña ── -->
+        <div class="form-wrap panel-recuperar" id="panel-recuperar">
+
+            <div class="logo-box">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="AeroGarden Cloud">
+                <p class="subtitulo">Sistema de gestión de cultivos</p>
+            </div>
+
+            <h2 class="form-titulo">Restablecer contraseña</h2>
+            <p class="form-subtitulo">Ingresa tu correo registrado y elige una nueva contraseña.</p>
+
+            <div id="error-rec" class="error-msg">
+                <span>⚠️</span>
+                <span id="error-rec-texto"></span>
+            </div>
+            <div id="exito-rec" class="exito-msg">
+                <span>✅</span>
+                <span id="exito-rec-texto"></span>
+            </div>
+
+            <!-- Paso 1: correo -->
+            <div id="paso-correo">
+                <div class="campo">
+                    <label for="rec-correo">Correo electrónico</label>
+                    <div class="input-wrap">
+                        <span class="input-ico">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                        </span>
+                        <input type="email" id="rec-correo" placeholder="ejemplo@correo.com" autocomplete="email">
+                    </div>
+                </div>
+                <button class="btn-login" id="btnVerificar" onclick="verificarCorreo()">Verificar correo</button>
+            </div>
+
+            <!-- Paso 2: nueva contraseña (oculto hasta verificar) -->
+            <div id="paso-nueva-pass" style="display:none;">
+                <div class="campo">
+                    <label for="rec-nueva">Nueva contraseña</label>
+                    <div class="input-wrap">
+                        <span class="input-ico">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                        </span>
+                        <input type="password" id="rec-nueva" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+                        <button class="btn-ojo" type="button" onclick="toggleRecPass()" aria-label="Mostrar contraseña">
+                            <svg id="icoOjoRec" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="campo">
+                    <label for="rec-confirmar">Confirmar contraseña</label>
+                    <div class="input-wrap">
+                        <span class="input-ico">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                        </span>
+                        <input type="password" id="rec-confirmar" placeholder="Repite la contraseña" autocomplete="new-password">
+                    </div>
+                </div>
+                <button class="btn-login" id="btnGuardarPass" onclick="guardarNuevaPass()">Guardar nueva contraseña</button>
+            </div>
+
+            <div style="text-align:center; margin-top:18px;">
+                <button class="link-recuperar" onclick="volverLogin()">← Volver al inicio de sesión</button>
+            </div>
+
+        </div><!-- fin panel-recuperar -->
 
     <script>
         function toggleContrasena() {
@@ -446,9 +563,120 @@
             }
         }
 
-        document.addEventListener('keydown', e => {
-            if (e.key === 'Enter') iniciarSesion();
-        });
+        // ── Recuperar contraseña ──
+        function mostrarRecuperar() {
+            document.querySelector('.form-wrap:not(.panel-recuperar)').style.display = 'none';
+            document.getElementById('panel-recuperar').classList.add('visible');
+            document.getElementById('rec-correo').focus();
+        }
+
+        function volverLogin() {
+            document.querySelector('.form-wrap:not(.panel-recuperar)').style.display = 'block';
+            document.getElementById('panel-recuperar').classList.remove('visible');
+            // Resetear estado
+            document.getElementById('paso-correo').style.display = 'block';
+            document.getElementById('paso-nueva-pass').style.display = 'none';
+            document.getElementById('rec-correo').value = '';
+            document.getElementById('rec-nueva').value  = '';
+            document.getElementById('rec-confirmar').value = '';
+            ocultarMsgRec();
+        }
+
+        function mostrarErrorRec(msg) {
+            document.getElementById('exito-rec').classList.remove('visible');
+            const el = document.getElementById('error-rec');
+            document.getElementById('error-rec-texto').textContent = msg;
+            el.classList.add('visible');
+        }
+
+        function mostrarExitoRec(msg) {
+            document.getElementById('error-rec').classList.remove('visible');
+            const el = document.getElementById('exito-rec');
+            document.getElementById('exito-rec-texto').textContent = msg;
+            el.classList.add('visible');
+        }
+
+        function ocultarMsgRec() {
+            document.getElementById('error-rec').classList.remove('visible');
+            document.getElementById('exito-rec').classList.remove('visible');
+        }
+
+        function toggleRecPass() {
+            const input = document.getElementById('rec-nueva');
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+
+        async function verificarCorreo() {
+            ocultarMsgRec();
+            const correo = document.getElementById('rec-correo').value.trim();
+            if (!correo) { mostrarErrorRec('Ingresa tu correo electrónico.'); return; }
+
+            const btn = document.getElementById('btnVerificar');
+            btn.disabled = true;
+            btn.textContent = 'Verificando…';
+
+            try {
+                const res  = await fetch('/api/auth/verificar-correo', {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({ correo })
+                });
+                const data = await res.json();
+
+                if (res.ok && data.existe) {
+                    mostrarExitoRec('Correo verificado. Ahora elige tu nueva contraseña.');
+                    document.getElementById('paso-correo').style.display = 'none';
+                    document.getElementById('paso-nueva-pass').style.display = 'block';
+                    document.getElementById('rec-nueva').focus();
+                } else {
+                    mostrarErrorRec(data.mensaje || 'No existe una cuenta con ese correo.');
+                }
+            } catch {
+                mostrarErrorRec('No se pudo conectar con el servidor.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Verificar correo';
+            }
+        }
+
+        async function guardarNuevaPass() {
+            ocultarMsgRec();
+            const correo    = document.getElementById('rec-correo').value.trim();
+            const nueva     = document.getElementById('rec-nueva').value;
+            const confirmar = document.getElementById('rec-confirmar').value;
+
+            if (!nueva || nueva.length < 6) {
+                mostrarErrorRec('La contraseña debe tener al menos 6 caracteres.'); return;
+            }
+            if (nueva !== confirmar) {
+                mostrarErrorRec('Las contraseñas no coinciden.'); return;
+            }
+
+            const btn = document.getElementById('btnGuardarPass');
+            btn.disabled = true;
+            btn.textContent = 'Guardando…';
+
+            try {
+                const res  = await fetch('/api/auth/restablecer-password', {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({ correo, nueva_password: nueva })
+                });
+                const data = await res.json();
+
+                if (res.ok && data.status === 'success') {
+                    mostrarExitoRec('¡Contraseña actualizada! Redirigiendo…');
+                    setTimeout(volverLogin, 2000);
+                } else {
+                    mostrarErrorRec(data.mensaje || 'No se pudo actualizar la contraseña.');
+                }
+            } catch {
+                mostrarErrorRec('No se pudo conectar con el servidor.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Guardar nueva contraseña';
+            }
+        }
     </script>
 </body>
 </html>

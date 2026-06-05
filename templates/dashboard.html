@@ -726,23 +726,23 @@
     <div class="nav-divider"></div>
     <button onclick="mostrarSeccion('dashboard-contenido')">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        Inicio
+        <span data-i18n="nav_inicio">Inicio</span>
     </button>
     <button onclick="mostrarSeccion('seccion-hardware')">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="2" x2="9" y2="4"/><line x1="15" y1="2" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="22"/><line x1="15" y1="20" x2="15" y2="22"/><line x1="20" y1="9" x2="22" y2="9"/><line x1="20" y1="14" x2="22" y2="14"/><line x1="2" y1="9" x2="4" y2="9"/><line x1="2" y1="14" x2="4" y2="14"/></svg>
-        Hardware
+        <span data-i18n="nav_hardware">Hardware</span>
     </button>
     <button onclick="mostrarSeccion('seccion-logica')">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
-        Lógica
+        <span data-i18n="nav_logica">Lógica</span>
     </button>
     <button onclick="mostrarSeccion('seccion-analitica')">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-        Analítica
+        <span data-i18n="nav_analitica">Analítica</span>
     </button>
     <button onclick="mostrarSeccion('seccion-cultivos')">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12m0 0C12 7 7 4 2 4c0 5 3 9 7 10m3-2c0-5 5-8 10-8-1 5-4 8-10 8"/></svg>
-        Cultivos
+        <span data-i18n="nav_cultivos">Cultivos</span>
     </button>
     <button id="btn-nav-alertas" onclick="mostrarSeccion('seccion-alertas'); cargarAlertasSeccion();">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
@@ -751,15 +751,15 @@
     </button>
     <button onclick="mostrarSeccion('seccion-relevador'); cargarSeccionRelevador()">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6m0 0C10 12 6 14 6 18a6 6 0 0012 0c0-4-4-6-6-10z"/></svg>
-        Bomba
+        <span data-i18n="nav_bomba">Bomba</span>
     </button>
     <button onclick="mostrarSeccion('seccion-wifi'); cargarRedActual()">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><circle cx="12" cy="20" r="1" fill="currentColor"/></svg>
-        WiFi
+        <span data-i18n="nav_wifi">WiFi</span>
     </button>
     <button onclick="mostrarSeccion('seccion-configuracion')">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        Perfil
+        <span data-i18n="nav_perfil">Perfil</span>
     </button>
     <a href="/logout" class="nav-logout">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
@@ -869,8 +869,8 @@
 <!-- HARDWARE                                                      -->
 <!-- ============================================================ -->
 <div id="seccion-hardware" class="seccion">
-    <h1>Integración de Hardware</h1>
-    <button onclick="abrirModal('modal-dispositivo')">+ Agregar Dispositivo</button>
+    <h1 data-i18n="hw_titulo">Integración de Hardware</h1>
+    <button onclick="abrirModal('modal-dispositivo')" data-i18n="hw_agregar_disp">+ Agregar Dispositivo</button>
     <button id="btn-agregar-sensor" onclick="abrirModal('modal-sensor')" disabled>+ Agregar Sensor</button>
     <div id="lista-hardware" style="margin-top: 20px;">
         <h3>Dispositivos y Sensores Conectados</h3>
@@ -882,7 +882,7 @@
 <!-- LÓGICA                                                        -->
 <!-- ============================================================ -->
 <div id="seccion-logica" class="seccion">
-    <h1>Lógica de Control</h1>
+    <h1 data-i18n="logica_titulo">Lógica de Control</h1>
     <div class="card" style="margin-bottom:16px;">
         <label style="font-weight:600;">Seleccionar Sensor:</label>
         <select id="selectSensorLogica" onchange="limpiarVisualizacion()" style="margin-bottom:12px;">
@@ -901,7 +901,7 @@
 <!-- ANALÍTICA                                                     -->
 <!-- ============================================================ -->
 <div id="seccion-analitica" class="seccion">
-    <h1>Analítica y Reportes</h1>
+    <h1 data-i18n="analitica_titulo">Analítica y Reportes</h1>
 
     <div class="tabs">
         <button class="tab-btn activo" onclick="cambiarTabAnalitica('tab-an-sensores', this)">📡 Sensores</button>
@@ -1005,11 +1005,11 @@
 <!-- CULTIVOS                                                      -->
 <!-- ============================================================ -->
 <div id="seccion-cultivos" class="seccion">
-    <h1>Gestión de Cultivos</h1>
+    <h1 data-i18n="cult_titulo">Gestión de Cultivos</h1>
     <div style="margin-bottom: 16px;">
-        <button onclick="abrirModal('modal-siembra')">🌱 Registrar Siembra</button>
-        <button onclick="abrirModal('modal-cosecha')">🌾 Registrar Cosecha</button>
-        <button class="btn-verde" onclick="abrirModal('modal-tipo-cultivo')">+ Agregar Tipo de Cultivo</button>
+        <button onclick="abrirModal('modal-siembra')" data-i18n="cult_registrar_siembra">🌱 Registrar Siembra</button>
+        <button onclick="abrirModal('modal-cosecha')" data-i18n="cult_registrar_cosecha">🌾 Registrar Cosecha</button>
+        <button class="btn-verde" onclick="abrirModal('modal-tipo-cultivo')" data-i18n="cult_agregar_tipo">+ Agregar Tipo de Cultivo</button>
     </div>
 
     <!-- Tabs directamente en la sección -->
@@ -1031,7 +1031,7 @@
 <!-- ALERTAS                                                       -->
 <!-- ============================================================ -->
 <div id="seccion-alertas" class="seccion">
-    <h1>🔔 Centro de Alertas</h1>
+    <h1 data-i18n="alert_titulo">🔔 Centro de Alertas</h1>
 
     <div class="tabs">
         <button class="tab-btn activo" onclick="cambiarTabAlerta('tab-historial', this)">📋 Historial de Alertas</button>
@@ -1080,7 +1080,7 @@
 <!-- RELEVADOR / BOMBA                                            -->
 <!-- ============================================================ -->
 <div id="seccion-relevador" class="seccion">
-    <h1>💧 Control de Bomba / Relevador</h1>
+    <h1 data-i18n="bomba_titulo">💧 Control de Bomba / Relevador</h1>
 
     <!-- Selector de dispositivo -->
     <div class="card" style="margin-bottom:16px;">
@@ -1155,7 +1155,7 @@
 <!-- CONFIGURACIÓN                                                 -->
 <!-- ============================================================ -->
 <div id="seccion-configuracion" class="seccion">
-    <h1>Configuración de Cuenta</h1>
+    <h1 data-i18n="perfil_titulo">Configuración de Cuenta</h1>
 
     <!-- Foto de perfil -->
     <div class="card" style="display:flex; align-items:center; gap:24px; flex-wrap:wrap;">
@@ -1217,6 +1217,22 @@
         <button id="btnCambiarPass" onclick="cambiarPassword()" class="btn-verde" style="margin-top:6px;">
             Actualizar Contraseña
         </button>
+    </div>
+
+    <!-- PREFERENCIAS: selector de idioma -->
+    <div class="card" style="margin-top:12px;">
+        <h3 data-i18n="perfil_preferencias">🌐 Preferencias</h3>
+        <p style="font-size:13px; color:#888; margin-bottom:14px;" data-i18n="perfil_idioma">Idioma de la interfaz</p>
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            <select id="select-idioma" onchange="cambiarIdiomaApp(this.value)"
+                    style="padding:10px 16px; border-radius:8px; border:1.5px solid #c8ddd0;
+                           font-size:14px; font-family:'DM Sans',sans-serif; background:#fff;
+                           color:#1a2e22; cursor:pointer; min-width:180px;">
+                <option value="es">🇲🇽 Español</option>
+                <option value="en">🇺🇸 English</option>
+            </select>
+            <span id="msg-idioma" style="font-size:13px; color:#27ae60; display:none;">✔ Guardado</span>
+        </div>
     </div>
 
     <div class="card" style="margin-top:12px;">
@@ -1349,10 +1365,9 @@
 
 
 <div id="seccion-wifi" class="seccion">
-    <h1>📶 Configuración de Red WiFi</h1>
+    <h1 data-i18n="wifi_titulo">📶 Configuración de Red WiFi</h1>
     <p style="color:#666; margin-bottom:20px;">
-        Desde aquí puedes cambiar la red WiFi a la que se conecta el Arduino/ESP32.
-        El cambio se aplica en segundos sin necesidad de tocar el hardware.
+        <span data-i18n="wifi_descripcion">Desde aquí puedes cambiar la red WiFi a la que se conecta el Arduino/ESP32.</span>
     </p>
 
     <!-- Selector de dispositivo -->
@@ -1856,7 +1871,15 @@ setInterval(() => {
     });
 })();
 </script>
+<script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
 <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script>
+function cambiarIdiomaApp(lang) {
+    setIdioma(lang);
+    const msg = document.getElementById('msg-idioma');
+    if (msg) { msg.style.display = 'inline'; setTimeout(() => msg.style.display = 'none', 2000); }
+}
+</script>
 <script>
 // Auto-selecciona la unidad según el tipo de sensor elegido
 function actualizarUnidadSegunTipo() {

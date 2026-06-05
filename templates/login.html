@@ -380,8 +380,8 @@
                 <p class="subtitulo">Sistema de gestión de cultivos</p>
             </div>
 
-            <h2 class="form-titulo">Bienvenido de vuelta</h2>
-            <p class="form-subtitulo">Inicia sesión para acceder a tu sistema</p>
+            <h2 class="form-titulo" data-i18n="login_titulo">Bienvenido de vuelta</h2>
+            <p class="form-subtitulo" data-i18n="login_subtitulo">Inicia sesión para acceder a tu sistema</p>
 
             <div id="error-msg" class="error-msg">
                 <span>⚠️</span>
@@ -389,7 +389,7 @@
             </div>
 
             <div class="campo">
-                <label for="correo">Correo electrónico</label>
+                <label for="correo" data-i18n="login_correo">Correo electrónico</label>
                 <div class="input-wrap">
                     <span class="input-ico">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -401,7 +401,7 @@
             </div>
 
             <div class="campo">
-                <label for="contrasena">Contraseña</label>
+                <label for="contrasena" data-i18n="login_pass">Contraseña</label>
                 <div class="input-wrap">
                     <span class="input-ico">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -421,14 +421,14 @@
                 </div>
             </div>
 
-            <button class="btn-login" id="btnLogin" onclick="iniciarSesion()">Entrar al sistema</button>
+            <button class="btn-login" id="btnLogin" onclick="iniciarSesion()" data-i18n="login_btn">Entrar al sistema</button>
 
             <div style="text-align:right; margin-top:10px; margin-bottom:4px;">
-                <button class="link-recuperar" onclick="mostrarRecuperar()">¿Olvidaste tu contraseña?</button>
+                <button class="link-recuperar" onclick="mostrarRecuperar()" data-i18n="login_olvide">¿Olvidaste tu contraseña?</button>
             </div>
 
-            <div class="divisor"><span>¿Nuevo aquí?</span></div>
-            <p class="pie">¿No tienes cuenta? <a href="/registro">Regístrate gratis</a></p>
+            <div class="divisor"><span data-i18n="login_nuevo">¿Nuevo aquí?</span></div>
+            <p class="pie"><span data-i18n="login_sin_cuenta">¿No tienes cuenta?</span> <a href="/registro" data-i18n="login_registrate">Regístrate gratis</a></p>
 
         </div><!-- fin form-wrap login -->
 
@@ -440,8 +440,8 @@
                 <p class="subtitulo">Sistema de gestión de cultivos</p>
             </div>
 
-            <h2 class="form-titulo">Restablecer contraseña</h2>
-            <p class="form-subtitulo">Ingresa tu correo registrado y elige una nueva contraseña.</p>
+            <h2 class="form-titulo" data-i18n="rec_titulo">Restablecer contraseña</h2>
+            <p class="form-subtitulo" data-i18n="rec_subtitulo">Ingresa tu correo registrado y elige una nueva contraseña.</p>
 
             <div id="error-rec" class="error-msg">
                 <span>⚠️</span>
@@ -465,7 +465,7 @@
                         <input type="email" id="rec-correo" placeholder="ejemplo@correo.com" autocomplete="email">
                     </div>
                 </div>
-                <button class="btn-login" id="btnVerificar" onclick="verificarCorreo()">Verificar correo</button>
+                <button class="btn-login" id="btnVerificar" onclick="verificarCorreo()" data-i18n="rec_verificar">Verificar correo</button>
             </div>
 
             <!-- Paso 2: nueva contraseña (oculto hasta verificar) -->
@@ -498,15 +498,16 @@
                         <input type="password" id="rec-confirmar" placeholder="Repite la contraseña" autocomplete="new-password">
                     </div>
                 </div>
-                <button class="btn-login" id="btnGuardarPass" onclick="guardarNuevaPass()">Guardar nueva contraseña</button>
+                <button class="btn-login" id="btnGuardarPass" onclick="guardarNuevaPass()" data-i18n="rec_guardar">Guardar nueva contraseña</button>
             </div>
 
             <div style="text-align:center; margin-top:18px;">
-                <button class="link-recuperar" onclick="volverLogin()">← Volver al inicio de sesión</button>
+                <button class="link-recuperar" onclick="volverLogin()" data-i18n="rec_volver">← Volver al inicio de sesión</button>
             </div>
 
         </div><!-- fin panel-recuperar -->
 
+    <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
     <script>
         function toggleContrasena() {
             const input   = document.getElementById('contrasena');

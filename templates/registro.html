@@ -373,7 +373,7 @@
 
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                 <div class="campo" style="margin-bottom:0;">
-                    <label for="apellido_paterno">Apellido paterno</label>
+                    <label for="apellido_paterno" data-i18n="reg_ap_paterno">Apellido paterno</label>
                     <div class="input-wrap">
                         <span class="input-ico">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -384,7 +384,7 @@
                     </div>
                 </div>
                 <div class="campo" style="margin-bottom:0;">
-                    <label for="apellido_materno">Apellido materno</label>
+                    <label for="apellido_materno" data-i18n="reg_ap_materno">Apellido materno</label>
                     <div class="input-wrap">
                         <span class="input-ico">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -397,7 +397,7 @@
             </div>
 
             <div class="campo">
-                <label for="correo">Correo electrónico</label>
+                <label for="correo" data-i18n="reg_correo">Correo electrónico</label>
                 <div class="input-wrap">
                     <span class="input-ico">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -409,7 +409,7 @@
             </div>
 
             <div class="campo">
-                <label for="contrasena">Contraseña</label>
+                <label for="contrasena" data-i18n="reg_pass">Contraseña</label>
                 <div class="input-wrap">
                     <span class="input-ico">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -436,7 +436,7 @@
             </div>
 
             <div class="campo">
-                <label for="confirmar">Confirmar contraseña</label>
+                <label for="confirmar" data-i18n="reg_confirmar">Confirmar contraseña</label>
                 <div class="input-wrap">
                     <span class="input-ico">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -456,12 +456,13 @@
                 </div>
             </div>
 
-            <button class="btn-registro" id="btnRegistro" onclick="enviarRegistro()">Crear mi cuenta</button>
+            <button class="btn-registro" id="btnRegistro" onclick="enviarRegistro()" data-i18n="reg_btn">Crear mi cuenta</button>
 
-            <p class="pie">¿Ya tienes cuenta? <a href="/">Inicia sesión</a></p>
+            <p class="pie"><span data-i18n="reg_ya_cuenta">¿Ya tienes cuenta?</span> <a href="/" data-i18n="reg_iniciar">Inicia sesión</a></p>
         </div>
     </div>
 
+    <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
     <script>
         function togglePass(inputId, aId, bId) {
             const inp = document.getElementById(inputId);

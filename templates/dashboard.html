@@ -1274,6 +1274,8 @@
         </div>
     </div>
 
+</div><!-- fin seccion-configuracion -->
+
 
 <div id="seccion-wifi" class="seccion">
     <h1>📶 Configuración de Red WiFi</h1>
@@ -1323,6 +1325,21 @@
         <button onclick="enviarRedWifi()" class="btn-verde" style="margin-top:14px; width:100%;">
             📡 Enviar al Arduino
         </button>
+    </div>
+
+    <!-- Red actual del Arduino -->
+    <div class="card" style="margin-bottom:16px;">
+        <h3>📡 Red actual del Arduino</h3>
+        <div id="wifi-red-arduino" style="margin-top:10px; color:#888; font-size:14px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span style="font-size:24px;" id="wifi-arduino-icon">⏳</span>
+                <div>
+                    <div style="font-weight:600; font-size:15px;" id="wifi-arduino-ssid">Consultando...</div>
+                    <div style="font-size:12px; color:#aaa;" id="wifi-arduino-fecha"></div>
+                </div>
+                <button onclick="cargarRedActual()" style="margin-left:auto; padding:6px 12px; font-size:12px;">↺ Actualizar</button>
+            </div>
+        </div>
     </div>
 
     <!-- Historial de redes enviadas -->

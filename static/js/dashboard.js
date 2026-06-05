@@ -2295,23 +2295,26 @@ async function cargarRedActual() {
     try {
         const r = await fetch('/api/wifi/estado?device_id=' + dispositivoActualId);
         const d = await r.json();
-        const icon  = document.getElementById('wifi-estado-icon');
-        const red   = document.getElementById('wifi-red-actual');
-        const texto = document.getElementById('wifi-estado-texto');
+
+        // Panel: red actual del Arduino
+        const icon2  = document.getElementById('wifi-arduino-icon');
+        const ssid2  = document.getElementById('wifi-arduino-ssid');
+        const fecha2 = document.getElementById('wifi-arduino-fecha');
 
         if (d.ssid) {
-            icon.textContent  = '✅';
-            red.textContent   = 'Red: ' + d.ssid;
-            texto.textContent = 'Última configuración enviada: ' + (d.fecha || 'desconocida');
+            if (icon2)  icon2.textContent  = '✅';
+            if (ssid2)  ssid2.textContent  = '📶 ' + d.ssid;
+            if (fecha2) fecha2.textContent = 'Última config enviada: ' + (d.fecha || 'desconocida');
         } else {
-            icon.textContent  = '❓';
-            red.textContent   = 'Sin configuración enviada aún';
-            texto.textContent = 'Usa el formulario para enviar una red al Arduino';
+            if (icon2)  icon2.textContent  = '❓';
+            if (ssid2)  ssid2.textContent  = 'Sin configuración enviada aún';
+            if (fecha2) fecha2.textContent = 'Usa el formulario para enviar una red al Arduino';
         }
 
         cargarHistorialWifi();
     } catch(e) {
-        document.getElementById('wifi-red-actual').textContent = 'Error al consultar estado';
+        const ssid2 = document.getElementById('wifi-arduino-ssid');
+        if (ssid2) ssid2.textContent = 'Error al consultar estado';
     }
 }
 

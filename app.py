@@ -1473,6 +1473,34 @@ def estado_relevador():
 # WIFI — Configurar red del Arduino desde el dashboard
 # ============================================================
 
+@app.route('/api/arduino/reportar_wifi', methods=['POST'])
+def arduino_reportar_wifi():
+    """
+    El Arduino llama esto cada vez que se conecta exitosamente a una red WiFi.
+    Body: { "token": "xxx", "device_id": 1, "ssid": "MiRed" }
+    El dashboard puede consultar esta info en /api/wifi/estado
+    """
+    data = request.json or {}
+    if data.get("token") != ARDUINO_TOKEN:
+        return jsonify({"error": "No autorizado"}), 401
+
+    device_id = data.get("device_id")
+    ssid      = data.get("ssid", "").strip()
+
+    if not device_id or not ssid:
+        return jsonify({"error": "Faltan datos"}), 400
+
+    fecha = datetime.now().strftime("%d/%m/%Y %H:%M")
+    with wifi_lock:
+        wifi_actual[device_id] = {"ssid": ssid, "fecha": fecha}
+        hist = wifi_historial.setdefault(device_id, [])
+        hist[:] = [h for h in hist if h["ssid"] != ssid]
+        hist.append({"ssid": ssid, "fecha": fecha})
+
+    print(f"[WiFi dev={device_id}] Arduino conectado a: {ssid}")
+    return jsonify({"status": "ok"})
+
+
 @app.route('/api/wifi/estado', methods=['GET'])
 @login_requerido
 def wifi_estado():

@@ -720,7 +720,7 @@
         </div>
         <div class="nav-logo-texto">
             Aerogarden Cloud
-            <span>Cultiva tu futuro</span>
+            <span data-i18n="nav_tagline">Cultiva tu futuro</span>
         </div>
     </div>
     <div class="nav-divider"></div>
@@ -746,7 +746,7 @@
     </button>
     <button id="btn-nav-alertas" onclick="mostrarSeccion('seccion-alertas'); cargarAlertasSeccion();">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-        Alertas
+        <span data-i18n="nav_alertas">Alertas</span>
         <span id="badge-alertas-nav" class="badge-nav">0</span>
     </button>
     <button onclick="mostrarSeccion('seccion-relevador'); cargarSeccionRelevador()">
@@ -763,7 +763,7 @@
     </button>
     <a href="/logout" class="nav-logout">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-        Cerrar sesión
+        <span data-i18n="nav_cerrar">Cerrar sesión</span>
     </a>
 </nav>
 
@@ -777,7 +777,7 @@
     <div class="inicio-bienvenida">
         <div class="inicio-avatar" id="inicio-avatar">U</div>
         <div>
-            <div class="inicio-saludo">Bienvenido, <span id="inicio-nombre">—</span> 👋</div>
+            <div class="inicio-saludo"><span data-i18n="inicio_bienvenido">Bienvenido,</span> <span id="inicio-nombre">—</span> 👋</div>
             <div class="inicio-fecha" id="inicio-fecha"></div>
         </div>
     </div>
@@ -820,8 +820,8 @@
         <!-- Panel: últimas lecturas sensores -->
         <div class="inicio-panel">
             <div class="inicio-panel-header">
-                <strong>📡 Lecturas recientes</strong>
-                <button class="inicio-panel-link" onclick="mostrarSeccion('seccion-logica')">Ver en vivo →</button>
+                <strong data-i18n="inicio_lecturas">📡 Lecturas recientes</strong>
+                <button class="inicio-panel-link" onclick="mostrarSeccion('seccion-logica')" data-i18n="inicio_ver_en_vivo">Ver en vivo →</button>
             </div>
             <div class="inicio-panel-body" id="inicio-lecturas">
                 <div class="inicio-vacio">Cargando sensores...</div>
@@ -831,8 +831,8 @@
         <!-- Panel: alertas recientes -->
         <div class="inicio-panel">
             <div class="inicio-panel-header">
-                <strong>🔔 Alertas recientes</strong>
-                <button class="inicio-panel-link" onclick="mostrarSeccion('seccion-alertas'); cargarAlertasSeccion();">Ver todas →</button>
+                <strong data-i18n="inicio_alertas">🔔 Alertas recientes</strong>
+                <button class="inicio-panel-link" onclick="mostrarSeccion('seccion-alertas'); cargarAlertasSeccion();" data-i18n="inicio_ver_todas">Ver todas →</button>
             </div>
             <div class="inicio-panel-body" id="inicio-alertas">
                 <div class="inicio-vacio">Cargando alertas...</div>
@@ -842,8 +842,8 @@
         <!-- Panel: cultivos -->
         <div class="inicio-panel">
             <div class="inicio-panel-header">
-                <strong>🌿 Cultivos registrados</strong>
-                <button class="inicio-panel-link" onclick="mostrarSeccion('seccion-cultivos')">Gestionar →</button>
+                <strong data-i18n="inicio_cultivos">🌿 Cultivos registrados</strong>
+                <button class="inicio-panel-link" onclick="mostrarSeccion('seccion-cultivos')" data-i18n="inicio_gestionar">Gestionar →</button>
             </div>
             <div class="inicio-panel-body" id="inicio-cultivos">
                 <div class="inicio-vacio">Cargando cultivos...</div>
@@ -853,8 +853,8 @@
         <!-- Panel: estado bomba -->
         <div class="inicio-panel">
             <div class="inicio-panel-header">
-                <strong>💧 Estado de la Bomba</strong>
-                <button class="inicio-panel-link" onclick="mostrarSeccion('seccion-relevador'); cargarSeccionRelevador()">Controlar →</button>
+                <strong data-i18n="inicio_bomba">💧 Estado de la Bomba</strong>
+                <button class="inicio-panel-link" onclick="mostrarSeccion('seccion-relevador'); cargarSeccionRelevador()" data-i18n="inicio_controlar">Controlar →</button>
             </div>
             <div class="inicio-panel-body" id="inicio-bomba">
                 <div class="inicio-vacio">Cargando estado...</div>
@@ -871,9 +871,9 @@
 <div id="seccion-hardware" class="seccion">
     <h1 data-i18n="hw_titulo">Integración de Hardware</h1>
     <button onclick="abrirModal('modal-dispositivo')" data-i18n="hw_agregar_disp">+ Agregar Dispositivo</button>
-    <button id="btn-agregar-sensor" onclick="abrirModal('modal-sensor')" disabled>+ Agregar Sensor</button>
+    <button id="btn-agregar-sensor" onclick="abrirModal('modal-sensor')" disabled data-i18n="hw_agregar_sensor">+ Agregar Sensor</button>
     <div id="lista-hardware" style="margin-top: 20px;">
-        <h3>Dispositivos y Sensores Conectados</h3>
+        <h3 data-i18n="hw_lista_titulo">Dispositivos y Sensores Conectados</h3>
     </div>
 </div>
 
@@ -884,13 +884,13 @@
 <div id="seccion-logica" class="seccion">
     <h1 data-i18n="logica_titulo">Lógica de Control</h1>
     <div class="card" style="margin-bottom:16px;">
-        <label style="font-weight:600;">Seleccionar Sensor:</label>
+        <label style="font-weight:600;" data-i18n="logica_sel_sensor">Seleccionar Sensor:</label>
         <select id="selectSensorLogica" onchange="limpiarVisualizacion()" style="margin-bottom:12px;">
-            <option value="">-- Seleccione un sensor --</option>
+            <option value="" data-i18n="logica_sel_placeholder">-- Seleccione un sensor --</option>
         </select>
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <button onclick="verificarEstadoSensor()">🔍 Verificar Estado</button>
-            <button class="btn-verde" onclick="visualizarInformacion()">📈 Visualizar en Tiempo Real</button>
+            <button onclick="verificarEstadoSensor()" data-i18n="logica_verificar">🔍 Verificar Estado</button>
+            <button class="btn-verde" onclick="visualizarInformacion()" data-i18n="logica_visualizar">📈 Visualizar en Tiempo Real</button>
         </div>
     </div>
     <div id="resultado-logica" style="padding:0;"></div>
@@ -904,20 +904,20 @@
     <h1 data-i18n="analitica_titulo">Analítica y Reportes</h1>
 
     <div class="tabs">
-        <button class="tab-btn activo" onclick="cambiarTabAnalitica('tab-an-sensores', this)">📡 Sensores</button>
-        <button class="tab-btn" onclick="cambiarTabAnalitica('tab-an-cultivos', this); cargarReporteCultivos()">🌱 Reporte Cultivos</button>
-        <button class="tab-btn" onclick="cambiarTabAnalitica('tab-an-cosechas', this); cargarReporteCosechas()">🌾 Reporte Cosechas</button>
+        <button class="tab-btn activo" onclick="cambiarTabAnalitica('tab-an-sensores', this)" data-i18n="analitica_tab_sensores">📡 Sensores</button>
+        <button class="tab-btn" onclick="cambiarTabAnalitica('tab-an-cultivos', this); cargarReporteCultivos()" data-i18n="analitica_tab_cultivos">🌱 Reporte Cultivos</button>
+        <button class="tab-btn" onclick="cambiarTabAnalitica('tab-an-cosechas', this); cargarReporteCosechas()" data-i18n="analitica_tab_cosechas">🌾 Reporte Cosechas</button>
     </div>
 
     <!-- Tab Sensores -->
     <div id="tab-an-sensores" class="tab-contenido activo">
         <div class="card" style="margin-bottom:14px;">
-            <label style="font-weight:600;">Sensor:</label>
+            <label style="font-weight:600;" data-i18n="analitica_sensor">Sensor:</label>
             <select id="selectSensorAnalitica" style="margin:8px 0;"></select>
             <div style="margin-top: 8px;">
-                <button onclick="cargarGrafica('ahora')">Ahora (1h)</button>
-                <button onclick="cargarGrafica('24h')">Últimas 24h</button>
-                <button onclick="cargarGrafica('semana')">Última Semana</button>
+                <button onclick="cargarGrafica('ahora')" data-i18n="analitica_ahora">Ahora (1h)</button>
+                <button onclick="cargarGrafica('24h')" data-i18n="analitica_24h">Últimas 24h</button>
+                <button onclick="cargarGrafica('semana')" data-i18n="analitica_semana">Última Semana</button>
             </div>
         </div>
         <div style="background:white;padding:20px;border-radius:8px;">
@@ -929,20 +929,20 @@
     <div id="tab-an-cultivos" class="tab-contenido">
         <div class="card" style="margin-bottom:14px; display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;">
             <div style="flex:1; min-width:160px;">
-                <label>Tipo de cultivo</label>
+                <label data-i18n="an_tipo_cultivo">Tipo de cultivo</label>
                 <select id="filtro-an-tipo-cultivo">
-                    <option value="">Todos los tipos</option>
+                    <option value="" data-i18n="an_todos_tipos">Todos los tipos</option>
                 </select>
             </div>
             <div style="flex:1; min-width:140px;">
-                <label>Fecha desde</label>
+                <label data-i18n="an_fecha_desde">Fecha desde</label>
                 <input type="date" id="filtro-an-fecha-desde">
             </div>
             <div style="flex:1; min-width:140px;">
-                <label>Fecha hasta</label>
+                <label data-i18n="an_fecha_hasta">Fecha hasta</label>
                 <input type="date" id="filtro-an-fecha-hasta">
             </div>
-            <button class="btn-verde" onclick="cargarReporteCultivos()">🔍 Filtrar</button>
+            <button class="btn-verde" onclick="cargarReporteCultivos()" data-i18n="an_filtrar">🔍 Filtrar</button>
         </div>
 
         <!-- KPIs resumen -->
@@ -951,11 +951,11 @@
         <!-- Gráfica y tabla -->
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
             <div style="background:white; padding:16px; border-radius:8px; border:1px solid #e0e0e0;">
-                <strong style="font-size:13px; color:#555;">Plantas por tipo de cultivo</strong>
+                <strong style="font-size:13px; color:#555;" data-i18n="an_plantas_tipo">Plantas por tipo de cultivo</strong>
                 <canvas id="graficaCultivosTipo" style="margin-top:10px;"></canvas>
             </div>
             <div style="background:white; padding:16px; border-radius:8px; border:1px solid #e0e0e0;">
-                <strong style="font-size:13px; color:#555;">Siembras por mes</strong>
+                <strong style="font-size:13px; color:#555;" data-i18n="an_siembras_mes">Siembras por mes</strong>
                 <canvas id="graficaCultivosMes" style="margin-top:10px;"></canvas>
             </div>
         </div>
@@ -966,20 +966,20 @@
     <div id="tab-an-cosechas" class="tab-contenido">
         <div class="card" style="margin-bottom:14px; display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;">
             <div style="flex:1; min-width:160px;">
-                <label>Cultivo</label>
+                <label data-i18n="an_cultivo">Cultivo</label>
                 <select id="filtro-an-cultivo-cosecha">
-                    <option value="">Todos los cultivos</option>
+                    <option value="" data-i18n="an_todos_cult">Todos los cultivos</option>
                 </select>
             </div>
             <div style="flex:1; min-width:140px;">
-                <label>Fecha desde</label>
+                <label data-i18n="an_fecha_desde">Fecha desde</label>
                 <input type="date" id="filtro-an-cosecha-desde">
             </div>
             <div style="flex:1; min-width:140px;">
                 <label>Fecha hasta</label>
                 <input type="date" id="filtro-an-cosecha-hasta">
             </div>
-            <button class="btn-verde" onclick="cargarReporteCosechas()">🔍 Filtrar</button>
+            <button class="btn-verde" onclick="cargarReporteCosechas()" data-i18n="an_filtrar">🔍 Filtrar</button>
         </div>
 
         <!-- KPIs resumen cosechas -->
@@ -988,11 +988,11 @@
         <!-- Gráficas cosechas -->
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
             <div style="background:white; padding:16px; border-radius:8px; border:1px solid #e0e0e0;">
-                <strong style="font-size:13px; color:#555;">Cantidad cosechada por cultivo</strong>
+                <strong style="font-size:13px; color:#555;" data-i18n="an_cant_cos">Cantidad cosechada por cultivo</strong>
                 <canvas id="graficaCosechasCultivo" style="margin-top:10px;"></canvas>
             </div>
             <div style="background:white; padding:16px; border-radius:8px; border:1px solid #e0e0e0;">
-                <strong style="font-size:13px; color:#555;">Cosechas por mes</strong>
+                <strong style="font-size:13px; color:#555;" data-i18n="an_cosechas_mes">Cosechas por mes</strong>
                 <canvas id="graficaCosechasMes" style="margin-top:10px;"></canvas>
             </div>
         </div>
@@ -1014,8 +1014,8 @@
 
     <!-- Tabs directamente en la sección -->
     <div class="tabs">
-        <button class="tab-btn activo" onclick="cambiarTabCultivos('tab-sec-cultivos', this)">🌱 Cultivos</button>
-        <button class="tab-btn" onclick="cambiarTabCultivos('tab-sec-cosechas', this)">🌾 Cosechas</button>
+        <button class="tab-btn activo" onclick="cambiarTabCultivos('tab-sec-cultivos', this)" data-i18n="cult_tab_cultivos">🌱 Cultivos</button>
+        <button class="tab-btn" onclick="cambiarTabCultivos('tab-sec-cosechas', this)" data-i18n="cult_tab_cosechas">🌾 Cosechas</button>
     </div>
 
     <div id="tab-sec-cultivos" class="tab-contenido activo">
@@ -1034,8 +1034,8 @@
     <h1 data-i18n="alert_titulo">🔔 Centro de Alertas</h1>
 
     <div class="tabs">
-        <button class="tab-btn activo" onclick="cambiarTabAlerta('tab-historial', this)">📋 Historial de Alertas</button>
-        <button class="tab-btn" onclick="cambiarTabAlerta('tab-parametros', this)">⚙️ Parámetros / Umbrales</button>
+        <button class="tab-btn activo" onclick="cambiarTabAlerta('tab-historial', this)" data-i18n="alert_tab_historial">📋 Historial de Alertas</button>
+        <button class="tab-btn" onclick="cambiarTabAlerta('tab-parametros', this)" data-i18n="alert_tab_params">⚙️ Parámetros / Umbrales</button>
     </div>
 
     <!-- ---- TAB: HISTORIAL ---- -->
@@ -1043,23 +1043,23 @@
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
             <div class="filtros-row" style="flex:1;">
                 <select id="filtro-prioridad" onchange="aplicarFiltros()">
-                    <option value="">Todas las prioridades</option>
-                    <option value="critica">🔴 Crítica</option>
-                    <option value="alta">🟠 Alta</option>
-                    <option value="media">🟡 Media</option>
-                    <option value="baja">🟢 Baja</option>
+                    <option value="" data-i18n="alert_todas_prior">Todas las prioridades</option>
+                    <option value="critica" data-i18n="alert_critica">🔴 Crítica</option>
+                    <option value="alta" data-i18n="alert_alta">🟠 Alta</option>
+                    <option value="media" data-i18n="alert_media">🟡 Media</option>
+                    <option value="baja" data-i18n="alert_baja">🟢 Baja</option>
                 </select>
                 <select id="filtro-estado" onchange="aplicarFiltros()">
-                    <option value="">Todos los estados</option>
-                    <option value="nueva">Nueva</option>
-                    <option value="vista">Vista</option>
-                    <option value="resuelta">Resuelta</option>
+                    <option value="" data-i18n="alert_todos_est">Todos los estados</option>
+                    <option value="nueva" data-i18n="alert_nueva">Nueva</option>
+                    <option value="vista" data-i18n="alert_vista">Vista</option>
+                    <option value="resuelta" data-i18n="alert_resuelta">Resuelta</option>
                 </select>
                 <select id="filtro-sensor-historial" onchange="aplicarFiltros()">
-                    <option value="">Todos los sensores</option>
+                    <option value="" data-i18n="alert_todos_sens">Todos los sensores</option>
                 </select>
             </div>
-            <button class="btn-verde" onclick="cargarHistorialAlertas()">↺ Actualizar</button>
+            <button class="btn-verde" onclick="cargarHistorialAlertas()" data-i18n="alert_actualizar">↺ Actualizar</button>
         </div>
         <div id="tabla-historial-alertas"><p style="color:#888;">Cargando historial...</p></div>
     </div>
@@ -1067,8 +1067,8 @@
     <!-- ---- TAB: PARÁMETROS ---- -->
     <div id="tab-parametros" class="tab-contenido">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <p style="color:#555; font-size:14px;">Define los umbrales que generarán alertas para cada sensor.</p>
-            <button class="btn-verde" onclick="abrirModal('modal-parametro')">+ Nuevo Parámetro</button>
+            <p style="color:#555; font-size:14px;" data-i18n="alert_desc_params">Define los umbrales que generarán alertas para cada sensor.</p>
+            <button class="btn-verde" onclick="abrirModal('modal-parametro')" data-i18n="alert_nuevo_param">+ Nuevo Parámetro</button>
         </div>
         <div id="tabla-parametros-alerta"><p style="color:#888;">Cargando parámetros...</p></div>
     </div>
@@ -1084,7 +1084,7 @@
 
     <!-- Selector de dispositivo -->
     <div class="card" style="margin-bottom:16px;">
-        <label style="font-weight:600;">🔌 Dispositivo a controlar</label>
+        <label style="font-weight:600;" data-i18n="bomba_dispositivo">🔌 Dispositivo a controlar</label>
         <select id="select-bomba-dispositivo" onchange="cambiarDispositivoBomba()"
                 style="margin-top:8px; width:100%; padding:10px; border-radius:8px; border:1px solid #ddd; font-size:14px;">
             <option value="">Cargando dispositivos...</option>
@@ -1106,14 +1106,14 @@
             <div style="font-size:13px; color:#888; margin-top:4px;" id="texto-modo-bomba">Modo: —</div>
         </div>
         <div style="margin-left:auto; display:flex; gap:8px; flex-wrap:wrap;">
-            <button class="btn-verde" onclick="controlManualBomba('encendido')">⚡ Encender ahora</button>
-            <button class="btn-rojo"  onclick="controlManualBomba('apagado')">⏹ Apagar ahora</button>
+            <button class="btn-verde" onclick="controlManualBomba('encendido')" data-i18n="bomba_encender">⚡ Encender ahora</button>
+            <button class="btn-rojo"  onclick="controlManualBomba('apagado')" data-i18n="bomba_apagar">⏹ Apagar ahora</button>
         </div>
     </div>
 
     <!-- Temporizador -->
     <div class="card">
-        <h3 style="margin-bottom:14px; color:#2c3e50;">⏱ Temporizador Automático</h3>
+        <h3 style="margin-bottom:14px; color:#2c3e50;" data-i18n="bomba_temporizador">⏱ Temporizador Automático</h3>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
             <div>
                 <label>Tiempo <strong>ENCENDIDA</strong> (segundos)</label>
@@ -1131,22 +1131,22 @@
             </div>
         </div>
         <div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
-            <button class="btn-verde" onclick="guardarConfigBomba()">💾 Guardar temporizador</button>
-            <button onclick="guardarConfigBomba()">🔄 Volver a modo automático</button>
+            <button class="btn-verde" onclick="guardarConfigBomba()" data-i18n="bomba_guardar">💾 Guardar temporizador</button>
+            <button onclick="guardarConfigBomba()" data-i18n="bomba_modo_auto_btn">🔄 Volver a modo automático</button>
             <span id="msg-config-bomba" style="font-size:13px; color:#27ae60; display:none;">✔ Guardado</span>
         </div>
     </div>
 
     <!-- Nivel de agua -->
     <div class="card" style="margin-top:16px;">
-        <h3 style="margin-bottom:10px; color:#2c3e50;">📏 Nivel de Agua (Sensor Ultrasónico)</h3>
+        <h3 style="margin-bottom:10px; color:#2c3e50;" data-i18n="bomba_nivel">📏 Nivel de Agua (Sensor Ultrasónico)</h3>
         <div id="display-nivel-agua" style="font-size:36px; font-weight:700; color:#2980b9;">— cm</div>
-        <div style="font-size:12px; color:#aaa;" id="fecha-nivel-agua">Sin datos aún</div>
+        <div style="font-size:12px; color:#aaa;" id="fecha-nivel-agua" data-i18n="bomba_sin_datos">Sin datos aún</div>
         <div id="alerta-nivel-bajo" style="
             display:none; margin-top:10px; padding:10px 14px;
             background:#ffebee; border-left:4px solid #c62828;
             border-radius:5px; color:#c62828; font-weight:600;">
-            ⚠️ ¡NIVEL DE AGUA BAJO! Revisa el depósito.
+            ⚠️ ¡<span data-i18n="bomba_nivel_bajo">⚠️ ¡NIVEL DE AGUA BAJO! Revisa el depósito.</span>
         </div>
     </div>
 </div>
@@ -1181,29 +1181,29 @@
         <div>
             <div style="font-size:18px; font-weight:600;" id="userNombre">—</div>
             <div style="color:#666; font-size:14px;" id="userCorreo">—</div>
-            <div style="font-size:12px; color:#999; margin-top:4px;">Haz clic en la foto para cambiarla (máx. 2 MB)</div>
+            <div style="font-size:12px; color:#999; margin-top:4px;" data-i18n="perfil_foto_hint">Haz clic en la foto para cambiarla (máx. 2 MB)</div>
         </div>
     </div>
 
     <!-- Editar nombre -->
     <div class="card" style="margin-top:12px;">
-        <h3>👤 Datos personales</h3>
-        <p style="font-size:13px; color:#888; margin-bottom:14px;">Actualiza tu nombre y apellidos.</p>
-        <label>Nombre(s)</label>
+        <h3 data-i18n="perfil_datos">👤 Datos personales</h3>
+        <p style="font-size:13px; color:#888; margin-bottom:14px;" data-i18n="perfil_datos_desc">Actualiza tu nombre y apellidos.</p>
+        <label data-i18n="perfil_nombre">Nombre(s)</label>
         <input type="text" id="editNombre" placeholder="Tu(s) nombre(s)">
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:2px;">
             <div>
-                <label>Apellido paterno</label>
+                <label data-i18n="perfil_ap_paterno">Apellido paterno</label>
                 <input type="text" id="editApellidoPaterno" placeholder="Apellido paterno">
             </div>
             <div>
-                <label>Apellido materno</label>
+                <label data-i18n="perfil_ap_materno">Apellido materno</label>
                 <input type="text" id="editApellidoMaterno" placeholder="Apellido materno">
             </div>
         </div>
         <div style="display:flex; align-items:center; gap:12px; margin-top:10px; flex-wrap:wrap;">
             <button id="btnActualizarNombre" onclick="actualizarNombrePerfil()" class="btn-verde">
-                Guardar cambios
+                <span data-i18n="perfil_guardar">Guardar cambios</span>
             </button>
             <span id="msgNombre" style="font-size:13px; display:none;"></span>
         </div>
@@ -1211,11 +1211,11 @@
 
     <!-- Seguridad -->
     <div class="card" style="margin-top:12px;">
-        <h3>🔒 Seguridad</h3>
-        <label>Nueva contraseña</label>
+        <h3 data-i18n="perfil_seguridad">🔒 Seguridad</h3>
+        <label data-i18n="perfil_nueva_pass">Nueva contraseña</label>
         <input type="password" id="nuevaPass" placeholder="Mínimo 6 caracteres">
         <button id="btnCambiarPass" onclick="cambiarPassword()" class="btn-verde" style="margin-top:6px;">
-            Actualizar Contraseña
+            <span data-i18n="perfil_actualizar_pass">Actualizar Contraseña</span>
         </button>
     </div>
 
@@ -1236,8 +1236,8 @@
     </div>
 
     <div class="card" style="margin-top:12px;">
-        <h3>❓ Ayuda y Tips de uso</h3>
-        <p style="font-size:13px; color:#888; margin-bottom:16px;">Guía rápida para sacarle el mayor provecho a Aerogarden Cloud.</p>
+        <h3 data-i18n="perfil_ayuda">ℹ️ Ayuda y Tips de uso</h3>
+        <p style="font-size:13px; color:#888; margin-bottom:16px;" data-i18n="ayuda_desc">Guía rápida para sacarle el mayor provecho a Aerogarden Cloud.</p>
 
         <div style="display:flex; flex-direction:column; gap:12px;">
 
@@ -1313,13 +1313,13 @@
 
     <!-- MIEMBROS -->
     <div class="card" style="margin-top:12px;">
-        <h3>👥 Miembros y Accesos</h3>
+        <h3 data-i18n="perfil_miembros">👥 Miembros y Accesos</h3>
         <p style="font-size:13px; color:#888; margin-bottom:14px;">
             Invita a otros usuarios para que vean o controlen tus dispositivos.
         </p>
 
         <!-- Selector de dispositivo -->
-        <label style="font-weight:600;">Dispositivo</label>
+        <label style="font-weight:600;" data-i18n="modal_dispositivo">Dispositivo</label>
         <select id="select-miembros-dispositivo" onchange="cargarMiembros()"
                 style="width:100%; padding:10px; border-radius:8px; border:1px solid #ddd;
                        font-size:14px; margin-top:6px; margin-bottom:16px;">
@@ -1329,21 +1329,21 @@
         <!-- Formulario invitar -->
         <div style="display:grid; grid-template-columns:1fr auto auto; gap:10px; align-items:end; flex-wrap:wrap;">
             <div>
-                <label>Correo del usuario a invitar</label>
+                <label data-i18n="miembro_correo">Correo del usuario a invitar</label>
                 <input type="email" id="input-correo-invitado" placeholder="correo@ejemplo.com"
                        style="margin-top:4px;">
             </div>
             <div>
-                <label>Permiso</label>
+                <label data-i18n="miembro_permiso">Permiso</label>
                 <select id="select-permiso-invitado"
                         style="padding:10px; border-radius:8px; border:1px solid #ddd;
                                font-size:14px; margin-top:4px; width:130px;">
-                    <option value="ver">👁 Solo ver</option>
-                    <option value="controlar">🎮 Controlar</option>
+                    <option value="ver" data-i18n="miembro_solo_ver">👁 Solo ver</option>
+                    <option value="controlar" data-i18n="miembro_controlar">🎮 Controlar</option>
                 </select>
             </div>
             <button onclick="invitarMiembro()" class="btn-verde" style="height:42px; white-space:nowrap;">
-                + Invitar
+                <span data-i18n="miembro_invitar">+ Invitar</span>
             </button>
         </div>
 
@@ -1354,7 +1354,7 @@
 
         <!-- Dispositivos compartidos conmigo -->
         <div style="margin-top:24px; border-top:1px solid #eee; padding-top:16px;">
-            <h4 style="margin-bottom:10px; color:#555;">📲 Dispositivos compartidos contigo</h4>
+            <h4 style="margin-bottom:10px; color:#555;" data-i18n="miembro_compartidos">📲 Dispositivos compartidos contigo</h4>
             <div id="lista-accesos-propios">
                 <p style="color:#aaa; font-size:13px;">Cargando...</p>
             </div>
@@ -1372,7 +1372,7 @@
 
     <!-- Selector de dispositivo -->
     <div class="card" style="margin-bottom:16px;">
-        <label style="font-weight:600;">🔌 Dispositivo a configurar</label>
+        <label style="font-weight:600;" data-i18n="wifi_dispositivo">🔌 Dispositivo a configurar</label>
         <select id="select-wifi-dispositivo" onchange="cambiarDispositivoWifi()"
                 style="margin-top:8px; width:100%; padding:10px; border-radius:8px; border:1px solid #ddd; font-size:14px;">
             <option value="">Cargando dispositivos...</option>
@@ -1381,11 +1381,11 @@
 
     <!-- Estado actual -->
     <div class="card" style="margin-bottom:16px;">
-        <h3>Estado actual del dispositivo</h3>
+        <h3 data-i18n="wifi_estado_actual">Estado actual del dispositivo</h3>
         <div style="display:flex; align-items:center; gap:12px; margin-top:10px;">
             <div id="wifi-estado-icon" style="font-size:28px;">⏳</div>
             <div>
-                <div style="font-weight:600; font-size:15px;" id="wifi-red-actual">Cargando...</div>
+                <div style="font-weight:600; font-size:15px;" id="wifi-red-actual" data-i18n="wifi_consultando">Cargando...</div>
                 <div style="font-size:13px; color:#888;" id="wifi-estado-texto">Consultando estado...</div>
             </div>
         </div>
@@ -1393,14 +1393,14 @@
 
     <!-- Cambiar red -->
     <div class="card">
-        <h3>🔧 Cambiar red WiFi</h3>
+        <h3 data-i18n="wifi_cambiar">🔧 Cambiar red WiFi</h3>
         <p style="font-size:13px; color:#666; margin-bottom:14px;">
             Ingresa el nombre (SSID) y contraseña de la red a la que quieres conectar el Arduino.
             El dispositivo recibirá la nueva configuración y se reconectará automáticamente.
         </p>
-        <label>Nombre de la red (SSID)</label>
+        <label data-i18n="wifi_ssid">Nombre de la red (SSID)</label>
         <input type="text" id="wifi-ssid" placeholder="Ej: MiCasaWiFi">
-        <label style="margin-top:10px;">Contraseña</label>
+        <label style="margin-top:10px;" data-i18n="wifi_pass">Contraseña</label>
         <div style="position:relative;">
             <input type="password" id="wifi-pass" placeholder="Contraseña de la red" style="padding-right:44px;">
             <button onclick="toggleVerPass()" style="
@@ -1409,13 +1409,13 @@
             " title="Ver contraseña">👁️</button>
         </div>
         <button onclick="enviarRedWifi()" class="btn-verde" style="margin-top:14px; width:100%;">
-            📡 Enviar al Arduino
+            <span data-i18n="wifi_enviar">📡 Enviar al Arduino</span>
         </button>
     </div>
 
     <!-- Red actual del Arduino -->
     <div class="card" style="margin-bottom:16px;">
-        <h3>📡 Red actual del Arduino</h3>
+        <h3 data-i18n="wifi_red_arduino">📡 Red actual del Arduino</h3>
         <div id="wifi-red-arduino" style="margin-top:10px; color:#888; font-size:14px;">
             <div style="display:flex; align-items:center; gap:10px;">
                 <span style="font-size:24px;" id="wifi-arduino-icon">⏳</span>
@@ -1423,14 +1423,14 @@
                     <div style="font-weight:600; font-size:15px;" id="wifi-arduino-ssid">Consultando...</div>
                     <div style="font-size:12px; color:#aaa;" id="wifi-arduino-fecha"></div>
                 </div>
-                <button onclick="cargarRedActual()" style="margin-left:auto; padding:6px 12px; font-size:12px;">↺ Actualizar</button>
+                <button onclick="cargarRedActual()" style="margin-left:auto; padding:6px 12px; font-size:12px;" data-i18n="alert_actualizar">↺ Actualizar</button>
             </div>
         </div>
     </div>
 
     <!-- Historial de redes enviadas -->
     <div class="card" style="margin-top:16px;">
-        <h3>📋 Últimas redes configuradas</h3>
+        <h3 data-i18n="wifi_historial">📋 Últimas redes configuradas</h3>
         <div id="wifi-historial" style="margin-top:10px; color:#888; font-size:14px;">
             Cargando historial...
         </div>
@@ -1445,22 +1445,22 @@
 <!-- Modal: Dispositivo -->
 <div id="modal-dispositivo" class="modal-overlay">
     <div class="modal">
-        <h3>Agregar Dispositivo</h3>
-        <label>Nombre</label>
+        <h3 data-i18n="modal_agregar_disp">Agregar Dispositivo</h3>
+        <label data-i18n="modal_nombre">Nombre</label>
         <input type="text" id="nombreDispositivo" placeholder="Ej: Controlador Invernadero 1">
-        <label>Tipo de controlador</label>
+        <label data-i18n="modal_tipo_ctrl">Tipo de controlador</label>
         <select id="tipoControlador">
             <option value="ESP32">ESP32</option>
             <option value="ESP8266">ESP8266</option>
         </select>
-        <label>Conexión</label>
+        <label data-i18n="modal_conexion">Conexión</label>
         <select id="tipoConexion">
             <option value="WiFi">WiFi</option>
             <option value="Ethernet">Ethernet</option>
         </select>
         <div class="modal-botones">
-            <button onclick="guardarDispositivo()">Guardar</button>
-            <button onclick="cerrarModal('modal-dispositivo')">Cancelar</button>
+            <button onclick="guardarDispositivo()" data-i18n="modal_guardar">Guardar</button>
+            <button onclick="cerrarModal('modal-dispositivo'" data-i18n="modal_cancelar">Cancelar</button>
         </div>
     </div>
 </div>
@@ -1468,10 +1468,10 @@
 <!-- Modal: Sensor -->
 <div id="modal-sensor" class="modal-overlay">
     <div class="modal">
-        <h3>Agregar / Configurar Sensor</h3>
-        <label>Dispositivo</label>
+        <h3 data-i18n="modal_agregar_sensor">Agregar / Configurar Sensor</h3>
+        <label data-i18n="modal_dispositivo">Dispositivo</label>
         <select id="selectDispositivoVinculado"></select>
-        <label>Tipo de sensor</label>
+        <label data-i18n="modal_tipo_sensor">Tipo de sensor</label>
         <select id="tipoSensor" onchange="actualizarUnidadSegunTipo()">
             <option value="temperatura">Temperatura</option>
             <option value="humedad">Humedad</option>
@@ -1484,7 +1484,7 @@
             <option value="presion">Presión</option>
             <option value="caudal">Caudal</option>
         </select>
-        <label>Unidad de medida</label>
+        <label data-i18n="modal_unidad">Unidad de medida</label>
         <select id="unidadMedida">
             <option value="°C">°C (Temperatura)</option>
             <option value="%">% (Humedad)</option>
@@ -1497,8 +1497,8 @@
             <option value="L/min">L/min (Caudal)</option>
         </select>
         <div class="modal-botones">
-            <button onclick="guardarSensor()">Guardar sensor</button>
-            <button onclick="cerrarModal('modal-sensor')">Cancelar</button>
+            <button onclick="guardarSensor()" data-i18n="modal_guardar_sensor">Guardar sensor</button>
+            <button onclick="cerrarModal('modal-sensor')" data-i18n="modal_cancelar">Cancelar</button>
         </div>
     </div>
 </div>
@@ -1506,10 +1506,10 @@
 <!-- Modal: Editar Sensor -->
 <div id="modal-editar-sensor" class="modal-overlay" style="display:none;">
     <div class="modal">
-        <h3>✏️ Editar Sensor</h3>
+        <h3 data-i18n="modal_editar_sensor">✏️ Editar Sensor</h3>
         <input type="hidden" id="editSensorId">
         <input type="hidden" id="editSensorIdDispositivo">
-        <label>Tipo de sensor</label>
+        <label data-i18n="modal_tipo_sensor">Tipo de sensor</label>
         <select id="editTipoSensor">
             <option value="temperatura">Temperatura</option>
             <option value="humedad">Humedad</option>
@@ -1522,7 +1522,7 @@
             <option value="presion">Presión</option>
             <option value="caudal">Caudal</option>
         </select>
-        <label>Unidad de medida</label>
+        <label data-i18n="modal_unidad">Unidad de medida</label>
         <select id="editUnidadMedida">
             <option value="°C">°C (Temperatura)</option>
             <option value="%">% (Humedad)</option>
@@ -1535,8 +1535,8 @@
             <option value="L/min">L/min (Caudal)</option>
         </select>
         <div class="modal-botones">
-            <button onclick="guardarEditarSensor()">Guardar cambios</button>
-            <button onclick="document.getElementById('modal-editar-sensor').style.display='none'">Cancelar</button>
+            <button onclick="guardarEditarSensor()" data-i18n="modal_guardar_cambios">Guardar cambios</button>
+            <button onclick="document.getElementById('modal-editar-sensor').style.display='none'" data-i18n="modal_cancelar">Cancelar</button>
         </div>
     </div>
 </div>
@@ -1544,14 +1544,14 @@
 <!-- Modal: Tipo de Cultivo -->
 <div id="modal-tipo-cultivo" class="modal-overlay">
     <div class="modal">
-        <h3>Registrar Nuevo Tipo de Planta</h3>
-        <label>Nombre de la planta</label>
+        <h3 data-i18n="modal_tipo_planta">Registrar Nuevo Tipo de Planta</h3>
+        <label data-i18n="modal_nombre_planta">Nombre de la planta</label>
         <input type="text" id="nombrePlanta" placeholder="Ej: Tomate Cherry">
-        <label>Descripción</label>
+        <label data-i18n="modal_desc_planta">Descripción</label>
         <input type="text" id="descPlanta" placeholder="Breve descripción">
         <div class="modal-botones">
-            <button onclick="guardarTipoCultivo()">Guardar Planta</button>
-            <button onclick="cerrarModal('modal-tipo-cultivo')">Cancelar</button>
+            <button onclick="guardarTipoCultivo()" data-i18n="modal_guardar_planta">Guardar Planta</button>
+            <button onclick="cerrarModal('modal-tipo-cultivo')" data-i18n="modal_cancelar">Cancelar</button>
         </div>
     </div>
 </div>
@@ -1559,18 +1559,18 @@
 <!-- Modal: Siembra -->
 <div id="modal-siembra" class="modal-overlay">
     <div class="modal">
-        <h3>Registrar Siembra</h3>
-        <label>Nombre / Variedad</label>
+        <h3 data-i18n="modal_siembra">Registrar Siembra</h3>
+        <label data-i18n="modal_nombre_var">Nombre / Variedad</label>
         <input type="text" id="nombreCultivo" placeholder="Ej: Lechuga Romana">
-        <label>Tipo de Cultivo</label>
+        <label data-i18n="modal_tipo_cultivo">Tipo de Cultivo</label>
         <select id="selectTipoCultivo"></select>
-        <label>Fecha de siembra</label>
+        <label data-i18n="modal_fecha_siembra">Fecha de siembra</label>
         <input type="date" id="fechaSiembra">
-        <label>Cantidad de plantas</label>
+        <label data-i18n="modal_cantidad">Cantidad de plantas</label>
         <input type="number" id="cantidadPlantas" placeholder="Ej: 50">
         <div class="modal-botones">
-            <button onclick="guardarSiembra()">Guardar Siembra</button>
-            <button onclick="cerrarModal('modal-siembra')">Cancelar</button>
+            <button onclick="guardarSiembra()" data-i18n="modal_guardar_siembra">Guardar Siembra</button>
+            <button onclick="cerrarModal('modal-siembra')" data-i18n="modal_cancelar">Cancelar</button>
         </div>
     </div>
 </div>
@@ -1580,8 +1580,8 @@
     <div class="modal modal-wide">
         <h3>📊 Visualizar Información</h3>
         <div class="tabs">
-            <button class="tab-btn activo" onclick="cambiarTab('tab-cultivos', this)">🌱 Cultivos</button>
-            <button class="tab-btn" onclick="cambiarTab('tab-cosechas', this)">🌾 Cosechas</button>
+            <button class="tab-btn activo" onclick="cambiarTab('tab-cultivos', this)" data-i18n="cult_tab_cultivos">🌱 Cultivos</button>
+            <button class="tab-btn" onclick="cambiarTab('tab-cosechas', this)" data-i18n="cult_tab_cosechas">🌾 Cosechas</button>
         </div>
         <div id="tab-cultivos" class="tab-contenido activo">
             <div id="tabla-cultivos-modal"><p style="color:#888;">Cargando...</p></div>
@@ -1598,21 +1598,21 @@
 <!-- Modal: Cosecha -->
 <div id="modal-cosecha" class="modal-overlay">
     <div class="modal">
-        <h3>Registrar Cosecha</h3>
-        <label>Cultivo</label>
+        <h3 data-i18n="modal_cosecha">Registrar Cosecha</h3>
+        <label data-i18n="modal_cultivo">Cultivo</label>
         <select id="selectCultivoCosecha"></select>
-        <label>Fecha de cosecha</label>
+        <label data-i18n="modal_fecha_cosecha">Fecha de cosecha</label>
         <input type="date" id="fechaCosecha">
-        <label>Cantidad cosechada</label>
+        <label data-i18n="modal_cantidad_cos">Cantidad cosechada</label>
         <input type="number" id="cantidadCosechada" placeholder="Ej: 30">
-        <label>Calidad</label>
+        <label data-i18n="modal_calidad">Calidad</label>
         <input type="text" id="calidadCosecha" placeholder="Ej: Excelente"
                oninput="validarTextoSoloLetras(this)" maxlength="20">
-        <label>Observaciones</label>
+        <label data-i18n="modal_observaciones">Observaciones</label>
         <textarea id="observacionesCosecha" rows="4" maxlength="500"
                   placeholder="Escribe aquí las observaciones..."></textarea>
         <div class="modal-botones">
-            <button onclick="guardarCosecha()">Guardar Cosecha</button>
+            <button onclick="guardarCosecha()" data-i18n="modal_guardar_cosecha">Guardar Cosecha</button>
             <button onclick="cerrarModal('modal-cosecha')">Cancelar</button>
         </div>
     </div>
@@ -1677,7 +1677,7 @@
     <div class="modal">
         <h3>✏️ Editar Cultivo</h3>
         <input type="hidden" id="editCultivoId">
-        <label>Nombre / Variedad</label>
+        <label data-i18n="modal_nombre_var">Nombre / Variedad</label>
         <input type="text" id="editNombreCultivo" placeholder="Ej: Lechuga Romana">
         <label>Tipo de Cultivo</label>
         <select id="editTipoCultivo"></select>
@@ -1696,13 +1696,13 @@
     <div class="modal">
         <h3>✏️ Editar Cosecha</h3>
         <input type="hidden" id="editCosechaId">
-        <label>Fecha de cosecha</label>
+        <label data-i18n="modal_fecha_cosecha">Fecha de cosecha</label>
         <input type="date" id="editFechaCosecha">
-        <label>Cantidad cosechada</label>
+        <label data-i18n="modal_cantidad_cos">Cantidad cosechada</label>
         <input type="number" id="editCantidadCosecha" placeholder="Ej: 30">
-        <label>Calidad</label>
+        <label data-i18n="modal_calidad">Calidad</label>
         <input type="text" id="editCalidadCosecha" placeholder="Ej: Excelente" maxlength="20">
-        <label>Observaciones</label>
+        <label data-i18n="modal_observaciones">Observaciones</label>
         <textarea id="editObservacionesCosecha" rows="3" maxlength="500" placeholder="Observaciones..."></textarea>
         <div class="modal-botones">
             <button class="btn-verde" onclick="guardarEdicionCosecha()">Guardar cambios</button>

@@ -195,13 +195,13 @@ async function cargarMiembros() {
     if (!sel || !sel.value) return;
     const deviceId = parseInt(sel.value);
     const cont = document.getElementById('lista-miembros');
-    cont.innerHTML = '<p style="color:#aaa; font-size:13px;">Cargando...</p>';
+    cont.innerHTML = `<p style="color:#aaa; font-size:13px;">${t('cargando')}</p>`;
     try {
         const res  = await fetch('/api/miembros/lista?device_id=' + deviceId);
         const data = await res.json();
         if (data.error) { cont.innerHTML = `<p style="color:#e74c3c;">${data.error}</p>`; return; }
         if (data.length === 0) {
-            cont.innerHTML = '<p style="color:#aaa; font-size:13px;">Aún no hay miembros en este dispositivo.</p>';
+            cont.innerHTML = `<p style="color:#aaa; font-size:13px;">${t('miembro_sin_miembros')}</p>`;
             return;
         }
         cont.innerHTML = `
@@ -845,17 +845,17 @@ async function guardarSiembra() {
     const nombre   = document.getElementById('nombreCultivo').value;
     const fecha    = document.getElementById('fechaSiembra').value;
     const cantidad = document.getElementById('cantidadPlantas').value;
+    const tamano   = document.getElementById('tamanoPlanta').value;
     const idTipo   = document.getElementById('selectTipoCultivo').value;
 
-    if (!nombre || !fecha || !cantidad || !idTipo) {
+    if (!nombre || !fecha || !cantidad || !tamano || !idTipo) {
         return toast("Completa todos los campos", "warning");
     }
     try {
         const response = await fetch('/api/cultivos/sembrar', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nombre, fecha, cantidad, tamano: 0, idTipo, idSistema: 1 })
-            // tamano se envía como 0 — campo eliminado de la UI pero requerido por la BD
+            body: JSON.stringify({ nombre, fecha, cantidad, tamano, idTipo, idSistema: 1 })
         });
         const result = await response.json();
         if (response.ok && result.status === 'success') {
@@ -2081,7 +2081,7 @@ async function _panelLecturas() {
         const res      = await fetch('/api/sensores/lista');
         const sensores = await res.json();
         if (!Array.isArray(sensores) || sensores.length === 0) {
-            cont.innerHTML = '<div class="inicio-vacio">No hay sensores registrados.</div>'; return;
+            cont.innerHTML = `<div class="inicio-vacio">${t('inicio_sin_sensores')}</div>`; return;
         }
         const slice    = sensores.slice(0, 6);
         const lecturas = await Promise.allSettled(
@@ -2095,15 +2095,12 @@ async function _panelLecturas() {
             const unidad   = hayDato ? (lec.unidad || '') : '';
             const fechaStr = hayDato ? lec.fecha_hora : null;
 
-            // Calcular segundos desde última lectura
             let segsAtras = null;
             if (fechaStr) {
                 const diff = ahora - new Date(fechaStr.replace(' ', 'T'));
                 segsAtras  = Math.floor(diff / 1000);
             }
 
-            // Estado basado en tiempo desde última lectura
-            // Activo: menos de 30s | Sin señal: entre 30s y 5min | Desconectado: más de 5min o sin datos
             const activo      = hayDato && segsAtras !== null && segsAtras <= 30;
             const sinSenal    = hayDato && segsAtras !== null && segsAtras > 30 && segsAtras <= 300;
             const desconectado = !hayDato || (segsAtras !== null && segsAtras > 300);
@@ -2112,17 +2109,16 @@ async function _panelLecturas() {
             let dotClass    = '';
             if (activo) {
                 dotClass    = 'sensor-dot-on';
-                estadoBadge = `<span style="font-size:11px;color:#27ae60;font-weight:600;">● En línea</span>`;
+                estadoBadge = `<span style="font-size:11px;color:#27ae60;font-weight:600;">${t('inicio_en_linea')}</span>`;
             } else if (sinSenal) {
                 dotClass    = 'sensor-dot-off';
                 const mins  = segsAtras < 60 ? segsAtras + 's' : Math.floor(segsAtras/60) + 'm';
-                estadoBadge = `<span style="font-size:11px;color:#e67e22;font-weight:600;">⚠ Sin señal (${mins})</span>`;
+                estadoBadge = `<span style="font-size:11px;color:#e67e22;font-weight:600;">⚠ ${t('inicio_sin_senal')} (${mins})</span>`;
             } else {
                 dotClass    = 'sensor-dot-off';
-                estadoBadge = `<span style="font-size:11px;color:#bbb;">● Desconectado</span>`;
+                estadoBadge = `<span style="font-size:11px;color:#bbb;">${t('inicio_desconectado')}</span>`;
             }
 
-            // Siempre mostrar el último valor guardado (aunque esté desconectado)
             let valorHtml = '';
             if (valor !== null) {
                 const esViejo = sinSenal || desconectado;
@@ -2130,10 +2126,10 @@ async function _panelLecturas() {
                     <div style="text-align:right;">
                         <span class="sensor-valor-big" style="${esViejo ? 'color:#bbb;' : ''}">${valor}</span>
                         <span class="sensor-unidad" style="${esViejo ? 'color:#ccc;' : ''}">${unidad}</span>
-                        ${esViejo ? `<div style="font-size:10px;color:#ccc;">último dato</div>` : ''}
+                        ${esViejo ? `<div style="font-size:10px;color:#ccc;">${t('inicio_ultimo_dato')}</div>` : ''}
                     </div>`;
             } else {
-                valorHtml = `<div style="text-align:right;"><span style="color:#ccc;font-size:13px;">Sin datos</span></div>`;
+                valorHtml = `<div style="text-align:right;"><span style="color:#ccc;font-size:13px;">${t('inicio_sin_datos')}</span></div>`;
             }
 
             return `
@@ -2160,7 +2156,7 @@ async function _panelAlertasRecientes() {
         const res    = await fetch('/api/alertas/historial?limite=5');
         const alertas = await res.json();
         if (!Array.isArray(alertas) || alertas.length === 0) {
-            cont.innerHTML = '<div class="inicio-vacio">✅ Sin alertas recientes.</div>'; return;
+            cont.innerHTML = `<div class="inicio-vacio">${t('inicio_sin_alertas')}</div>`; return;
         }
         const colores = { critica:'badge-rojo', alta:'badge-naranja', media:'badge-amarillo', baja:'badge-verde' };
         cont.innerHTML = alertas.map(a => `
@@ -2184,8 +2180,8 @@ async function _panelCultivos() {
         const res     = await fetch('/api/cultivos/lista');
         const cultivos = await res.json();
         if (!Array.isArray(cultivos) || cultivos.length === 0) {
-            cont.innerHTML = `<div class="inicio-vacio">No hay cultivos registrados.<br>
-                <button style="margin-top:10px;" onclick="mostrarSeccion('seccion-cultivos')">+ Nueva siembra</button>
+            cont.innerHTML = `<div class="inicio-vacio">${t('inicio_sin_cultivos')}<br>
+                <button style="margin-top:10px;" onclick="mostrarSeccion('seccion-cultivos')">${t('inicio_nueva_siembra')}</button>
             </div>`; return;
         }
         cont.innerHTML = cultivos.slice(0, 5).map(c => `
@@ -2217,17 +2213,17 @@ async function _panelBomba() {
                 <div class="bomba-dot ${encendida ? 'bomba-dot-on' : 'bomba-dot-off'}"></div>
                 <div>
                     <div style="font-weight:700;font-size:15px;color:#2c3e50;">
-                        ${encendida ? '⚡ Bomba encendida' : '⏹ Bomba apagada'}
+                        ${encendida ? t('bomba_encendida') : t('bomba_apagada')}
                     </div>
                     <div style="font-size:12px;color:#aaa;margin-top:2px;">
-                        Modo: ${modo === 'automatico' ? '🤖 Automático' : '🖐 Manual'} ·
+                        Modo: ${modo === 'automatico' ? t('bomba_modo_auto').replace('Automático (temporizador)','Automático') : t('bomba_modo_manual')} ·
                         ON ${data.tiempo_on || 30}s / OFF ${data.tiempo_off || 60}s
                     </div>
                 </div>
             </div>
             <div style="padding:0 16px 14px;display:flex;gap:8px;">
-                <button class="btn-verde btn-sm" onclick="controlManualBomba('encendido'); setTimeout(_panelBomba, 800)">⚡ Encender</button>
-                <button class="btn-rojo btn-sm"  onclick="controlManualBomba('apagado');  setTimeout(_panelBomba, 800)">⏹ Apagar</button>
+                <button class="btn-verde btn-sm" onclick="controlManualBomba('encendido'); setTimeout(_panelBomba, 800)">${t('bomba_encender_corto')}</button>
+                <button class="btn-rojo btn-sm"  onclick="controlManualBomba('apagado');  setTimeout(_panelBomba, 800)">${t('bomba_apagar_corto')}</button>
             </div>`;
     } catch (e) {
         cont.innerHTML = '<div class="inicio-vacio" style="color:#e74c3c;">Error al cargar estado.</div>';
@@ -2245,12 +2241,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Actualiza badge de alertas cada 60 segundos
     setInterval(actualizarBadgeNav, 60000);
-
-    // Actualiza lecturas del panel inicio cada 15 segundos si está visible
-    setInterval(() => {
-        const sec = document.getElementById('dashboard-contenido');
-        if (sec && sec.style.display !== 'none') _panelLecturas();
-    }, 15000);
 });
 
 // ============================================================
@@ -2283,7 +2273,7 @@ function actualizarVistaRelevador(data) {
     const txt  = document.getElementById('bomba-estado-texto');
     const secM = document.getElementById('seccion-manual-relay');
     if (dot)  dot.style.background = encendida ? '#27ae60' : '#e74c3c';
-    if (txt)  txt.textContent = encendida ? '⚡ Bomba encendida' : '⏹ Bomba apagada';
+    if (txt)  txt.textContent = encendida ? t('bomba_encendida') : t('bomba_apagada');
     if (secM) secM.style.display = modo === 'manual' ? 'block' : 'none';
 }
 
@@ -2324,7 +2314,7 @@ async function controlManualBomba(estado) {
         });
         const result = await res.json();
         if (res.ok) {
-            toast(estado === 'encendido' ? '⚡ Bomba encendida' : '⏹ Bomba apagada',
+            toast(estado === 'encendido' ? t('bomba_encendida') : t('bomba_apagada'),
                   estado === 'encendido' ? 'success' : 'warning');
             actualizarVistaRelevador(result.config || { modo: 'manual', estado_manual: estado });
         } else { toast('Error al controlar la bomba', 'error'); }
@@ -2342,26 +2332,23 @@ async function cargarRedActual() {
     try {
         const r = await fetch('/api/wifi/estado?device_id=' + dispositivoActualId);
         const d = await r.json();
-
-        // Panel: red actual del Arduino
-        const icon2  = document.getElementById('wifi-arduino-icon');
-        const ssid2  = document.getElementById('wifi-arduino-ssid');
-        const fecha2 = document.getElementById('wifi-arduino-fecha');
+        const icon  = document.getElementById('wifi-estado-icon');
+        const red   = document.getElementById('wifi-red-actual');
+        const texto = document.getElementById('wifi-estado-texto');
 
         if (d.ssid) {
-            if (icon2)  icon2.textContent  = '✅';
-            if (ssid2)  ssid2.textContent  = '📶 ' + d.ssid;
-            if (fecha2) fecha2.textContent = 'Última config enviada: ' + (d.fecha || 'desconocida');
+            icon.textContent  = '✅';
+            red.textContent   = 'Red: ' + d.ssid;
+            texto.textContent = 'Última configuración enviada: ' + (d.fecha || 'desconocida');
         } else {
-            if (icon2)  icon2.textContent  = '❓';
-            if (ssid2)  ssid2.textContent  = 'Sin configuración enviada aún';
-            if (fecha2) fecha2.textContent = 'Usa el formulario para enviar una red al Arduino';
+            icon.textContent  = '❓';
+            red.textContent   = t('wifi_sin_config');
+            texto.textContent = 'Usa el formulario para enviar una red al Arduino';
         }
 
         cargarHistorialWifi();
     } catch(e) {
-        const ssid2 = document.getElementById('wifi-arduino-ssid');
-        if (ssid2) ssid2.textContent = 'Error al consultar estado';
+        document.getElementById('wifi-red-actual').textContent = 'Error al consultar estado';
     }
 }
 
@@ -2372,7 +2359,7 @@ async function cargarHistorialWifi() {
         const cont = document.getElementById('wifi-historial');
 
         if (!d.historial || d.historial.length === 0) {
-            cont.innerHTML = '<p>Aún no has enviado ninguna red.</p>';
+            cont.innerHTML = `<p>${t('wifi_sin_redes')}</p>`;
             return;
         }
 
@@ -2386,7 +2373,7 @@ async function cargarHistorialWifi() {
                 <button onclick="usarRedGuardada('${item.ssid}')"
                     style="padding:5px 12px; border-radius:6px; border:1px solid #27ae60;
                            color:#27ae60; background:white; cursor:pointer; font-size:13px;">
-                    Usar esta
+                    ${t('wifi_usar_esta')}
                 </button>
             </div>
         `).join('');

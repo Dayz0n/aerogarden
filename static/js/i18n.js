@@ -155,6 +155,65 @@ const TRADUCCIONES = {
         modal_desc_planta:      'Descripción',
         modal_guardar_planta:   'Guardar Planta',
 
+
+
+        inicio_sin_senal:    '⚠ Sin señal',
+        inicio_bienvenido:   'Bienvenido,',
+        bomba_encender_corto:'⚡ Encender',
+        bomba_apagar_corto:  '⏹ Apagar',
+        cargando:            'Cargando...',
+        miembro_sin_miembros:'Aún no hay miembros en este dispositivo.',
+
+        // ── ANALÍTICA extra ──
+        an_tipo_cultivo:    'Tipo de cultivo',
+        an_todos_tipos:     'Todos los tipos',
+        an_fecha_desde:     'Fecha desde',
+        an_fecha_hasta:     'Fecha hasta',
+        an_filtrar:         '🔍 Filtrar',
+        an_plantas_tipo:    'Plantas por tipo de cultivo',
+        an_siembras_mes:    'Siembras por mes',
+        an_cultivo:         'Cultivo',
+        an_todos_cult:      'Todos los cultivos',
+        an_cant_cos:        'Cantidad cosechada por cultivo',
+        an_cosechas_mes:    'Cosechas por mes',
+
+        // ── ALERTAS extra ──
+        alert_todas_prior:  'Todas las prioridades',
+        alert_critica:      '🔴 Crítica',
+        alert_alta:         '🟠 Alta',
+        alert_media:        '🟡 Media',
+        alert_baja:         '🟢 Baja',
+        alert_todos_est:    'Todos los estados',
+        alert_nueva:        'Nueva',
+        alert_vista:        'Vista',
+        alert_resuelta:     'Resuelta',
+        alert_todos_sens:   'Todos los sensores',
+        alert_desc_params:  'Define los umbrales que generarán alertas para cada sensor.',
+
+        // ── BOMBA extra ──
+        bomba_modo_auto_btn: '🔄 Volver a modo automático',
+
+        // ── WIFI extra ──
+        wifi_estado_actual:  'Estado actual del dispositivo',
+
+        // ── MIEMBROS ──
+        miembro_correo:      'Correo del usuario a invitar',
+        miembro_permiso:     'Permiso',
+        miembro_solo_ver:    '👁 Solo ver',
+        miembro_controlar:   '🎮 Controlar',
+        miembro_invitar:     '+ Invitar',
+        miembro_compartidos: '📲 Dispositivos compartidos contigo',
+
+        // ── MODALES extra ──
+        modal_editar_sensor:  '✏️ Editar Sensor',
+        modal_guardar_cambios:'Guardar cambios',
+
+        // ── NAV extra ──
+        nav_tagline: 'Cultiva tu futuro',
+
+        // ── AYUDA ──
+        ayuda_desc: 'Guía rápida para sacarle el mayor provecho a Aerogarden Cloud.',
+
         // ── LOGIN ──
         login_titulo:       'Bienvenido de vuelta',
         login_subtitulo:    'Inicia sesión para acceder a tu sistema',
@@ -349,6 +408,132 @@ const TRADUCCIONES = {
         modal_nombre_planta:    'Plant name',
         modal_desc_planta:      'Description',
         modal_guardar_planta:   'Save Plant',
+
+
+
+        inicio_sin_senal:    '⚠ Sin señal',
+        inicio_bienvenido:   'Bienvenido,',
+        bomba_encender_corto:'⚡ Encender',
+        bomba_apagar_corto:  '⏹ Apagar',
+        cargando:            'Cargando...',
+        miembro_sin_miembros:'Aún no hay miembros en este dispositivo.',
+
+        // ── ANALÍTICA extra ──
+        an_tipo_cultivo:    'Tipo de cultivo',
+        an_todos_tipos:     'Todos los tipos',
+        an_fecha_desde:     'Fecha desde',
+        an_fecha_hasta:     'Fecha hasta',
+        an_filtrar:         '🔍 Filtrar',
+        an_plantas_tipo:    'Plantas por tipo de cultivo',
+        an_siembras_mes:    'Siembras por mes',
+        an_cultivo:         'Cultivo',
+        an_todos_cult:      'Todos los cultivos',
+        an_cant_cos:        'Cantidad cosechada por cultivo',
+        an_cosechas_mes:    'Cosechas por mes',
+
+        // ── ALERTAS extra ──
+        alert_todas_prior:  'Todas las prioridades',
+        alert_critica:      '🔴 Crítica',
+        alert_alta:         '🟠 Alta',
+        alert_media:        '🟡 Media',
+        alert_baja:         '🟢 Baja',
+        alert_todos_est:    'Todos los estados',
+        alert_nueva:        'Nueva',
+        alert_vista:        'Vista',
+        alert_resuelta:     'Resuelta',
+        alert_todos_sens:   'Todos los sensores',
+        alert_desc_params:  'Define los umbrales que generarán alertas para cada sensor.',
+
+        // ── BOMBA extra ──
+        bomba_modo_auto_btn: '🔄 Volver a modo automático',
+
+        // ── WIFI extra ──
+        wifi_estado_actual:  'Estado actual del dispositivo',
+
+        // ── MIEMBROS ──
+        miembro_correo:      'Correo del usuario a invitar',
+        miembro_permiso:     'Permiso',
+        miembro_solo_ver:    '👁 Solo ver',
+        miembro_controlar:   '🎮 Controlar',
+        miembro_invitar:     '+ Invitar',
+        miembro_compartidos: '📲 Dispositivos compartidos contigo',
+
+        // ── MODALES extra ──
+        modal_editar_sensor:  '✏️ Editar Sensor',
+        modal_guardar_cambios:'Guardar cambios',
+
+        // ── NAV extra ──
+        nav_tagline: 'Cultiva tu futuro',
+
+        // ── AYUDA ──
+        ayuda_desc: 'Guía rápida para sacarle el mayor provecho a Aerogarden Cloud.',
+
+
+
+        inicio_sin_senal:    '⚠ Sin señal',
+        inicio_bienvenido:   'Bienvenido,',
+        bomba_encender_corto:'⚡ Encender',
+        bomba_apagar_corto:  '⏹ Apagar',
+        cargando:            'Cargando...',
+        miembro_sin_miembros:'Aún no hay miembros en este dispositivo.',
+
+
+        inicio_sin_senal:    '⚠ No signal',
+        inicio_bienvenido:   'Welcome,',
+        bomba_encender_corto:'⚡ Turn on',
+        bomba_apagar_corto:  '⏹ Turn off',
+        cargando:            'Loading...',
+        miembro_sin_miembros:'No members on this device yet.',
+
+        // ── ANALÍTICA extra ──
+        an_tipo_cultivo:    'Crop type',
+        an_todos_tipos:     'All types',
+        an_fecha_desde:     'From date',
+        an_fecha_hasta:     'To date',
+        an_filtrar:         '🔍 Filter',
+        an_plantas_tipo:    'Plants by crop type',
+        an_siembras_mes:    'Plantings by month',
+        an_cultivo:         'Crop',
+        an_todos_cult:      'All crops',
+        an_cant_cos:        'Harvested quantity by crop',
+        an_cosechas_mes:    'Harvests by month',
+
+        // ── ALERTAS extra ──
+        alert_todas_prior:  'All priorities',
+        alert_critica:      '🔴 Critical',
+        alert_alta:         '🟠 High',
+        alert_media:        '🟡 Medium',
+        alert_baja:         '🟢 Low',
+        alert_todos_est:    'All statuses',
+        alert_nueva:        'New',
+        alert_vista:        'Seen',
+        alert_resuelta:     'Resolved',
+        alert_todos_sens:   'All sensors',
+        alert_desc_params:  'Set thresholds that will trigger alerts for each sensor.',
+
+        // ── BOMBA extra ──
+        bomba_modo_auto_btn: '🔄 Back to automatic mode',
+
+        // ── WIFI extra ──
+        wifi_estado_actual:  'Current device status',
+
+        // ── MIEMBROS ──
+        miembro_correo:      'Email of user to invite',
+        miembro_permiso:     'Permission',
+        miembro_solo_ver:    '👁 View only',
+        miembro_controlar:   '🎮 Control',
+        miembro_invitar:     '+ Invite',
+        miembro_compartidos: '📲 Devices shared with you',
+
+        // ── MODALES extra ──
+        modal_editar_sensor:  '✏️ Edit Sensor',
+        modal_guardar_cambios:'Save changes',
+
+        // ── NAV extra ──
+        nav_tagline: 'Grow your future',
+
+        // ── AYUDA ──
+        ayuda_desc: 'Quick guide to get the most out of Aerogarden Cloud.',
 
         // ── LOGIN ──
         login_titulo:       'Welcome back',

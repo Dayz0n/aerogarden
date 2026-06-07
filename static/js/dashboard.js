@@ -984,7 +984,7 @@ async function cargarTablaCultivos() {
         }
         let html = `<table><thead><tr>
             <th>#</th><th>Nombre</th><th>Tipo</th>
-            <th>Fecha Siembra</th><th>Cantidad</th><th>Tamaño</th>
+            <th>Fecha Siembra</th><th>Cantidad</th>
             <th>Acciones</th>
         </tr></thead><tbody>`;
         cultivos.forEach(c => {
@@ -994,7 +994,6 @@ async function cargarTablaCultivos() {
                 <td>${c.tipo_cultivo || '—'}</td>
                 <td>${c.fecha_siembra || '—'}</td>
                 <td>${c.cantidad} plantas</td>
-                <td>${c.tamano_planta ? c.tamano_planta + ' cm' : '—'}</td>
                 <td style="white-space:nowrap;">
                     <button class="btn-naranja btn-sm" onclick='abrirEditarCultivo(${JSON.stringify(c)})'>✏️ Editar</button>
                     <button class="btn-rojo btn-sm"    onclick="eliminarCultivo(${c.idCultivo})">🗑 Eliminar</button>
@@ -1020,7 +1019,6 @@ async function abrirEditarCultivo(c) {
     document.getElementById('editNombreCultivo').value   = c.nombreCultivo;
     document.getElementById('editFechaSiembra').value    = c.fecha_siembra || '';
     document.getElementById('editCantidadPlantas').value = c.cantidad;
-    document.getElementById('editTamanoPlantas').value   = c.tamano_planta || '';
 
     const sel = document.getElementById('editTipoCultivo');
     sel.innerHTML = _tiposCultivoCache.map(t =>
@@ -1596,7 +1594,7 @@ async function cargarTablaCultivosSeccion() {
         </div>
         <table><thead><tr>
             <th>#</th><th>Nombre</th><th>Tipo</th>
-            <th>Fecha Siembra</th><th>Cantidad</th><th>Tamaño</th>
+            <th>Fecha Siembra</th><th>Cantidad</th>
             <th>Acciones</th>
         </tr></thead><tbody>`;
         cultivos.forEach(c => {
@@ -1606,7 +1604,6 @@ async function cargarTablaCultivosSeccion() {
                 <td>${c.tipo_cultivo || '—'}</td>
                 <td>${c.fecha_siembra || '—'}</td>
                 <td>${c.cantidad} plantas</td>
-                <td>${c.tamano_planta ? c.tamano_planta + ' cm' : '—'}</td>
                 <td style="white-space:nowrap;">
                     <button class="btn-naranja btn-sm" onclick='abrirEditarCultivo(${JSON.stringify(c)})'>✏️ Editar</button>
                     <button class="btn-rojo btn-sm" onclick="eliminarCultivoSeccion(${c.idCultivo})">🗑 Eliminar</button>
@@ -1859,7 +1856,7 @@ async function cargarReporteCultivos() {
         return;
     }
     let html = `<table><thead><tr>
-        <th>#</th><th>Nombre</th><th>Tipo</th><th>Fecha Siembra</th><th>Cantidad</th><th>Tamaño</th>
+        <th>#</th><th>Nombre</th><th>Tipo</th><th>Fecha Siembra</th><th>Cantidad</th>
     </tr></thead><tbody>`;
     filtrados.forEach(c => {
         html += `<tr>
@@ -1868,7 +1865,6 @@ async function cargarReporteCultivos() {
             <td>${c.tipo_cultivo || '—'}</td>
             <td>${c.fecha_siembra || '—'}</td>
             <td>${c.cantidad} plantas</td>
-            <td>${c.tamano_planta ? c.tamano_planta + ' cm' : '—'}</td>
         </tr>`;
     });
     html += '</tbody></table>';

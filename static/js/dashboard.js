@@ -845,17 +845,16 @@ async function guardarSiembra() {
     const nombre   = document.getElementById('nombreCultivo').value;
     const fecha    = document.getElementById('fechaSiembra').value;
     const cantidad = document.getElementById('cantidadPlantas').value;
-    const tamano   = document.getElementById('tamanoPlanta').value;
     const idTipo   = document.getElementById('selectTipoCultivo').value;
 
-    if (!nombre || !fecha || !cantidad || !tamano || !idTipo) {
+    if (!nombre || !fecha || !cantidad || !idTipo) {
         return toast("Completa todos los campos", "warning");
     }
     try {
         const response = await fetch('/api/cultivos/sembrar', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nombre, fecha, cantidad, tamano, idTipo, idSistema: 1 })
+            body: JSON.stringify({ nombre, fecha, cantidad, tamano: 0, idTipo, idSistema: 1 })
         });
         const result = await response.json();
         if (response.ok && result.status === 'success') {

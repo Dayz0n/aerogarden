@@ -768,12 +768,9 @@
 </nav>
 
 
-<!-- ============================================================ -->
-<!-- INICIO — PANEL GENERAL                                        -->
-<!-- ============================================================ -->
 <div id="dashboard-contenido">
 
-    <!-- Bienvenida -->
+    
     <div class="inicio-bienvenida">
         <div class="inicio-avatar" id="inicio-avatar">U</div>
         <div>
@@ -782,42 +779,10 @@
         </div>
     </div>
 
-    <!-- KPIs
-    <div class="kpi-grid">
-        <div class="kpi-card" onclick="mostrarSeccion('seccion-hardware')">
-            <div class="kpi-icono kpi-icono-azul">🔌</div>
-            <div>
-                <div class="kpi-valor" id="kpi-dispositivos">—</div>
-                <div class="kpi-label">Dispositivos</div>
-            </div>
-        </div>
-        <div class="kpi-card" onclick="mostrarSeccion('seccion-hardware')">
-            <div class="kpi-icono kpi-icono-verde">📡</div>
-            <div>
-                <div class="kpi-valor" id="kpi-sensores">—</div>
-                <div class="kpi-label">Sensores</div>
-            </div>
-        </div>
-        <div class="kpi-card" onclick="mostrarSeccion('seccion-cultivos')">
-            <div class="kpi-icono kpi-icono-naranja">🌱</div>
-            <div>
-                <div class="kpi-valor" id="kpi-cultivos">—</div>
-                <div class="kpi-label">Cultivos activos</div>
-            </div>
-        </div>
-        <div class="kpi-card" onclick="mostrarSeccion('seccion-alertas'); cargarAlertasSeccion();">
-            <div class="kpi-icono kpi-icono-rojo">🔔</div>
-            <div>
-                <div class="kpi-valor" id="kpi-alertas">—</div>
-                <div class="kpi-label">Alertas nuevas</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Grid inferior -->
+    
     <div class="inicio-grid">
 
-        <!-- Panel: últimas lecturas sensores -->
+        
         <div class="inicio-panel">
             <div class="inicio-panel-header">
                 <strong data-i18n="inicio_lecturas">📡 Lecturas recientes</strong>
@@ -828,7 +793,7 @@
             </div>
         </div>
 
-        <!-- Panel: alertas recientes -->
+        
         <div class="inicio-panel">
             <div class="inicio-panel-header">
                 <strong data-i18n="inicio_alertas">🔔 Alertas recientes</strong>
@@ -839,7 +804,7 @@
             </div>
         </div>
 
-        <!-- Panel: cultivos -->
+        
         <div class="inicio-panel">
             <div class="inicio-panel-header">
                 <strong data-i18n="inicio_cultivos">🌿 Cultivos registrados</strong>
@@ -850,7 +815,7 @@
             </div>
         </div>
 
-        <!-- Panel: estado bomba -->
+        
         <div class="inicio-panel">
             <div class="inicio-panel-header">
                 <strong data-i18n="inicio_bomba">💧 Estado de la Bomba</strong>
@@ -865,9 +830,6 @@
 </div>
 
 
-<!-- ============================================================ -->
-<!-- HARDWARE                                                      -->
-<!-- ============================================================ -->
 <div id="seccion-hardware" class="seccion">
     <h1 data-i18n="hw_titulo">Integración de Hardware</h1>
     <button onclick="abrirModal('modal-dispositivo')" data-i18n="hw_agregar_disp">+ Agregar Dispositivo</button>
@@ -878,9 +840,6 @@
 </div>
 
 
-<!-- ============================================================ -->
-<!-- LÓGICA                                                        -->
-<!-- ============================================================ -->
 <div id="seccion-logica" class="seccion">
     <h1 data-i18n="logica_titulo">Lógica de Control</h1>
     <div class="card" style="margin-bottom:16px;">
@@ -897,9 +856,6 @@
 </div>
 
 
-<!-- ============================================================ -->
-<!-- ANALÍTICA                                                     -->
-<!-- ============================================================ -->
 <div id="seccion-analitica" class="seccion">
     <h1 data-i18n="analitica_titulo">Analítica y Reportes</h1>
 
@@ -909,7 +865,7 @@
         <button class="tab-btn" onclick="cambiarTabAnalitica('tab-an-cosechas', this); cargarReporteCosechas()" data-i18n="analitica_tab_cosechas">🌾 Reporte Cosechas</button>
     </div>
 
-    <!-- Tab Sensores -->
+    
     <div id="tab-an-sensores" class="tab-contenido activo">
         <div class="card" style="margin-bottom:14px;">
             <label style="font-weight:600;" data-i18n="analitica_sensor">Sensor:</label>
@@ -925,7 +881,7 @@
         </div>
     </div>
 
-    <!-- Tab Reporte Cultivos -->
+    
     <div id="tab-an-cultivos" class="tab-contenido">
         <div class="card" style="margin-bottom:14px; display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;">
             <div style="flex:1; min-width:160px;">
@@ -945,10 +901,10 @@
             <button class="btn-verde" onclick="cargarReporteCultivos()" data-i18n="an_filtrar">🔍 Filtrar</button>
         </div>
 
-        <!-- KPIs resumen -->
+        
         <div id="kpi-reporte-cultivos" style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:16px;"></div>
 
-        <!-- Gráfica y tabla -->
+        
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
             <div style="background:white; padding:16px; border-radius:8px; border:1px solid #e0e0e0;">
                 <strong style="font-size:13px; color:#555;" data-i18n="an_plantas_tipo">Plantas por tipo de cultivo</strong>
@@ -962,7 +918,7 @@
         <div id="tabla-reporte-cultivos"><p style="color:#888;">Cargando reporte...</p></div>
     </div>
 
-    <!-- Tab Reporte Cosechas -->
+    
     <div id="tab-an-cosechas" class="tab-contenido">
         <div class="card" style="margin-bottom:14px; display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;">
             <div style="flex:1; min-width:160px;">
@@ -982,10 +938,10 @@
             <button class="btn-verde" onclick="cargarReporteCosechas()" data-i18n="an_filtrar">🔍 Filtrar</button>
         </div>
 
-        <!-- KPIs resumen cosechas -->
+        
         <div id="kpi-reporte-cosechas" style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:16px;"></div>
 
-        <!-- Gráficas cosechas -->
+        
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
             <div style="background:white; padding:16px; border-radius:8px; border:1px solid #e0e0e0;">
                 <strong style="font-size:13px; color:#555;" data-i18n="an_cant_cos">Cantidad cosechada por cultivo</strong>
@@ -1001,9 +957,6 @@
 </div>
 
 
-<!-- ============================================================ -->
-<!-- CULTIVOS                                                      -->
-<!-- ============================================================ -->
 <div id="seccion-cultivos" class="seccion">
     <h1 data-i18n="cult_titulo">Gestión de Cultivos</h1>
     <div style="margin-bottom: 16px;">
@@ -1012,7 +965,7 @@
         <button class="btn-verde" onclick="abrirModal('modal-tipo-cultivo')" data-i18n="cult_agregar_tipo">+ Agregar Tipo de Cultivo</button>
     </div>
 
-    <!-- Tabs directamente en la sección -->
+    
     <div class="tabs">
         <button class="tab-btn activo" onclick="cambiarTabCultivos('tab-sec-cultivos', this)" data-i18n="cult_tab_cultivos">🌱 Cultivos</button>
         <button class="tab-btn" onclick="cambiarTabCultivos('tab-sec-cosechas', this)" data-i18n="cult_tab_cosechas">🌾 Cosechas</button>
@@ -1027,9 +980,6 @@
 </div>
 
 
-<!-- ============================================================ -->
-<!-- ALERTAS                                                       -->
-<!-- ============================================================ -->
 <div id="seccion-alertas" class="seccion">
     <h1 data-i18n="alert_titulo">🔔 Centro de Alertas</h1>
 
@@ -1038,7 +988,7 @@
         <button class="tab-btn" onclick="cambiarTabAlerta('tab-parametros', this)" data-i18n="alert_tab_params">⚙️ Parámetros / Umbrales</button>
     </div>
 
-    <!-- ---- TAB: HISTORIAL ---- -->
+    
     <div id="tab-historial" class="tab-contenido activo">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
             <div class="filtros-row" style="flex:1;">
@@ -1064,7 +1014,7 @@
         <div id="tabla-historial-alertas"><p style="color:#888;">Cargando historial...</p></div>
     </div>
 
-    <!-- ---- TAB: PARÁMETROS ---- -->
+    
     <div id="tab-parametros" class="tab-contenido">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
             <p style="color:#555; font-size:14px;" data-i18n="alert_desc_params">Define los umbrales que generarán alertas para cada sensor.</p>
@@ -1075,14 +1025,10 @@
 </div>
 
 
-
-<!-- ============================================================ -->
-<!-- RELEVADOR / BOMBA                                            -->
-<!-- ============================================================ -->
 <div id="seccion-relevador" class="seccion">
     <h1 data-i18n="bomba_titulo">💧 Control de Bomba / Relevador</h1>
 
-    <!-- Selector de dispositivo -->
+    
     <div class="card" style="margin-bottom:16px;">
         <label style="font-weight:600;" data-i18n="bomba_dispositivo">🔌 Dispositivo a controlar</label>
         <select id="select-bomba-dispositivo" onchange="cambiarDispositivoBomba()"
@@ -1091,7 +1037,7 @@
         </select>
     </div>
 
-    <!-- Estado actual -->
+    
     <div class="card" style="display:flex; align-items:center; gap:20px; flex-wrap:wrap; margin-bottom:16px;">
         <div id="indicador-bomba" style="
             width:64px; height:64px; border-radius:50%;
@@ -1111,7 +1057,7 @@
         </div>
     </div>
 
-    <!-- Temporizador -->
+    
     <div class="card">
         <h3 style="margin-bottom:14px; color:#2c3e50;" data-i18n="bomba_temporizador">⏱ Temporizador Automático</h3>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
@@ -1137,7 +1083,7 @@
         </div>
     </div>
 
-    <!-- Nivel de agua -->
+    
     <div class="card" style="margin-top:16px;">
         <h3 style="margin-bottom:10px; color:#2c3e50;" data-i18n="bomba_nivel">📏 Nivel de Agua (Sensor Ultrasónico)</h3>
         <div id="display-nivel-agua" style="font-size:36px; font-weight:700; color:#2980b9;">— cm</div>
@@ -1151,13 +1097,11 @@
     </div>
 </div>
 
-<!-- ============================================================ -->
-<!-- CONFIGURACIÓN                                                 -->
-<!-- ============================================================ -->
+
 <div id="seccion-configuracion" class="seccion">
     <h1 data-i18n="perfil_titulo">Configuración de Cuenta</h1>
 
-    <!-- Foto de perfil -->
+    
     <div class="card" style="display:flex; align-items:center; gap:24px; flex-wrap:wrap;">
         <div style="position:relative; cursor:pointer;" onclick="document.getElementById('inputFoto').click()">
             <div id="fotoInicial" style="
@@ -1185,7 +1129,7 @@
         </div>
     </div>
 
-    <!-- Editar nombre -->
+    
     <div class="card" style="margin-top:12px;">
         <h3 data-i18n="perfil_datos">👤 Datos personales</h3>
         <p style="font-size:13px; color:#888; margin-bottom:14px;" data-i18n="perfil_datos_desc">Actualiza tu nombre y apellidos.</p>
@@ -1209,7 +1153,7 @@
         </div>
     </div>
 
-    <!-- Seguridad -->
+    
     <div class="card" style="margin-top:12px;">
         <h3 data-i18n="perfil_seguridad">🔒 Seguridad</h3>
         <label data-i18n="perfil_nueva_pass">Nueva contraseña</label>
@@ -1219,7 +1163,7 @@
         </button>
     </div>
 
-    <!-- PREFERENCIAS: selector de idioma -->
+    
     <div class="card" style="margin-top:12px;">
         <h3 data-i18n="perfil_preferencias">🌐 Preferencias</h3>
         <p style="font-size:13px; color:#888; margin-bottom:14px;" data-i18n="perfil_idioma">Idioma de la interfaz</p>
@@ -1311,14 +1255,14 @@
         <p style="font-size:12px; color:#bbb; margin-top:16px; text-align:center;">Aerogarden Cloud v1.0 · Plataforma de gestión de cultivos inteligentes</p>
     </div>
 
-    <!-- MIEMBROS -->
+    
     <div class="card" style="margin-top:12px;">
         <h3 data-i18n="perfil_miembros">👥 Miembros y Accesos</h3>
         <p style="font-size:13px; color:#888; margin-bottom:14px;">
             Invita a otros usuarios para que vean o controlen tus dispositivos.
         </p>
 
-        <!-- Selector de dispositivo -->
+        
         <label style="font-weight:600;" data-i18n="modal_dispositivo">Dispositivo</label>
         <select id="select-miembros-dispositivo" onchange="cargarMiembros()"
                 style="width:100%; padding:10px; border-radius:8px; border:1px solid #ddd;
@@ -1326,7 +1270,7 @@
             <option value="">Cargando...</option>
         </select>
 
-        <!-- Formulario invitar -->
+        
         <div style="display:grid; grid-template-columns:1fr auto auto; gap:10px; align-items:end; flex-wrap:wrap;">
             <div>
                 <label data-i18n="miembro_correo">Correo del usuario a invitar</label>
@@ -1347,12 +1291,12 @@
             </button>
         </div>
 
-        <!-- Lista de miembros -->
+        
         <div id="lista-miembros" style="margin-top:18px;">
             <p style="color:#aaa; font-size:13px;">Selecciona un dispositivo para ver sus miembros.</p>
         </div>
 
-        <!-- Dispositivos compartidos conmigo -->
+        
         <div style="margin-top:24px; border-top:1px solid #eee; padding-top:16px;">
             <h4 style="margin-bottom:10px; color:#555;" data-i18n="miembro_compartidos">📲 Dispositivos compartidos contigo</h4>
             <div id="lista-accesos-propios">
@@ -1361,7 +1305,7 @@
         </div>
     </div>
 
-</div><!-- fin seccion-configuracion -->
+</div>
 
 
 <div id="seccion-wifi" class="seccion">
@@ -1370,7 +1314,7 @@
         <span data-i18n="wifi_descripcion">Desde aquí puedes cambiar la red WiFi a la que se conecta el Arduino/ESP32.</span>
     </p>
 
-    <!-- Selector de dispositivo -->
+    
     <div class="card" style="margin-bottom:16px;">
         <label style="font-weight:600;" data-i18n="wifi_dispositivo">🔌 Dispositivo a configurar</label>
         <select id="select-wifi-dispositivo" onchange="cambiarDispositivoWifi()"
@@ -1379,7 +1323,7 @@
         </select>
     </div>
 
-    <!-- Estado actual -->
+    
     <div class="card" style="margin-bottom:16px;">
         <h3 data-i18n="wifi_estado_actual">Estado actual del dispositivo</h3>
         <div style="display:flex; align-items:center; gap:12px; margin-top:10px;">
@@ -1391,7 +1335,7 @@
         </div>
     </div>
 
-    <!-- Cambiar red -->
+    
     <div class="card">
         <h3 data-i18n="wifi_cambiar">🔧 Cambiar red WiFi</h3>
         <p style="font-size:13px; color:#666; margin-bottom:14px;">
@@ -1413,7 +1357,7 @@
         </button>
     </div>
 
-    <!-- Red actual del Arduino -->
+    
     <div class="card" style="margin-bottom:16px;">
         <h3 data-i18n="wifi_red_arduino">📡 Red actual del Arduino</h3>
         <div id="wifi-red-arduino" style="margin-top:10px; color:#888; font-size:14px;">
@@ -1428,7 +1372,7 @@
         </div>
     </div>
 
-    <!-- Historial de redes enviadas -->
+    
     <div class="card" style="margin-top:16px;">
         <h3 data-i18n="wifi_historial">📋 Últimas redes configuradas</h3>
         <div id="wifi-historial" style="margin-top:10px; color:#888; font-size:14px;">
@@ -1438,11 +1382,6 @@
 </div>
 
 
-<!-- ============================================================ -->
-<!-- MODALES — Existentes                                         -->
-<!-- ============================================================ -->
-
-<!-- Modal: Dispositivo -->
 <div id="modal-dispositivo" class="modal-overlay">
     <div class="modal">
         <h3 data-i18n="modal_agregar_disp">Agregar Dispositivo</h3>
@@ -1465,7 +1404,7 @@
     </div>
 </div>
 
-<!-- Modal: Sensor -->
+
 <div id="modal-sensor" class="modal-overlay">
     <div class="modal">
         <h3 data-i18n="modal_agregar_sensor">Agregar / Configurar Sensor</h3>
@@ -1503,7 +1442,7 @@
     </div>
 </div>
 
-<!-- Modal: Editar Sensor -->
+
 <div id="modal-editar-sensor" class="modal-overlay" style="display:none;">
     <div class="modal">
         <h3 data-i18n="modal_editar_sensor">✏️ Editar Sensor</h3>
@@ -1541,7 +1480,7 @@
     </div>
 </div>
 
-<!-- Modal: Tipo de Cultivo -->
+
 <div id="modal-tipo-cultivo" class="modal-overlay">
     <div class="modal">
         <h3 data-i18n="modal_tipo_planta">Registrar Nuevo Tipo de Planta</h3>
@@ -1556,7 +1495,7 @@
     </div>
 </div>
 
-<!-- Modal: Siembra -->
+
 <div id="modal-siembra" class="modal-overlay">
     <div class="modal">
         <h3 data-i18n="modal_siembra">Registrar Siembra</h3>
@@ -1575,7 +1514,7 @@
     </div>
 </div>
 
-<!-- Modal: Ver Cultivos y Cosechas -->
+
 <div id="modal-cultivo" class="modal-overlay">
     <div class="modal modal-wide">
         <h3>📊 Visualizar Información</h3>
@@ -1595,7 +1534,7 @@
     </div>
 </div>
 
-<!-- Modal: Cosecha -->
+
 <div id="modal-cosecha" class="modal-overlay">
     <div class="modal">
         <h3 data-i18n="modal_cosecha">Registrar Cosecha</h3>
@@ -1619,11 +1558,6 @@
 </div>
 
 
-<!-- ============================================================ -->
-<!-- MODALES — Alertas (nuevos)                                   -->
-<!-- ============================================================ -->
-
-<!-- Modal: Nuevo / Editar Parámetro de Alerta -->
 <div id="modal-parametro" class="modal-overlay">
     <div class="modal">
         <h3 id="titulo-modal-parametro">Nuevo Parámetro de Alerta</h3>
@@ -1659,7 +1593,7 @@
     </div>
 </div>
 
-<!-- Modal: Detalle de Alerta -->
+
 <div id="modal-detalle-alerta" class="modal-overlay">
     <div class="modal">
         <h3>🔔 Detalle de Alerta</h3>
@@ -1672,7 +1606,7 @@
     </div>
 </div>
 
-<!-- Modal: Editar Cultivo -->
+
 <div id="modal-editar-cultivo" class="modal-overlay">
     <div class="modal">
         <h3>✏️ Editar Cultivo</h3>
@@ -1691,7 +1625,7 @@
         </div>
     </div>
 </div>
-<!-- Modal: Editar Cosecha -->
+
 <div id="modal-editar-cosecha" class="modal-overlay">
     <div class="modal">
         <h3>✏️ Editar Cosecha</h3>

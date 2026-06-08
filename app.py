@@ -12,12 +12,8 @@ import string
 app = Flask(__name__, static_folder='static', template_folder='templates')
 CORS(app)
 
-app.secret_key = os.environ.get("SECRET_KEY", "cambia_esta_clave_en_produccion")
+app.secret_key = os.environ.get("SECRET_KEY", "ag_s3cr3t_2024_xK9")
 
-
-# ============================================================
-# BASE DE DATOS
-# ============================================================
 
 def conectar_bd():
     return mysql.connector.connect(
@@ -29,10 +25,6 @@ def conectar_bd():
         charset="utf8mb4"
     )
 
-
-# ============================================================
-# AUTENTICACIÓN
-# ============================================================
 
 def login_requerido(f):
     @wraps(f)
@@ -61,18 +53,12 @@ def get_id_usuario():
         return None
 
 
-# ============================================================
-# CONFIG POR DISPOSITIVO
-# Cada Arduino se identifica con su device_id (= idDispositivo).
-# Las configs se guardan separadas — nunca se mezclan entre usuarios.
-# ============================================================
-
-relay_configs: dict = {}   # cache en memoria para evitar consultas repetidas
+relay_configs: dict = {}   
 relay_lock = threading.Lock()
 
-wifi_pendiente: dict = {}  # wifi_pendiente[device_id] = {ssid, password}
-wifi_actual:    dict = {}  # wifi_actual[device_id]    = {ssid, fecha}
-wifi_historial: dict = {}  # wifi_historial[device_id] = [{ssid, fecha}, ...]
+wifi_pendiente: dict = {}  
+wifi_actual:    dict = {}  
+wifi_historial: dict = {}  
 wifi_lock = threading.Lock()
 
 
@@ -82,7 +68,6 @@ def _relay_default():
 
 
 def get_relay(device_id: int) -> dict:
-    """Lee config del relay desde BD. Si no existe, devuelve valores por defecto."""
     with relay_lock:
         if device_id in relay_configs:
             return relay_configs[device_id].copy()
@@ -115,7 +100,6 @@ def get_relay(device_id: int) -> dict:
 
 
 def set_relay(device_id: int, data: dict):
-    """Guarda config del relay en BD y actualiza el cache."""
     config = {
         "tiempo_on":     int(data.get("tiempo_on",     30)),
         "tiempo_off":    int(data.get("tiempo_off",    60)),
@@ -142,10 +126,6 @@ def set_relay(device_id: int, data: dict):
     with relay_lock:
         relay_configs[device_id] = config
 
-
-# ============================================================
-# CONVERSIÓN DE VALORES
-# ============================================================
 
 def convertir_valor(raw, tipo_conv):
     v = float(raw)
@@ -193,11 +173,7 @@ def guardar_lectura_bd(id_sensor, valor):
         print(f"[BD ERROR] {e}")
 
 
-# ============================================================
-# ENDPOINTS PARA EL ARDUINO — sin sesión, protegidos con token
-# ============================================================
-
-ARDUINO_TOKEN = os.environ.get("ARDUINO_TOKEN", "token_secreto_arduino")
+ARDUINO_TOKEN = os.environ.get("ARDUINO_TOKEN", "ag_hw_tk_8f2a")
 
 TIPO_CONV_MAP = {
     "temperatura": None,
@@ -211,12 +187,6 @@ TIPO_CONV_MAP = {
 
 @app.route('/api/arduino/registrar', methods=['POST'])
 def arduino_registrar():
-    """
-    El Arduino llama esto UNA SOLA VEZ cuando no tiene device_id en EEPROM.
-    Body: { "token": "xxx", "nombre": "MiArduino" }
-    Responde: { "device_id": 3 }
-    El Arduino guarda ese id en EEPROM y ya nunca vuelve a llamar esto.
-    """
     data = request.json or {}
     if data.get("token") != ARDUINO_TOKEN:
         return jsonify({"error": "No autorizado"}), 401
@@ -227,8 +197,6 @@ def arduino_registrar():
         conexion = conectar_bd()
         cursor   = conexion.cursor(dictionary=True)
 
-        # Buscar si ya existe un dispositivo con ese nombre sin usuario asignado
-        # (por si el Arduino se registró antes y perdió la EEPROM)
         cursor.execute(
             "SELECT idDispositivo FROM dispositivos WHERE nombre=%s AND idUsuario IS NULL LIMIT 1",
             (nombre,)
@@ -255,23 +223,6 @@ def arduino_registrar():
 
 @app.route('/api/arduino/datos', methods=['POST'])
 def arduino_datos():
-    """
-    El Arduino Mega manda un POST cada 10 s.
-    Body JSON:
-    {
-      "token":     "token_secreto_arduino",
-      "device_id": 1,
-      "sensores": {
-        "temperatura": 25.3,
-        "humedad":     68.0,
-        "ph":          512,
-        "luz":         780,
-        "distancia":   14.5
-      }
-    }
-    Busca los sensores DEL dispositivo indicado — cada usuario
-    tiene sus propios registros, no hay mezcla.
-    """
     data = request.json or {}
     if data.get("token") != ARDUINO_TOKEN:
         return jsonify({"error": "No autorizado"}), 401
@@ -326,14 +277,6 @@ def arduino_datos():
 
 @app.route('/api/arduino/config', methods=['GET'])
 def arduino_config():
-    """
-    El Arduino consulta esta URL cada ciclo para recibir:
-    - Config del relevador (modo, tiempos, estado manual)
-    - Config WiFi pendiente (si el dashboard mandó nueva red)
-    La WiFi pendiente se entrega UNA SOLA VEZ y se borra.
-
-    GET /api/arduino/config?token=XXX&device_id=1
-    """
     if request.args.get("token") != ARDUINO_TOKEN:
         return jsonify({"error": "No autorizado"}), 401
 
@@ -351,11 +294,6 @@ def arduino_config():
 
 @app.route('/api/arduino/emparejar', methods=['POST'])
 def arduino_emparejar():
-    """
-    El Arduino llama esto la primera vez con su pairing_code.
-    Responde con el device_id si el código es válido y no expirado.
-    El código se invalida después de usarse.
-    """
     data = request.json or {}
     if data.get("token") != ARDUINO_TOKEN:
         return jsonify({"error": "No autorizado"}), 401
@@ -380,7 +318,6 @@ def arduino_emparejar():
 
         device_id = row['idDispositivo']
 
-        # Marcar código como usado
         cursor.execute("""
             UPDATE dispositivos SET pairing_usado = 1 WHERE idDispositivo = %s
         """, (device_id,))
@@ -392,10 +329,6 @@ def arduino_emparejar():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
-# ============================================================
-# RUTAS DE PÁGINAS
-# ============================================================
 
 @app.route('/')
 def home():
@@ -415,10 +348,6 @@ def logout():
     session.pop('usuario_logueado', None)
     return redirect(url_for('home'))
 
-
-# ============================================================
-# AUTENTICACIÓN API
-# ============================================================
 
 @app.route('/api/auth/registrar', methods=['POST'])
 def registrar_usuario():
@@ -549,10 +478,6 @@ def login():
         return jsonify({"status": "error", "mensaje": "Contraseña incorrecta"}), 401
 
 
-# ============================================================
-# USUARIO
-# ============================================================
-
 @app.route('/api/usuario/info', methods=['GET'])
 @login_requerido
 def obtener_usuario():
@@ -649,12 +574,7 @@ def actualizar_foto():
         return jsonify({"error": str(e)}), 500
 
 
-# ============================================================
-# DISPOSITIVOS
-# ============================================================
-
 def _generar_pairing_code():
-    """Genera un código único tipo HIDRO-XXXX."""
     sufijo = ''.join(random.choices(string.digits, k=4))
     return f"HIDRO-{sufijo}"
 
@@ -671,7 +591,6 @@ def agregar_dispositivo():
         cursor   = conexion.cursor()
         id_u     = get_id_usuario()
 
-        # Generar código de emparejamiento único
         for _ in range(10):
             codigo = _generar_pairing_code()
             cursor.execute("SELECT idDispositivo FROM dispositivos WHERE pairing_code = %s", (codigo,))
@@ -698,14 +617,12 @@ def eliminar_dispositivo(id_dispositivo):
         conexion = conectar_bd()
         cursor   = conexion.cursor()
         id_u     = get_id_usuario()
-        # Verificar que el dispositivo pertenece al usuario
         cursor.execute(
             "SELECT idDispositivo FROM dispositivos WHERE idDispositivo=%s AND idUsuario=%s",
             (id_dispositivo, id_u)
         )
         if not cursor.fetchone():
             return jsonify({"status": "error", "mensaje": "Dispositivo no encontrado"}), 404
-        # Borrar hijos en orden correcto (integridad referencial)
         cursor.execute("SELECT idSensore FROM sensores WHERE idDispositivo=%s", (id_dispositivo,))
         ids_sensores = [row[0] for row in cursor.fetchall()]
         for sid in ids_sensores:
@@ -730,7 +647,6 @@ def obtener_lista_dispositivos():
         conexion = conectar_bd()
         cursor   = conexion.cursor(dictionary=True)
         id_u     = get_id_usuario()
-        # Dispositivos propios + dispositivos compartidos como miembro
         cursor.execute("""
             SELECT d.idDispositivo, d.nombre, d.tipo, 'dueno' AS rol
             FROM dispositivos d
@@ -751,10 +667,6 @@ def obtener_lista_dispositivos():
         return jsonify({"status": "error", "mensaje": str(e)}), 500
 
 
-# ============================================================
-# SENSORES
-# ============================================================
-
 @app.route('/api/sensores/agregar', methods=['POST'])
 @login_requerido
 def agregar_sensor():
@@ -763,7 +675,6 @@ def agregar_sensor():
         conexion = conectar_bd()
         cursor   = conexion.cursor()
         id_u     = get_id_usuario()
-        # Verificar que el dispositivo pertenece al usuario
         cursor.execute(
             "SELECT idDispositivo FROM dispositivos WHERE idDispositivo=%s AND idUsuario=%s",
             (data['idDispositivo'], id_u)
@@ -791,7 +702,6 @@ def editar_sensor(id_sensor):
         conexion = conectar_bd()
         cursor   = conexion.cursor()
         id_u     = get_id_usuario()
-        # Verificar que el sensor pertenece a un dispositivo del usuario
         cursor.execute("""
             SELECT s.idSensore FROM sensores s
             INNER JOIN dispositivos d ON s.idDispositivo = d.idDispositivo
@@ -819,7 +729,6 @@ def eliminar_sensor(id_sensor):
         conexion = conectar_bd()
         cursor   = conexion.cursor()
         id_u     = get_id_usuario()
-        # Verificar que el sensor pertenece a un dispositivo del usuario
         cursor.execute("""
             SELECT s.idSensore FROM sensores s
             INNER JOIN dispositivos d ON s.idDispositivo = d.idDispositivo
@@ -924,8 +833,6 @@ def datos_actuales(id_sensor):
         id_u     = get_id_usuario()
         conexion = conectar_bd()
         cursor   = conexion.cursor(dictionary=True)
-
-        # Verificar que el sensor pertenece a un dispositivo propio o compartido
         cursor.execute("""
             SELECT s.idSensore, s.unidad_medida FROM sensores s
             INNER JOIN dispositivos d ON s.idDispositivo = d.idDispositivo
@@ -963,8 +870,6 @@ def obtener_analitica(id_sensor, rango):
         id_u     = get_id_usuario()
         conexion = conectar_bd()
         cursor   = conexion.cursor(dictionary=True)
-
-        # Verificar acceso propio o como miembro
         cursor.execute("""
             SELECT s.idSensore FROM sensores s
             INNER JOIN dispositivos d ON s.idDispositivo = d.idDispositivo
@@ -1000,10 +905,6 @@ def obtener_analitica(id_sensor, rango):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
-# ============================================================
-# CULTIVOS
-# ============================================================
 
 @app.route('/api/cultivos/sembrar', methods=['POST'])
 @login_requerido
@@ -1083,7 +984,6 @@ def eliminar_cultivo(id_cultivo):
         conexion = conectar_bd()
         cursor   = conexion.cursor()
         id_u     = get_id_usuario()
-        # Borrar cosechas vinculadas primero (integridad referencial)
         cursor.execute("DELETE FROM cosecha WHERE idCultivo=%s", (id_cultivo,))
         cursor.execute("DELETE FROM cultivos WHERE idCultivo=%s AND idUsuario=%s", (id_cultivo, id_u))
         conexion.commit()
@@ -1092,10 +992,6 @@ def eliminar_cultivo(id_cultivo):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
-# ============================================================
-# TIPOS DE CULTIVO
-# ============================================================
 
 @app.route('/api/tipo_cultivo/lista', methods=['GET'])
 @login_requerido
@@ -1128,10 +1024,6 @@ def agregar_tipo_cultivo():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
-# ============================================================
-# COSECHAS
-# ============================================================
 
 @app.route('/api/cosechas/registrar', methods=['POST'])
 @login_requerido
@@ -1209,10 +1101,6 @@ def eliminar_cosecha(id_cosecha):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
-# ============================================================
-# ALERTAS — Parámetros
-# ============================================================
 
 @app.route('/api/alertas/parametros/lista', methods=['GET'])
 @login_requerido
@@ -1300,10 +1188,6 @@ def eliminar_parametro(id_param):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
-# ============================================================
-# ALERTAS — Historial
-# ============================================================
 
 @app.route('/api/alertas/historial', methods=['GET'])
 @login_requerido
@@ -1435,10 +1319,6 @@ def conteo_alertas_nuevas():
         return jsonify({"error": str(e)}), 500
 
 
-# ============================================================
-# RELEVADOR — API para el dashboard
-# ============================================================
-
 @app.route('/api/relevador/config', methods=['GET'])
 @login_requerido
 def obtener_config_relevador():
@@ -1479,7 +1359,6 @@ def guardar_config_relevador():
     try:
         conexion = conectar_bd()
         cursor   = conexion.cursor(dictionary=True)
-        # Dueño o miembro con permiso controlar
         cursor.execute("""
             SELECT d.idDispositivo FROM dispositivos d
             WHERE d.idDispositivo = %s AND (
@@ -1527,17 +1406,8 @@ def estado_relevador():
     return jsonify(get_relay(device_id))
 
 
-# ============================================================
-# WIFI — Configurar red del Arduino desde el dashboard
-# ============================================================
-
 @app.route('/api/arduino/reportar_wifi', methods=['POST'])
 def arduino_reportar_wifi():
-    """
-    El Arduino llama esto cada vez que se conecta exitosamente a una red WiFi.
-    Body: { "token": "xxx", "device_id": 1, "ssid": "MiRed" }
-    El dashboard puede consultar esta info en /api/wifi/estado
-    """
     data = request.json or {}
     if data.get("token") != ARDUINO_TOKEN:
         return jsonify({"error": "No autorizado"}), 401
@@ -1579,10 +1449,6 @@ def wifi_historial_endpoint():
 @app.route('/api/wifi/configurar', methods=['POST'])
 @login_requerido
 def wifi_configurar():
-    """
-    Body: {"device_id": 1, "ssid": "MiRed", "password": "clave"}
-    El Arduino la recoge en /api/arduino/config y se reconecta.
-    """
     data      = request.json or {}
     device_id = data.get("device_id")
     ssid      = data.get("ssid", "").strip()
@@ -1607,17 +1473,9 @@ def wifi_configurar():
     return jsonify({"status": "ok", "ssid": ssid})
 
 
-# ============================================================
-# MIEMBROS — Invitar usuarios a ver/controlar dispositivos
-# ============================================================
-
 @app.route('/api/miembros/invitar', methods=['POST'])
 @login_requerido
 def invitar_miembro():
-    """
-    El dueño del dispositivo invita a otro usuario por correo.
-    Body: { "correo": "otro@correo.com", "device_id": 1, "permiso": "ver" | "controlar" }
-    """
     data      = request.json or {}
     correo    = data.get('correo', '').strip().lower()
     device_id = data.get('device_id')
@@ -1633,7 +1491,6 @@ def invitar_miembro():
         conexion = conectar_bd()
         cursor   = conexion.cursor(dictionary=True)
 
-        # Verificar que el dispositivo pertenece al usuario
         cursor.execute(
             "SELECT idDispositivo, nombre FROM dispositivos WHERE idDispositivo=%s AND idUsuario=%s",
             (device_id, id_u)
@@ -1643,19 +1500,16 @@ def invitar_miembro():
             cursor.close(); conexion.close()
             return jsonify({"error": "Dispositivo no encontrado"}), 404
 
-        # Verificar que el correo invitado existe
         cursor.execute("SELECT idUsuario, nombre FROM usuarios WHERE correo=%s", (correo,))
         invitado = cursor.fetchone()
         if not invitado:
             cursor.close(); conexion.close()
             return jsonify({"error": "No existe un usuario con ese correo"}), 404
 
-        # No invitarse a sí mismo
         if invitado['idUsuario'] == id_u:
             cursor.close(); conexion.close()
             return jsonify({"error": "No puedes invitarte a ti mismo"}), 400
 
-        # Insertar o actualizar membresía
         cursor.execute("""
             INSERT INTO dispositivo_miembros (idDispositivo, idUsuario, permiso)
             VALUES (%s, %s, %s)
@@ -1681,7 +1535,6 @@ def listar_miembros():
         conexion = conectar_bd()
         cursor   = conexion.cursor(dictionary=True)
 
-        # Verificar dueño
         cursor.execute(
             "SELECT idDispositivo FROM dispositivos WHERE idDispositivo=%s AND idUsuario=%s",
             (device_id, id_u)
@@ -1717,7 +1570,6 @@ def eliminar_miembro():
         conexion = conectar_bd()
         cursor   = conexion.cursor()
 
-        # Verificar dueño
         cursor.execute(
             "SELECT idDispositivo FROM dispositivos WHERE idDispositivo=%s AND idUsuario=%s",
             (device_id, id_u)
@@ -1759,10 +1611,6 @@ def mis_accesos():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
-# ============================================================
-# INICIO
-# ============================================================
 
 if __name__ == '__main__':
     app.run(

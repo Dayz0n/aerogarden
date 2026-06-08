@@ -1,6 +1,3 @@
-// ============================================================
-// SISTEMA DE NOTIFICACIONES TOAST
-// ============================================================
 function toast(mensaje, tipo = 'info', duracion = 3500) {
     let contenedor = document.getElementById('toast-contenedor');
     if (!contenedor) {
@@ -57,8 +54,6 @@ function cerrarToast(t) {
     t.style.transform = 'translateX(40px)';
     setTimeout(() => t.remove(), 300);
 }
-
-// Modal de confirmación bonito (reemplaza confirm())
 function confirmar(mensaje) {
     return new Promise(function(resolve) {
         var prev = document.getElementById('modal-confirmar-custom');
@@ -102,18 +97,8 @@ function confirmar(mensaje) {
         overlay.onclick = function(e) { if (e.target === overlay) { overlay.remove(); resolve(false); } };
     });
 }
-
-// ============================================================
-// dashboard.js — corregido y mejorado
-// ============================================================
-
-// Variable global: dispositivo seleccionado para WiFi y Bomba
 let dispositivoActualId = null;
-let dispositivosGlobal  = [];   // lista completa cargada al inicio
-
-// ============================================================
-// CARGA GLOBAL DE DISPOSITIVOS (al arrancar)
-// ============================================================
+let dispositivosGlobal  = [];
 async function cargarDispositivosGlobal() {
     try {
         const res = await fetch('/api/dispositivos/lista');
@@ -151,15 +136,11 @@ function cambiarDispositivoBomba() {
     if (typeof ID_SENSOR_NIVEL !== 'undefined') ID_SENSOR_NIVEL = null;
     cargarSeccionRelevador();
 }
-
-// --- 1. Navegación ---
 function mostrarSeccion(idSeccion) {
     const elementos = document.querySelectorAll('.seccion, #dashboard-contenido');
     elementos.forEach(s => { s.style.display = 'none'; });
     const target = document.getElementById(idSeccion);
     if (target) target.style.display = 'block';
-
-    // Recargar datos según la sección a la que se entra
     if (idSeccion === 'dashboard-contenido') cargarDashboardInicio();
     if (idSeccion === 'seccion-hardware')  actualizarListaDispositivos();
     if (idSeccion === 'seccion-wifi')      cargarDispositivosGlobal().then(cargarRedActual);
@@ -169,12 +150,7 @@ function mostrarSeccion(idSeccion) {
     if (idSeccion === 'seccion-configuracion') { cargarSeccionMiembros(); cargarInfoUsuario(); }
 }
 
-// ============================================================
-// MIEMBROS
-// ============================================================
-
 async function cargarSeccionMiembros() {
-    // Llenar select de dispositivos
     const sel = document.getElementById('select-miembros-dispositivo');
     if (!sel) return;
     try {
@@ -185,8 +161,6 @@ async function cargarSeccionMiembros() {
             : devs.map(d => `<option value="${d.idDispositivo}">${d.nombre}</option>`).join('');
         if (devs.length > 0) cargarMiembros();
     } catch(e) { console.error('Error cargando dispositivos miembros:', e); }
-
-    // Cargar dispositivos compartidos conmigo
     cargarAccesosPropios();
 }
 
@@ -299,9 +273,6 @@ async function cargarAccesosPropios() {
             </div>`).join('');
     } catch(e) { cont.innerHTML = '<p style="color:#e74c3c;">Error cargando accesos.</p>'; }
 }
-
-
-// --- 2. Modales ---
 async function abrirModal(idModal) {
     const modal = document.getElementById(idModal);
 
@@ -336,9 +307,6 @@ function mostrarModal(id) {
 document.addEventListener('click', (e) => {
     if (e.target.classList.contains('modal-overlay')) e.target.classList.remove('activo');
 });
-
-
-// --- 3. Dispositivos ---
 async function guardarDispositivo() {
     const data = {
         nombre: document.getElementById('nombreDispositivo').value,
@@ -356,14 +324,13 @@ async function guardarDispositivo() {
     if (response.ok && result.status === 'success') {
         cerrarModal('modal-dispositivo');
         document.getElementById('nombreDispositivo').value = '';
-        await cargarDispositivosGlobal();   // refresca selects de WiFi y Bomba
+        await cargarDispositivosGlobal();
         actualizarListaDispositivos();
         mostrarModalPairing(result.pairing_code);
     }
 }
 
 function mostrarModalPairing(codigo) {
-    // Crear modal dinámico con el código de emparejamiento
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay activo';
     overlay.id = 'modal-pairing-temp';
@@ -375,7 +342,6 @@ function mostrarModalPairing(codigo) {
             </p>
             <div style="background:#f4f4f4; border-radius:8px; padding:16px; margin-bottom:16px;">
                 <code style="font-size:13px; color:#555; display:block; margin-bottom:6px;">
-                    #define PAIRING_CODE  "${codigo}"
                 </code>
                 <div style="font-size:28px; font-weight:800; color:#2c3e50; letter-spacing:4px;">
                     ${codigo}
@@ -398,8 +364,6 @@ function mostrarModalPairing(codigo) {
     `;
     document.body.appendChild(overlay);
 }
-
-// CORREGIDO: Muestra dispositivos Y sus sensores vinculados con estado
 async function actualizarListaDispositivos() {
     const contenedor = document.getElementById('lista-hardware');
     const btnSensor  = document.getElementById('btn-agregar-sensor');
@@ -428,7 +392,6 @@ async function actualizarListaDispositivos() {
         let html = '<h3 style="margin-bottom:12px;">Dispositivos y Sensores Conectados</h3>';
 
         dispositivos.forEach(d => {
-            // Filtrar sensores que pertenecen a este dispositivo
             const sensoresDev = sensores.filter(s => String(s.idDispositivo) === String(d.idDispositivo));
 
             html += `
@@ -447,7 +410,7 @@ async function actualizarListaDispositivos() {
                             ${sensoresDev.length} sensor${sensoresDev.length !== 1 ? 'es' : ''}
                         </span>
                         <button onclick="eliminarDispositivo(${d.idDispositivo}, '${d.nombre}')"
-                            style="padding:4px 10px; border-radius:6px; border:1px solid #e74c3c;
+                            style="padding:4px 10px; border-radius:6px; border:1px solid
                                    color:#e74c3c; background:white; cursor:pointer; font-size:12px;">
                             🗑 Eliminar
                         </button>
@@ -466,12 +429,12 @@ async function actualizarListaDispositivos() {
                         </div>
                         <div style="display:flex; flex-direction:column; gap:4px;">
                             <button onclick="abrirEditarSensor(${s.idSensore}, '${s.tipo_sensor}', '${s.unidad_medida || ''}', ${s.idDispositivo})"
-                                style="padding:3px 8px; border-radius:5px; border:1px solid #3498db;
+                                style="padding:3px 8px; border-radius:5px; border:1px solid
                                        color:#3498db; background:white; cursor:pointer; font-size:11px;">
                                 ✏️
                             </button>
                             <button onclick="eliminarSensor(${s.idSensore}, '${s.tipo_sensor}')"
-                                style="padding:3px 8px; border-radius:5px; border:1px solid #e74c3c;
+                                style="padding:3px 8px; border-radius:5px; border:1px solid
                                        color:#e74c3c; background:white; cursor:pointer; font-size:11px;">
                                 🗑
                             </button>
@@ -562,9 +525,6 @@ async function eliminarSensor(id, tipo) {
         }
     } catch(e) { toast('Error de conexión', 'error'); }
 }
-
-
-// --- 4. Sensores ---
 async function cargarListaDispositivos() {
     const select = document.getElementById('selectDispositivoVinculado');
     const response = await fetch('/api/dispositivos/lista');
@@ -592,8 +552,8 @@ async function guardarSensor() {
     if (response.ok && result.status === 'success') {
         toast('✅ Sensor guardado correctamente', "success");
         cerrarModal('modal-sensor');
-        actualizarListaDispositivos(); // Refrescar la lista de hardware
-        cargarSensoresEnLogica();      // Refrescar también en Lógica
+        actualizarListaDispositivos();
+        cargarSensoresEnLogica();
         cargarSensoresEnAnalitica();
     }
 }
@@ -613,11 +573,6 @@ async function cargarSensoresEnAnalitica() {
         });
     } catch (e) { console.error("Error cargando sensores analítica:", e); }
 }
-
-
-// --- 5. Lógica de Control (CORREGIDO y con gráfica en tiempo real) ---
-
-// CORREGIDO: Se llama con await y popula el select correctamente
 async function cargarSensoresEnLogica() {
     const select = document.getElementById('selectSensorLogica');
     if (!select) return;
@@ -662,9 +617,6 @@ async function verificarEstadoSensor() {
         contenedor.innerHTML = '<p style="color:red;">Error al verificar el sensor.</p>';
     }
 }
-
-
-// Gráfica en tiempo real
 let intervaloVisualizacion = null;
 let graficaTiempoReal      = null;
 const MAX_PUNTOS_GRAFICA   = 30;
@@ -672,13 +624,9 @@ const MAX_PUNTOS_GRAFICA   = 30;
 function visualizarInformacion() {
     const idSensor = document.getElementById('selectSensorLogica').value;
     if (!idSensor) return toast("Selecciona un sensor primero", "warning");
-
-    // Detener intervalo anterior
     if (intervaloVisualizacion) clearInterval(intervaloVisualizacion);
 
     const contenedor = document.getElementById('resultado-logica');
-
-    // Obtener etiqueta del sensor seleccionado
     const select   = document.getElementById('selectSensorLogica');
     const etiqueta = select.options[select.selectedIndex]?.text || `Sensor ${idSensor}`;
 
@@ -694,8 +642,6 @@ function visualizarInformacion() {
             </div>
         </div>
         <canvas id="graficaTiempoReal" height="120"></canvas>`;
-
-    // Inicializar Chart.js
     const ctx = document.getElementById('graficaTiempoReal').getContext('2d');
     if (graficaTiempoReal) graficaTiempoReal.destroy();
 
@@ -727,8 +673,6 @@ function visualizarInformacion() {
             }
         }
     });
-
-    // Función que obtiene dato y lo agrega a la gráfica
     async function obtenerYGraficar() {
         try {
             const res  = await fetch(`/api/sensores/datos-actuales/${idSensor}`);
@@ -742,17 +686,12 @@ function visualizarInformacion() {
 
             const ahora = new Date().toLocaleTimeString();
             const valor = parseFloat(data.valor);
-
-            // Actualizar badge de valor actual
             const badge = document.getElementById('valor-actual-badge');
             if (badge) badge.textContent = `${data.valor} ${data.unidad || ''}`;
-
-            // Agregar punto a la gráfica
             graficaTiempoReal.data.labels.push(ahora);
             graficaTiempoReal.data.datasets[0].data.push(valor);
 
-            // Mantener solo los últimos N puntos
-            if (graficaTiempoReal.data.labels.length > MAX_PUNTOS_GRAFICA) {
+                        if (graficaTiempoReal.data.labels.length > MAX_PUNTOS_GRAFICA) {
                 graficaTiempoReal.data.labels.shift();
                 graficaTiempoReal.data.datasets[0].data.shift();
             }
@@ -763,7 +702,7 @@ function visualizarInformacion() {
         }
     }
 
-    obtenerYGraficar(); // Primera lectura inmediata
+    obtenerYGraficar();
     intervaloVisualizacion = setInterval(obtenerYGraficar, 2000);
 }
 
@@ -778,9 +717,6 @@ function limpiarVisualizacion() {
     }
     document.getElementById('resultado-logica').innerHTML = '';
 }
-
-
-// --- 6. Analítica ---
 let miGrafica = null;
 
 async function cargarGrafica(rango) {
@@ -824,9 +760,6 @@ async function cargarGrafica(rango) {
         }
     });
 }
-
-
-// --- 7. Cultivos ---
 async function cargarTiposCultivo() {
     const select = document.getElementById('selectTipoCultivo');
     if (!select) return;
@@ -884,14 +817,10 @@ async function guardarTipoCultivo() {
         cerrarModal('modal-tipo-cultivo');
         document.getElementById('nombrePlanta').value = '';
         document.getElementById('descPlanta').value   = '';
-        // Recargar dropdown de tipos para que aparezca el nuevo
         await cargarTiposCultivo();
-        _tiposCultivoCache = [];  // limpiar cache para que se recargue en edición
+        _tiposCultivoCache = [];
     } else toast("Error al guardar tipo de cultivo", "error");
 }
-
-
-// --- 8. Cosecha ---
 async function cargarCultivosActivos() {
     const select = document.getElementById('selectCultivoCosecha');
     if (!select) return;
@@ -939,17 +868,11 @@ async function guardarCosecha() {
         else toast("Error al guardar cosecha: " + (result.error || "Revisa los datos"), "error");
     } catch (e) { toast("Error de conexión: " + e.message, "error"); }
 }
-
-
-// --- 9. Validaciones ---
 function validarTextoSoloLetras(input) {
     input.value = input.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
     input.setCustomValidity(input.value.length > 0 && input.value.length < 3
         ? "La calidad debe tener al menos 3 letras." : "");
 }
-
-
-// --- 10. Tabs ---
 function cambiarTab(idTab, btn) {
     document.querySelectorAll('.tab-contenido').forEach(t => t.classList.remove('activo'));
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('activo'));
@@ -967,9 +890,6 @@ function cambiarTabAlerta(idTab, btn) {
     if (idTab === 'tab-historial')  cargarHistorialAlertas();
     if (idTab === 'tab-parametros') cargarParametrosAlerta();
 }
-
-
-// --- 11. Modal cultivos/cosechas ---
 async function cargarCultivosEnModal() {
     await Promise.all([cargarTablaCultivos(), cargarTablaCosechas()]);
 }
@@ -1004,17 +924,13 @@ async function cargarTablaCultivos() {
         contenedor.innerHTML = html;
     } catch (e) { contenedor.innerHTML = '<p style="color:red;">Error al cargar cultivos.</p>'; }
 }
-
-// ── EDITAR CULTIVO ──────────────────────────────────────────
 let _tiposCultivoCache = [];
 
 async function abrirEditarCultivo(c) {
-    // Cargar tipos si no están cargados
     if (_tiposCultivoCache.length === 0) {
         const res = await fetch('/api/tipo_cultivo/lista');
         _tiposCultivoCache = await res.json();
     }
-    // Rellenar el modal de edición
     document.getElementById('editCultivoId').value       = c.idCultivo;
     document.getElementById('editNombreCultivo').value   = c.nombreCultivo;
     document.getElementById('editFechaSiembra').value    = c.fecha_siembra || '';
@@ -1027,8 +943,6 @@ async function abrirEditarCultivo(c) {
 
     abrirModal('modal-editar-cultivo');
 }
-
-// guardarEdicionCultivo — definición completa más abajo (sección 15)
 
 async function eliminarCultivo(id) {
     if (!await confirmar('¿Eliminar este cultivo? También se eliminarán sus cosechas asociadas.')) return;
@@ -1044,8 +958,6 @@ async function eliminarCultivo(id) {
         } else { toast('Error: ' + (data.error || 'desconocido'), 'error'); }
     } catch(e) { toast('Error de red: ' + e, 'error'); }
 }
-
-// ── TABLA COSECHAS ──────────────────────────────────────────
 async function cargarTablaCosechas() {
     const contenedor = document.getElementById('tabla-cosechas-modal');
     contenedor.innerHTML = '<p style="color:#888;">Cargando...</p>';
@@ -1076,8 +988,6 @@ async function cargarTablaCosechas() {
         contenedor.innerHTML = html;
     } catch (e) { contenedor.innerHTML = '<p style="color:red;">Error al cargar cosechas.</p>'; }
 }
-
-// ── EDITAR COSECHA ──────────────────────────────────────────
 function abrirEditarCosecha(cs) {
     document.getElementById('editCosechaId').value           = cs.idCosecha;
     document.getElementById('editFechaCosecha').value        = cs.fecha || '';
@@ -1086,8 +996,6 @@ function abrirEditarCosecha(cs) {
     document.getElementById('editObservacionesCosecha').value= cs.observaciones || '';
     abrirModal('modal-editar-cosecha');
 }
-
-// guardarEdicionCosecha — definición completa más abajo (sección 15)
 
 async function eliminarCosecha(id) {
     if (!await confirmar('¿Seguro que quieres eliminar esta cosecha?')) return;
@@ -1101,29 +1009,20 @@ async function eliminarCosecha(id) {
         } else { toast('Error: ' + (data.error || 'desconocido'), 'error'); }
     } catch(e) { toast('Error de red: ' + e, 'error'); }
 }
-
-
-// --- 12. Usuario ---
 async function cargarInfoUsuario() {
     try {
         const res  = await fetch('/api/usuario/info');
         const user = await res.json();
-
-        // Nombre completo
         const nombreCompleto = [user.nombre, user.apellido_paterno, user.apellido_materno]
             .filter(Boolean).join(' ');
         document.getElementById('userNombre').textContent = nombreCompleto || '—';
         document.getElementById('userCorreo').textContent = user.correo || '—';
-
-        // Pre-llenar campos de edición
         const eN = document.getElementById('editNombre');
         const eP = document.getElementById('editApellidoPaterno');
         const eM = document.getElementById('editApellidoMaterno');
         if (eN) eN.value = user.nombre || '';
         if (eP) eP.value = user.apellido_paterno || '';
         if (eM) eM.value = user.apellido_materno || '';
-
-        // Cargar foto de perfil si existe
         const fotoEl = document.getElementById('fotoPerfil');
         const initEl = document.getElementById('fotoInicial');
         if (user.foto_perfil && fotoEl) {
@@ -1164,7 +1063,6 @@ async function actualizarNombrePerfil() {
 
         if (res.ok && data.status === 'success') {
             if (msgEl) { msgEl.textContent = '✅ Nombre actualizado.'; msgEl.style.color = '#1e7e4a'; msgEl.style.display = 'inline'; }
-            // Refrescar nombre mostrado
             const nombreCompleto = [nombre, apellido_paterno, apellido_materno].join(' ');
             const uN = document.getElementById('userNombre');
             if (uN) uN.textContent = nombreCompleto;
@@ -1222,9 +1120,7 @@ async function subirFotoPerfil(input) {
 
     const reader = new FileReader();
     reader.onload = async (e) => {
-        const base64 = e.target.result; // data:image/...;base64,...
-
-        // Mostrar preview inmediato
+        const base64 = e.target.result;
         const fotoEl = document.getElementById('fotoPerfil');
         const initEl = document.getElementById('fotoInicial');
         if (fotoEl) { fotoEl.src = base64; fotoEl.style.display = 'block'; }
@@ -1244,11 +1140,6 @@ async function subirFotoPerfil(input) {
     };
     reader.readAsDataURL(file);
 }
-
-
-// ============================================================
-// --- 13. MÓDULO DE ALERTAS ---
-// ============================================================
 
 function badgePrioridad(p) {
     const mapa  = { critica: 'badge-rojo', alta: 'badge-naranja', media: 'badge-amarillo', baja: 'badge-verde' };
@@ -1558,11 +1449,6 @@ function limpiarFormParametro() {
     document.getElementById('paramActivo').value    = '1';
 }
 
-
-// ============================================================
-// --- 15. CULTIVOS EN SECCIÓN (sin modal) ---
-// ============================================================
-
 function cambiarTabCultivos(idTab, btn) {
     const seccion = document.getElementById('seccion-cultivos');
     seccion.querySelectorAll('.tab-contenido').forEach(t => t.classList.remove('activo'));
@@ -1628,8 +1514,6 @@ async function eliminarCultivoSeccion(id) {
         } else { toast('Error: ' + (data.error || 'desconocido'), 'error'); }
     } catch(e) { toast('Error de red: ' + e, "error"); }
 }
-
-// Override de guardarEdicionCultivo para refrescar tabla de sección también
 async function guardarEdicionCultivo() {
     const id = document.getElementById('editCultivoId').value;
     const body = {
@@ -1710,8 +1594,6 @@ async function eliminarCosechaSeccion(id) {
         } else { toast('Error: ' + (data.error || 'desconocido'), 'error'); }
     } catch(e) { toast('Error de red: ' + e, "error"); }
 }
-
-// Override de guardarEdicionCosecha para refrescar tabla de sección
 async function guardarEdicionCosecha() {
     const id = document.getElementById('editCosechaId').value;
     const body = {
@@ -1735,31 +1617,22 @@ async function guardarEdicionCosecha() {
     } catch(e) { toast('Error de red: ' + e, "error"); }
 }
 
-
-// ============================================================
-// --- 16. ANALÍTICA — REPORTES DE CULTIVOS Y COSECHAS ---
-// ============================================================
-
 function cambiarTabAnalitica(idTab, btn) {
     const seccion = document.getElementById('seccion-analitica');
     seccion.querySelectorAll('.tab-contenido').forEach(t => t.classList.remove('activo'));
     seccion.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('activo'));
     document.getElementById(idTab).classList.add('activo');
     btn.classList.add('activo');
-    // Cargar datos al cambiar tab
     if (idTab === 'tab-an-cultivos')  cargarReporteCultivos();
     if (idTab === 'tab-an-cosechas')  cargarReporteCosechas();
     if (idTab === 'tab-an-sensores')  cargarSensoresEnAnalitica();
 }
-
-// Gráficas reutilizables de analítica
 let _grafCultivosTipo = null;
 let _grafCultivosMes  = null;
 let _grafCosechasCult = null;
 let _grafCosechasMes  = null;
 
 async function cargarReporteCultivos() {
-    // Cargar tipos en el filtro
     try {
         const tipos = await (await fetch('/api/tipo_cultivo/lista')).json();
         const sel = document.getElementById('filtro-an-tipo-cultivo');
@@ -1780,8 +1653,6 @@ async function cargarReporteCultivos() {
         document.getElementById('tabla-reporte-cultivos').innerHTML = '<p style="color:red;">Error al cargar datos.</p>';
         return;
     }
-
-    // Aplicar filtros
     const tipoFiltro  = document.getElementById('filtro-an-tipo-cultivo')?.value || '';
     const desdeStr    = document.getElementById('filtro-an-fecha-desde')?.value || '';
     const hastaStr    = document.getElementById('filtro-an-fecha-hasta')?.value || '';
@@ -1790,8 +1661,6 @@ async function cargarReporteCultivos() {
     if (tipoFiltro) filtrados = filtrados.filter(c => String(c.idTipo_Cultivo) === tipoFiltro);
     if (desdeStr)   filtrados = filtrados.filter(c => c.fecha_siembra >= desdeStr);
     if (hastaStr)   filtrados = filtrados.filter(c => c.fecha_siembra <= hastaStr);
-
-    // KPIs
     const totalPlantas = filtrados.reduce((s, c) => s + (parseInt(c.cantidad) || 0), 0);
     const tipos = [...new Set(filtrados.map(c => c.tipo_cultivo).filter(Boolean))];
     document.getElementById('kpi-reporte-cultivos').innerHTML = `
@@ -1807,8 +1676,6 @@ async function cargarReporteCultivos() {
             <div class="kpi-icono kpi-icono-azul">🏷️</div>
             <div><div class="kpi-valor">${tipos.length}</div><div class="kpi-label">Tipos distintos</div></div>
         </div>`;
-
-    // Gráfica: plantas por tipo
     const porTipo = {};
     filtrados.forEach(c => {
         const t = c.tipo_cultivo || 'Sin tipo';
@@ -1827,12 +1694,10 @@ async function cargarReporteCultivos() {
             options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
         });
     }
-
-    // Gráfica: siembras por mes
     const porMes = {};
     filtrados.forEach(c => {
         if (!c.fecha_siembra) return;
-        const mes = c.fecha_siembra.substring(0, 7); // YYYY-MM
+        const mes = c.fecha_siembra.substring(0, 7);
         porMes[mes] = (porMes[mes] || 0) + 1;
     });
     const mesesOrden = Object.keys(porMes).sort();
@@ -1848,8 +1713,6 @@ async function cargarReporteCultivos() {
             options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
         });
     }
-
-    // Tabla
     const tabla = document.getElementById('tabla-reporte-cultivos');
     if (filtrados.length === 0) {
         tabla.innerHTML = '<p style="color:#888; text-align:center; padding:20px;">No hay cultivos con los filtros aplicados.</p>';
@@ -1872,7 +1735,6 @@ async function cargarReporteCultivos() {
 }
 
 async function cargarReporteCosechas() {
-    // Cargar cultivos en el filtro
     try {
         const cultivos = await (await fetch('/api/cultivos/lista')).json();
         const sel = document.getElementById('filtro-an-cultivo-cosecha');
@@ -1893,8 +1755,6 @@ async function cargarReporteCosechas() {
         document.getElementById('tabla-reporte-cosechas').innerHTML = '<p style="color:red;">Error al cargar datos.</p>';
         return;
     }
-
-    // Aplicar filtros
     const cultFiltro = document.getElementById('filtro-an-cultivo-cosecha')?.value || '';
     const desdeStr   = document.getElementById('filtro-an-cosecha-desde')?.value || '';
     const hastaStr   = document.getElementById('filtro-an-cosecha-hasta')?.value || '';
@@ -1903,8 +1763,6 @@ async function cargarReporteCosechas() {
     if (cultFiltro) filtradas = filtradas.filter(c => String(c.idCultivo) === cultFiltro);
     if (desdeStr)   filtradas = filtradas.filter(c => c.fecha >= desdeStr);
     if (hastaStr)   filtradas = filtradas.filter(c => c.fecha <= hastaStr);
-
-    // KPIs
     const totalCant = filtradas.reduce((s, c) => s + (parseFloat(c.cantidad) || 0), 0);
     const cultivos  = [...new Set(filtradas.map(c => c.nombreCultivo).filter(Boolean))];
     document.getElementById('kpi-reporte-cosechas').innerHTML = `
@@ -1920,8 +1778,6 @@ async function cargarReporteCosechas() {
             <div class="kpi-icono kpi-icono-azul">🌱</div>
             <div><div class="kpi-valor">${cultivos.length}</div><div class="kpi-label">Cultivos involucrados</div></div>
         </div>`;
-
-    // Gráfica: cantidad por cultivo
     const porCultivo = {};
     filtradas.forEach(c => {
         const k = c.nombreCultivo || 'Sin nombre';
@@ -1940,8 +1796,6 @@ async function cargarReporteCosechas() {
             options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
         });
     }
-
-    // Gráfica: cosechas por mes
     const porMes = {};
     filtradas.forEach(c => {
         if (!c.fecha) return;
@@ -1963,8 +1817,6 @@ async function cargarReporteCosechas() {
             options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
         });
     }
-
-    // Tabla
     const tabla = document.getElementById('tabla-reporte-cosechas');
     if (filtradas.length === 0) {
         tabla.innerHTML = '<p style="color:#888; text-align:center; padding:20px;">No hay cosechas con los filtros aplicados.</p>';
@@ -1987,16 +1839,7 @@ async function cargarReporteCosechas() {
     tabla.innerHTML = html;
 }
 
-
-// ============================================================
-// --- 14. Inicialización Global ---
-// ============================================================
-// ============================================================
-// DASHBOARD INICIO — Panel General
-// ============================================================
-
 async function cargarDashboardInicio() {
-    // Fecha actual
     const fechaEl = document.getElementById('inicio-fecha');
     if (fechaEl) {
         const ahora = new Date();
@@ -2004,8 +1847,6 @@ async function cargarDashboardInicio() {
             weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
         });
     }
-
-    // Nombre de usuario y foto en bienvenida
     const nombreEl  = document.getElementById('inicio-nombre');
     const avatarEl  = document.getElementById('inicio-avatar');
     try {
@@ -2023,8 +1864,6 @@ async function cargarDashboardInicio() {
             }
         }
     } catch (e) {}
-
-    // KPIs + paneles en paralelo
     await Promise.allSettled([
         _kpiDispSensores(),
         _kpiCultivos(),
@@ -2226,7 +2065,7 @@ async function _panelBomba() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    await cargarDispositivosGlobal();   // ← carga dispositivos y setea dispositivoActualId
+    await cargarDispositivosGlobal();
     cargarDashboardInicio();
     await actualizarListaDispositivos();
     await cargarSensoresEnLogica();
@@ -2234,13 +2073,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     cargarInfoUsuario();
     actualizarBadgeNav();
 
-    // Actualiza badge de alertas cada 60 segundos
-    setInterval(actualizarBadgeNav, 60000);
+        setInterval(actualizarBadgeNav, 60000);
 });
 
-// ============================================================
-// SECCION RELEVADOR / BOMBA
-// ============================================================
 
 async function cargarSeccionRelevador() {
     if (!dispositivoActualId) await cargarDispositivosGlobal();
@@ -2316,9 +2151,6 @@ async function controlManualBomba(estado) {
     } catch (e) { toast('Error de conexión', 'error'); }
 }
 
-// ============================================================
-// SECCION WIFI — Configurar red del Arduino desde el dashboard
-// ============================================================
 
 async function cargarRedActual() {
     if (!dispositivoActualId) {
@@ -2366,7 +2198,7 @@ async function cargarHistorialWifi() {
                     <div style="font-size:12px; color:#999;">${item.fecha}</div>
                 </div>
                 <button onclick="usarRedGuardada('${item.ssid}')"
-                    style="padding:5px 12px; border-radius:6px; border:1px solid #27ae60;
+                    style="padding:5px 12px; border-radius:6px; border:1px solid
                            color:#27ae60; background:white; cursor:pointer; font-size:13px;">
                     ${t('wifi_usar_esta')}
                 </button>

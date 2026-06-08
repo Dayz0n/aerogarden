@@ -1,12 +1,6 @@
-// ================================================================
-//  i18n.js — Sistema de traducciones AeroGarden Cloud
-//  Uso: window.t('clave')  →  texto en el idioma activo
-//       setIdioma('en')    →  cambia y guarda el idioma
-// ================================================================
 
 const TRADUCCIONES = {
     es: {
-        // ── NAV ──
         nav_inicio:       'Inicio',
         nav_hardware:     'Hardware',
         nav_logica:       'Lógica',
@@ -17,8 +11,6 @@ const TRADUCCIONES = {
         nav_wifi:         'WiFi',
         nav_perfil:       'Perfil',
         nav_cerrar:       'Cerrar sesión',
-
-        // ── INICIO ──
         inicio_bienvenido:      'Bienvenido,',
         inicio_lecturas:        '📡 Lecturas recientes',
         inicio_ver_en_vivo:     'Ver en vivo →',
@@ -36,21 +28,15 @@ const TRADUCCIONES = {
         inicio_sin_datos:       'Sin datos',
         inicio_ultimo_dato:     'último dato',
         inicio_desconectado:    '● Desconectado',
-
-        // ── HARDWARE ──
         hw_titulo:          'Integración de Hardware',
         hw_agregar_disp:    '+ Agregar Dispositivo',
         hw_agregar_sensor:  '+ Agregar Sensor',
         hw_lista_titulo:    'Dispositivos y Sensores Conectados',
-
-        // ── LÓGICA ──
         logica_titulo:          'Lógica de Control',
         logica_sel_sensor:      'Seleccionar Sensor:',
         logica_sel_placeholder: '-- Seleccione un sensor --',
         logica_verificar:       '🔍 Verificar Estado',
         logica_visualizar:      '📈 Visualizar en Tiempo Real',
-
-        // ── ANALÍTICA ──
         analitica_titulo:       'Analítica y Reportes',
         analitica_tab_sensores: '📡 Sensores',
         analitica_tab_cultivos: '🌱 Reporte Cultivos',
@@ -59,23 +45,17 @@ const TRADUCCIONES = {
         analitica_ahora:        'Ahora (1h)',
         analitica_24h:          'Últimas 24h',
         analitica_semana:       'Última Semana',
-
-        // ── CULTIVOS ──
         cult_titulo:            'Gestión de Cultivos',
         cult_registrar_siembra: '🌱 Registrar Siembra',
         cult_registrar_cosecha: '🌾 Registrar Cosecha',
         cult_agregar_tipo:      '+ Agregar Tipo de Cultivo',
         cult_tab_cultivos:      '🌱 Cultivos',
         cult_tab_cosechas:      '🌾 Cosechas',
-
-        // ── ALERTAS ──
         alert_titulo:           '🔔 Centro de Alertas',
         alert_tab_historial:    '📋 Historial de Alertas',
         alert_tab_params:       '⚙️ Parámetros / Umbrales',
         alert_nuevo_param:      '+ Nuevo Parámetro',
         alert_actualizar:       '↺ Actualizar',
-
-        // ── BOMBA ──
         bomba_titulo:       '💧 Control de Bomba / Relevador',
         bomba_dispositivo:  '🔌 Dispositivo a controlar',
         bomba_encender:     '⚡ Encender ahora',
@@ -91,8 +71,6 @@ const TRADUCCIONES = {
         bomba_apagada:      'Estado: APAGADA ⚫',
         bomba_modo_manual:  'Modo: Manual',
         bomba_modo_auto:    'Modo: Automático (temporizador)',
-
-        // ── WIFI ──
         wifi_titulo:        '📶 Configuración de Red WiFi',
         wifi_descripcion:   'Desde aquí puedes cambiar la red WiFi a la que se conecta el Arduino/ESP32.',
         wifi_dispositivo:   '🔌 Dispositivo a configurar',
@@ -107,8 +85,6 @@ const TRADUCCIONES = {
         wifi_usar_esta:     'Usar esta',
         wifi_consultando:   'Consultando...',
         wifi_actualizar:    '↺ Actualizar',
-
-        // ── PERFIL ──
         perfil_titulo:          'Configuración de Cuenta',
         perfil_datos:           '👤 Datos personales',
         perfil_datos_desc:      'Actualiza tu nombre y apellidos.',
@@ -124,8 +100,6 @@ const TRADUCCIONES = {
         perfil_preferencias:    '🌐 Preferencias',
         perfil_idioma:          'Idioma de la interfaz',
         perfil_foto_hint:       'Haz clic en la foto para cambiarla (máx. 2 MB)',
-
-        // ── MODALES ──
         modal_agregar_disp:     'Agregar Dispositivo',
         modal_nombre:           'Nombre',
         modal_tipo_ctrl:        'Tipo de controlador',
@@ -156,15 +130,12 @@ const TRADUCCIONES = {
         modal_guardar_planta:   'Guardar Planta',
 
 
-
         inicio_sin_senal:    '⚠ Sin señal',
         inicio_bienvenido:   'Bienvenido,',
         bomba_encender_corto:'⚡ Encender',
         bomba_apagar_corto:  '⏹ Apagar',
         cargando:            'Cargando...',
         miembro_sin_miembros:'Aún no hay miembros en este dispositivo.',
-
-        // ── ANALÍTICA extra ──
         an_tipo_cultivo:    'Tipo de cultivo',
         an_todos_tipos:     'Todos los tipos',
         an_fecha_desde:     'Fecha desde',
@@ -176,8 +147,6 @@ const TRADUCCIONES = {
         an_todos_cult:      'Todos los cultivos',
         an_cant_cos:        'Cantidad cosechada por cultivo',
         an_cosechas_mes:    'Cosechas por mes',
-
-        // ── ALERTAS extra ──
         alert_todas_prior:  'Todas las prioridades',
         alert_critica:      '🔴 Crítica',
         alert_alta:         '🟠 Alta',
@@ -189,32 +158,18 @@ const TRADUCCIONES = {
         alert_resuelta:     'Resuelta',
         alert_todos_sens:   'Todos los sensores',
         alert_desc_params:  'Define los umbrales que generarán alertas para cada sensor.',
-
-        // ── BOMBA extra ──
         bomba_modo_auto_btn: '🔄 Volver a modo automático',
-
-        // ── WIFI extra ──
         wifi_estado_actual:  'Estado actual del dispositivo',
-
-        // ── MIEMBROS ──
         miembro_correo:      'Correo del usuario a invitar',
         miembro_permiso:     'Permiso',
         miembro_solo_ver:    '👁 Solo ver',
         miembro_controlar:   '🎮 Controlar',
         miembro_invitar:     '+ Invitar',
         miembro_compartidos: '📲 Dispositivos compartidos contigo',
-
-        // ── MODALES extra ──
         modal_editar_sensor:  '✏️ Editar Sensor',
         modal_guardar_cambios:'Guardar cambios',
-
-        // ── NAV extra ──
         nav_tagline: 'Cultiva tu futuro',
-
-        // ── AYUDA ──
         ayuda_desc: 'Guía rápida para sacarle el mayor provecho a Aerogarden Cloud.',
-
-        // ── LOGIN ──
         login_titulo:       'Bienvenido de vuelta',
         login_subtitulo:    'Inicia sesión para acceder a tu sistema',
         login_correo:       'Correo electrónico',
@@ -227,8 +182,6 @@ const TRADUCCIONES = {
         login_tagline1:     'Cultiva smarter,',
         login_tagline2:     'crece mejor',
         login_tagline_desc: 'Monitorea sensores, gestiona cultivos y recibe alertas en tiempo real desde un solo lugar.',
-
-        // ── RECUPERAR CONTRASEÑA ──
         rec_titulo:         'Restablecer contraseña',
         rec_subtitulo:      'Ingresa tu correo registrado y elige una nueva contraseña.',
         rec_correo:         'Correo electrónico',
@@ -238,8 +191,6 @@ const TRADUCCIONES = {
         rec_confirmar:      'Confirmar contraseña',
         rec_guardar:        'Guardar nueva contraseña',
         rec_volver:         '← Volver al inicio de sesión',
-
-        // ── REGISTRO ──
         reg_titulo:         'Crea tu cuenta',
         reg_subtitulo:      'Empieza a gestionar tus cultivos hoy.',
         reg_nombre:         'Nombre(s)',
@@ -260,7 +211,6 @@ const TRADUCCIONES = {
     },
 
     en: {
-        // ── NAV ──
         nav_inicio:       'Home',
         nav_hardware:     'Hardware',
         nav_logica:       'Control',
@@ -271,8 +221,6 @@ const TRADUCCIONES = {
         nav_wifi:         'WiFi',
         nav_perfil:       'Profile',
         nav_cerrar:       'Log out',
-
-        // ── INICIO ──
         inicio_bienvenido:      'Welcome,',
         inicio_lecturas:        '📡 Recent readings',
         inicio_ver_en_vivo:     'View live →',
@@ -290,21 +238,15 @@ const TRADUCCIONES = {
         inicio_sin_datos:       'No data',
         inicio_ultimo_dato:     'last reading',
         inicio_desconectado:    '● Disconnected',
-
-        // ── HARDWARE ──
         hw_titulo:          'Hardware Integration',
         hw_agregar_disp:    '+ Add Device',
         hw_agregar_sensor:  '+ Add Sensor',
         hw_lista_titulo:    'Connected Devices and Sensors',
-
-        // ── LÓGICA ──
         logica_titulo:          'Control Logic',
         logica_sel_sensor:      'Select Sensor:',
         logica_sel_placeholder: '-- Select a sensor --',
         logica_verificar:       '🔍 Check Status',
         logica_visualizar:      '📈 Visualize in Real Time',
-
-        // ── ANALÍTICA ──
         analitica_titulo:       'Analytics & Reports',
         analitica_tab_sensores: '📡 Sensors',
         analitica_tab_cultivos: '🌱 Crops Report',
@@ -313,23 +255,17 @@ const TRADUCCIONES = {
         analitica_ahora:        'Now (1h)',
         analitica_24h:          'Last 24h',
         analitica_semana:       'Last Week',
-
-        // ── CULTIVOS ──
         cult_titulo:            'Crop Management',
         cult_registrar_siembra: '🌱 Register Planting',
         cult_registrar_cosecha: '🌾 Register Harvest',
         cult_agregar_tipo:      '+ Add Crop Type',
         cult_tab_cultivos:      '🌱 Crops',
         cult_tab_cosechas:      '🌾 Harvests',
-
-        // ── ALERTAS ──
         alert_titulo:           '🔔 Alert Center',
         alert_tab_historial:    '📋 Alert History',
         alert_tab_params:       '⚙️ Parameters / Thresholds',
         alert_nuevo_param:      '+ New Parameter',
         alert_actualizar:       '↺ Refresh',
-
-        // ── BOMBA ──
         bomba_titulo:       '💧 Pump / Relay Control',
         bomba_dispositivo:  '🔌 Device to control',
         bomba_encender:     '⚡ Turn on now',
@@ -345,8 +281,6 @@ const TRADUCCIONES = {
         bomba_apagada:      'Status: OFF ⚫',
         bomba_modo_manual:  'Mode: Manual',
         bomba_modo_auto:    'Mode: Automatic (timer)',
-
-        // ── WIFI ──
         wifi_titulo:        '📶 WiFi Network Settings',
         wifi_descripcion:   'Change the WiFi network your Arduino/ESP32 connects to.',
         wifi_dispositivo:   '🔌 Device to configure',
@@ -361,8 +295,6 @@ const TRADUCCIONES = {
         wifi_usar_esta:     'Use this',
         wifi_consultando:   'Checking...',
         wifi_actualizar:    '↺ Refresh',
-
-        // ── PERFIL ──
         perfil_titulo:          'Account Settings',
         perfil_datos:           '👤 Personal data',
         perfil_datos_desc:      'Update your name and last names.',
@@ -378,8 +310,6 @@ const TRADUCCIONES = {
         perfil_preferencias:    '🌐 Preferences',
         perfil_idioma:          'Interface language',
         perfil_foto_hint:       'Click the photo to change it (max 2 MB)',
-
-        // ── MODALES ──
         modal_agregar_disp:     'Add Device',
         modal_nombre:           'Name',
         modal_tipo_ctrl:        'Controller type',
@@ -410,15 +340,12 @@ const TRADUCCIONES = {
         modal_guardar_planta:   'Save Plant',
 
 
-
         inicio_sin_senal:    '⚠ Sin señal',
         inicio_bienvenido:   'Bienvenido,',
         bomba_encender_corto:'⚡ Encender',
         bomba_apagar_corto:  '⏹ Apagar',
         cargando:            'Cargando...',
         miembro_sin_miembros:'Aún no hay miembros en este dispositivo.',
-
-        // ── ANALÍTICA extra ──
         an_tipo_cultivo:    'Tipo de cultivo',
         an_todos_tipos:     'Todos los tipos',
         an_fecha_desde:     'Fecha desde',
@@ -430,8 +357,6 @@ const TRADUCCIONES = {
         an_todos_cult:      'Todos los cultivos',
         an_cant_cos:        'Cantidad cosechada por cultivo',
         an_cosechas_mes:    'Cosechas por mes',
-
-        // ── ALERTAS extra ──
         alert_todas_prior:  'Todas las prioridades',
         alert_critica:      '🔴 Crítica',
         alert_alta:         '🟠 Alta',
@@ -443,31 +368,18 @@ const TRADUCCIONES = {
         alert_resuelta:     'Resuelta',
         alert_todos_sens:   'Todos los sensores',
         alert_desc_params:  'Define los umbrales que generarán alertas para cada sensor.',
-
-        // ── BOMBA extra ──
         bomba_modo_auto_btn: '🔄 Volver a modo automático',
-
-        // ── WIFI extra ──
         wifi_estado_actual:  'Estado actual del dispositivo',
-
-        // ── MIEMBROS ──
         miembro_correo:      'Correo del usuario a invitar',
         miembro_permiso:     'Permiso',
         miembro_solo_ver:    '👁 Solo ver',
         miembro_controlar:   '🎮 Controlar',
         miembro_invitar:     '+ Invitar',
         miembro_compartidos: '📲 Dispositivos compartidos contigo',
-
-        // ── MODALES extra ──
         modal_editar_sensor:  '✏️ Editar Sensor',
         modal_guardar_cambios:'Guardar cambios',
-
-        // ── NAV extra ──
         nav_tagline: 'Cultiva tu futuro',
-
-        // ── AYUDA ──
         ayuda_desc: 'Guía rápida para sacarle el mayor provecho a Aerogarden Cloud.',
-
 
 
         inicio_sin_senal:    '⚠ Sin señal',
@@ -484,8 +396,6 @@ const TRADUCCIONES = {
         bomba_apagar_corto:  '⏹ Turn off',
         cargando:            'Loading...',
         miembro_sin_miembros:'No members on this device yet.',
-
-        // ── ANALÍTICA extra ──
         an_tipo_cultivo:    'Crop type',
         an_todos_tipos:     'All types',
         an_fecha_desde:     'From date',
@@ -497,8 +407,6 @@ const TRADUCCIONES = {
         an_todos_cult:      'All crops',
         an_cant_cos:        'Harvested quantity by crop',
         an_cosechas_mes:    'Harvests by month',
-
-        // ── ALERTAS extra ──
         alert_todas_prior:  'All priorities',
         alert_critica:      '🔴 Critical',
         alert_alta:         '🟠 High',
@@ -510,32 +418,18 @@ const TRADUCCIONES = {
         alert_resuelta:     'Resolved',
         alert_todos_sens:   'All sensors',
         alert_desc_params:  'Set thresholds that will trigger alerts for each sensor.',
-
-        // ── BOMBA extra ──
         bomba_modo_auto_btn: '🔄 Back to automatic mode',
-
-        // ── WIFI extra ──
         wifi_estado_actual:  'Current device status',
-
-        // ── MIEMBROS ──
         miembro_correo:      'Email of user to invite',
         miembro_permiso:     'Permission',
         miembro_solo_ver:    '👁 View only',
         miembro_controlar:   '🎮 Control',
         miembro_invitar:     '+ Invite',
         miembro_compartidos: '📲 Devices shared with you',
-
-        // ── MODALES extra ──
         modal_editar_sensor:  '✏️ Edit Sensor',
         modal_guardar_cambios:'Save changes',
-
-        // ── NAV extra ──
         nav_tagline: 'Grow your future',
-
-        // ── AYUDA ──
         ayuda_desc: 'Quick guide to get the most out of Aerogarden Cloud.',
-
-        // ── LOGIN ──
         login_titulo:       'Welcome back',
         login_subtitulo:    'Sign in to access your system',
         login_correo:       'Email address',
@@ -548,8 +442,6 @@ const TRADUCCIONES = {
         login_tagline1:     'Grow smarter,',
         login_tagline2:     'grow better',
         login_tagline_desc: 'Monitor sensors, manage crops and receive real-time alerts from one place.',
-
-        // ── RECUPERAR CONTRASEÑA ──
         rec_titulo:         'Reset password',
         rec_subtitulo:      'Enter your registered email and choose a new password.',
         rec_correo:         'Email address',
@@ -559,8 +451,6 @@ const TRADUCCIONES = {
         rec_confirmar:      'Confirm password',
         rec_guardar:        'Save new password',
         rec_volver:         '← Back to login',
-
-        // ── REGISTRO ──
         reg_titulo:         'Create your account',
         reg_subtitulo:      'Start managing your crops today.',
         reg_nombre:         'First name(s)',
@@ -581,8 +471,6 @@ const TRADUCCIONES = {
     }
 };
 
-// ── API pública ──
-
 function getIdioma() {
     return localStorage.getItem('ag_idioma') || 'es';
 }
@@ -600,24 +488,17 @@ function t(clave) {
 }
 
 function aplicarIdioma() {
-    // Traduce todos los elementos con data-i18n="clave"
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const clave = el.getAttribute('data-i18n');
-        const attr  = el.getAttribute('data-i18n-attr'); // opcional: traduce un atributo
+        const attr  = el.getAttribute('data-i18n-attr');
         if (attr) {
             el.setAttribute(attr, t(clave));
         } else {
             el.textContent = t(clave);
         }
     });
-
-    // Actualiza el selector de idioma si existe
     const sel = document.getElementById('select-idioma');
     if (sel) sel.value = getIdioma();
-
-    // Actualiza el atributo lang del html
     document.documentElement.lang = getIdioma();
 }
-
-// Aplicar al cargar la página
 document.addEventListener('DOMContentLoaded', aplicarIdioma);

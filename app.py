@@ -1228,9 +1228,12 @@ def listar_parametros():
             FROM parametros_alerta p
             JOIN sensores s ON p.idSensor = s.idSensore
             JOIN dispositivos d ON s.idDispositivo = d.idDispositivo
-            WHERE d.idUsuario = %s
+            WHERE (d.idUsuario = %s OR EXISTS (
+                SELECT 1 FROM dispositivo_miembros dm
+                WHERE dm.idDispositivo = d.idDispositivo AND dm.idUsuario = %s
+            ))
             ORDER BY p.prioridad DESC, p.idParametro DESC
-        """, (id_u,))
+        """, (id_u, id_u))
         datos = cursor.fetchall()
         cursor.close(); conexion.close()
         return jsonify(datos)
@@ -1322,7 +1325,9 @@ def historial_alertas():
             condiciones.append("h.idSensor = %s");  valores.append(id_sensor)
 
         id_u = get_id_usuario()
-        condiciones.append("d.idUsuario = %s"); valores.append(id_u)
+        condiciones.append("(d.idUsuario = %s OR EXISTS (SELECT 1 FROM dispositivo_miembros dm WHERE dm.idDispositivo = d.idDispositivo AND dm.idUsuario = %s))")
+        valores.append(id_u)
+        valores.append(id_u)
         where = "WHERE " + " AND ".join(condiciones)
 
         conexion = conectar_bd()
@@ -1418,8 +1423,11 @@ def conteo_alertas_nuevas():
             SELECT COUNT(*) FROM historial_alertas h
             JOIN sensores s ON h.idSensor = s.idSensore
             JOIN dispositivos d ON s.idDispositivo = d.idDispositivo
-            WHERE h.estado='nueva' AND d.idUsuario=%s
-        """, (id_u,))
+            WHERE h.estado='nueva' AND (d.idUsuario=%s OR EXISTS (
+                SELECT 1 FROM dispositivo_miembros dm
+                WHERE dm.idDispositivo = d.idDispositivo AND dm.idUsuario = %s
+            ))
+        """, (id_u, id_u))
         total = cursor.fetchone()[0]
         cursor.close(); conexion.close()
         return jsonify({"nuevas": total})
